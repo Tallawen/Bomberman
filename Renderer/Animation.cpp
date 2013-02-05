@@ -7,6 +7,11 @@ Animation::Animation(sf::Sprite *_sprite, const SpriteData &_info, bool _autoDra
 	timePerFrame = float(1 / float(info.frame));
 	timeAccumulation = 0;
 
+	rotationAngle = 0.f;
+	rotationSpeed = 0.f;
+	rotationTimeAccumulation = 0.f;
+	rotationDirection = Animation::RotationDirection::none;
+
 	sprite->SetSubRect(sf::IntRect(0, 0, info.dimensions.x, info.dimensions.y));
 }
 
@@ -40,7 +45,9 @@ void Animation::process(float dt) {
 		}
 	}
 
-if(autoDraw) draw();
+	rotate(dt);
+
+	if(autoDraw) draw();
 }
 
 void Animation::play() {
@@ -76,4 +83,35 @@ sf::Vector2f Animation::getPos() {
 
 SpriteData Animation::getSpriteInfo() {
   return info;
+}
+
+void Animation::rotate(RotationDirection rd, float speed) {
+	if(rotationDirection == RotationDirection::none && rd != RotationDirection::none) {
+		sprite->SetCenter(info.dimensions.x / 2, info.dimensions.y / 2);
+		sprite->Move(info.dimensions.x / 2, -info.dimensions.y / 2);
+	} else 	if(rotationDirection != RotationDirection::none && rd != RotationDirection::none) {
+		sprite->SetCenter(info.dimensions.x / 2, info.dimensions.y / 2);
+		sprite->Move(-info.dimensions.x / 2, info.dimensions.y / 2);
+		sprite->Move(info.dimensions.x / 2, -info.dimensions.y / 2);
+	} else if (rotationDirection != RotationDirection::none && rd == RotationDirection::none) {
+		sprite->SetCenter(0, info.dimensions.y);
+		sprite->Move(-info.dimensions.x / 2, info.dimensions.y / 2);
+	}
+
+	rotationSpeed = 1.f / (speed * 60);
+	rotationTimeAccumulation = 0;
+	rotationDirection = rd;
+
+	rotationDirection == RotationDirection::left ? rotationAngle = -1 : rotationAngle = 1;
+}
+
+void Animation::rotate(float dt) {
+	if(rotationDirection == RotationDirection::none) return;
+
+	rotationTimeAccumulation += dt;
+	while(rotationTimeAccumulation > rotationSpeed) {
+		sprite->Rotate(rotationAngle * dt);
+
+		rotationTimeAccumulation -= rotationSpeed;
+	}
 }

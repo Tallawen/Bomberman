@@ -59,100 +59,63 @@ void Player::update(float dt) {
 	}
 }
 
-bool Player::isAnyFieldBelowMe(World *ptr, sf::Vector2i pos) {
-	if(pos.x < 0 || pos.y+1 > ptr->mapDimensions.y) return true;
-	if(ptr->world.find((pos.y+1) * ptr->mapDimensions.x + pos.x) == ptr->world.end()) return false;
-	if(ptr->world[(pos.y+1) * ptr->mapDimensions.x + pos.x].find(0) == ptr->world[(pos.y+1) * ptr->mapDimensions.x + pos.x].end()) return false;
+bool Player::isAnyField(World *ptr, sf::Vector2i pos, Aabb::Position pos2, sf::Color color) {
+	int id;
+	switch(pos2) {
+	    case Aabb::Position::above:
+	    	if(pos.x < 0 || pos.y-1 < 0) return true;
+	    	id = (pos.y-1) * ptr->mapDimensions.x + pos.x;
+	      break;
 
-	Entity* entityPtr = ptr->world[(pos.y+1) * ptr->mapDimensions.x + pos.x][0];
+	    case Aabb::Position::below:
+	    	if(pos.x < 0 || pos.y+1 > ptr->mapDimensions.y) return true;
+	    	id = (pos.y+1) * ptr->mapDimensions.x + pos.x;
+	      break;
 
-	//sf::Vector2f startAabb = entityPtr->info.position;
+	    case Aabb::Position::left:
+	    	if(pos.x-1 < 0 || pos.y < 0) return true;
+	    	id = pos.y * ptr->mapDimensions.x + (pos.x-1);
+	      break;
+
+	    case Aabb::Position::right:
+	    	if(pos.x+1 > ptr->mapDimensions.x || pos.y < 0) return true;
+	    	id = pos.y * ptr->mapDimensions.x + (pos.x+1);
+	      break;
+	}
+
+	if(ptr->world.find(id) == ptr->world.end()) return false;
+	if(ptr->world[id].find(World::DisplayOrder::block) == ptr->world[id].end()) return false;
+
+	Entity* entityPtr = ptr->world[id][World::DisplayOrder::block];
+
 	sf::Vector2f startAabb = entityPtr->info.position + sf::Vector2f(0, -18);
 	sf::Vector2f stopAabb = entityPtr->info.position + sf::Vector2f(ptr->floorData.dimensions.x, -ptr->floorData.dimensions.y);
 
 	Aabb tileAabb(startAabb, stopAabb);
 	Aabb currentAabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y));
 
-	Window::instance()->drawAabb(tileAabb, sf::Color::Blue);
+	Window::instance()->drawAabb(tileAabb, color);
 
   return currentAabb.collides(tileAabb);
 }
 
-bool Player::isAnyFieldAboveMe(World *ptr, sf::Vector2i pos) {
-	if(pos.x < 0 || pos.y-1 < 0) return true;
-	if(ptr->world.find((pos.y-1) * ptr->mapDimensions.x + pos.x) == ptr->world.end()) return false;
-	if(ptr->world[(pos.y-1) * ptr->mapDimensions.x + pos.x].find(0) == ptr->world[(pos.y-1) * ptr->mapDimensions.x + pos.x].end()) return false;
-
-	Entity* entityPtr = ptr->world[(pos.y-1) * ptr->mapDimensions.x + pos.x][0];
-
-	sf::Vector2f startAabb = entityPtr->info.position + sf::Vector2f(0, -18);
-	sf::Vector2f stopAabb = entityPtr->info.position + sf::Vector2f(ptr->floorData.dimensions.x, -ptr->floorData.dimensions.y);
-
-	Aabb tileAabb(startAabb, stopAabb);
-	Aabb currentAabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y));
-
-	Window::instance()->drawAabb(tileAabb, sf::Color::Blue);
-
-  return currentAabb.collides(tileAabb);
-}
-
-bool Player::isAnyFieldOnRight(World *ptr, sf::Vector2i pos) {
-	if(pos.x+1 > ptr->mapDimensions.x || pos.y < 0) return true;
-	if(ptr->world.find(pos.y * ptr->mapDimensions.x + (pos.x+1)) == ptr->world.end()) return false;
-	if(ptr->world[pos.y * ptr->mapDimensions.x + (pos.x+1)].find(0) == ptr->world[pos.y * ptr->mapDimensions.x + (pos.x+1)].end()) return false;
-
-	Entity* entityPtr = ptr->world[pos.y * ptr->mapDimensions.x + (pos.x+1)][0];
-
-	//sf::Vector2f startAabb = entityPtr->info.position;
-	sf::Vector2f startAabb = entityPtr->info.position + sf::Vector2f(0, -18);
-	sf::Vector2f stopAabb = entityPtr->info.position + sf::Vector2f(entityPtr->sp.dimensions.x, -entityPtr->sp.dimensions.y);
-
-	Aabb tileAabb(startAabb, stopAabb);
-	Aabb currentAabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y));
-
-	Window::instance()->drawAabb(tileAabb, sf::Color::Blue);
-
-  return currentAabb.collides(tileAabb);
-}
-
-bool Player::isAnyFieldOnLeft(World *ptr, sf::Vector2i pos) {
-	if(pos.x-1 < 0 || pos.y < 0) return true;
-	if(ptr->world.find(pos.y * ptr->mapDimensions.x + (pos.x-1)) == ptr->world.end()) return false;
-	if(ptr->world[pos.y * ptr->mapDimensions.x + (pos.x-1)].find(0) == ptr->world[pos.y * ptr->mapDimensions.x + (pos.x-1)].end()) return false;
-
-	Entity* entityPtr = ptr->world[pos.y * ptr->mapDimensions.x + (pos.x-1)][0];
-
-	//sf::Vector2f startAabb = entityPtr->info.position;
-	sf::Vector2f startAabb = entityPtr->info.position + sf::Vector2f(0, -18);
-	sf::Vector2f stopAabb = entityPtr->info.position + sf::Vector2f(entityPtr->sp.dimensions.x, -entityPtr->sp.dimensions.y);
-
-	Aabb tileAabb(startAabb, stopAabb);
-	Aabb currentAabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y));
-
-	Window::instance()->drawAabb(tileAabb, sf::Color::Blue);
-
-  return currentAabb.collides(tileAabb);
-}
 
 void Player::checkCollisionsWorld(World *ptr) {
-	//sf::Shape s = sf::Shape::Rectangle(position, position + sf::Vector2f(10, -10), sf::Color::Cyan);
-	//Window::instance()->getRW()->Draw(s);
-
 	sf::Vector2i pPosLeftUpperCorner = ptr->getNField(position);
 	sf::Vector2i pPosRightUpperCorner = ptr->getNField(position.x + 30, position.y);
 	sf::Vector2i pPosLeftLowerCorner = ptr->getNField(position.x, position.y - 40);
 	sf::Vector2i pPosRightLowerCorner = ptr->getNField(position.x + 30, position.y - 40);
 
-	if(isAnyFieldBelowMe(ptr, pPosLeftUpperCorner) || isAnyFieldBelowMe(ptr, pPosRightUpperCorner) || isAnyFieldBelowMe(ptr, pPosLeftLowerCorner) || isAnyFieldBelowMe(ptr, pPosRightLowerCorner))
+	if(isAnyField(ptr, pPosLeftLowerCorner, Aabb::Position::below) || isAnyField(ptr, pPosRightLowerCorner, Aabb::Position::below))
 		if(goDown) goDown = lockChangeDirection = false;
 
-	if(isAnyFieldAboveMe(ptr, pPosLeftUpperCorner) || isAnyFieldAboveMe(ptr, pPosRightUpperCorner) || isAnyFieldAboveMe(ptr, pPosLeftLowerCorner) || isAnyFieldAboveMe(ptr, pPosRightLowerCorner))
+	if(isAnyField(ptr, pPosLeftUpperCorner, Aabb::Position::above) || isAnyField(ptr, pPosRightUpperCorner, Aabb::Position::above))
 		if(goTop) goTop = lockChangeDirection = false;
 
-	if(isAnyFieldOnRight(ptr, pPosLeftUpperCorner) || isAnyFieldOnRight(ptr, pPosRightUpperCorner) || isAnyFieldOnRight(ptr, pPosLeftLowerCorner) || isAnyFieldOnRight(ptr, pPosRightLowerCorner))
+	if(isAnyField(ptr, pPosRightUpperCorner, Aabb::Position::right, sf::Color::Cyan) || isAnyField(ptr, pPosRightLowerCorner, Aabb::Position::right, sf::Color::Cyan))
 		if(goRight) goRight = lockChangeDirection = false;
 
-	if(isAnyFieldOnLeft(ptr, pPosLeftUpperCorner) || isAnyFieldOnLeft(ptr, pPosRightUpperCorner) || isAnyFieldOnLeft(ptr, pPosLeftLowerCorner) || isAnyFieldOnLeft(ptr, pPosRightLowerCorner))
+	if(isAnyField(ptr, pPosLeftUpperCorner, Aabb::Position::left, sf::Color::Cyan) || isAnyField(ptr, pPosLeftLowerCorner, Aabb::Position::left, sf::Color::Cyan))
 		if(goLeft) goLeft = lockChangeDirection = false;
 }
 
@@ -160,9 +123,11 @@ void Player::setBomb(World *ptr) {
 	sf::Vector2i pPos = ptr->getNField(position);
 
 	Bomb *newBomb = new Bomb(ptr, pPos.y * ptr->mapDimensions.x + pPos.x, 2, position);
-	if(ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].find(2) == ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].end()) {
-		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(2, newBomb));
-		ptr->bomb.push_back(newBomb);
+
+	if(ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].find(World::DisplayOrder::bomb) == ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].end()) {
+
+		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(World::DisplayOrder::bomb, newBomb));
+		ptr->bombs.push_back(newBomb);
 	}
 }
 

@@ -29,10 +29,28 @@ public:
 	std::vector<Player*> player;
 	typedef std::vector<Player*>::iterator playerIterator;
 
-	std::vector<Bomb*> bomb;
+	std::vector<Bomb*> bombs;
 	//typedef std::vector<Bomb*>::iterator bombIterator;
 
-	std::map<int, std::map<int, Entity*> > world;
+	enum class DisplayOrder {
+		equipment,
+		opponent,
+		player,
+		shadow,
+		bomb,
+		block,
+		other
+	};
+
+	/**
+	 * std::map<int [a], std::map<int [b], Entity* [c]> >
+	 * [a] - id tablicy dwuwymiarowej w konwencji y*width+x
+	 * [b] - kolejnosc wyswietlania elementow znajdujacych sie na danym polu (stala)
+	 *       (kazda kolejnosc moze miec przypisany tylko jeden element)
+	 * [c] - wskaznik na element który znajduje siê na danym polu i na danej kolejnosci
+	 *
+	 */
+	std::map<int, std::map<DisplayOrder, Entity*> > world;
 
 	sf::Vector2i mapDimensions;
 
@@ -42,8 +60,8 @@ private:
     Map map;
 
     //std::map<int, std::map<int, Entity*> > world;
-    typedef std::map<int, std::map<int, Entity*> >::iterator worldIterator;
-    typedef std::map<int, Entity*>::iterator entityIterator;
+    typedef std::map<int, std::map<DisplayOrder, Entity*> >::iterator worldIterator;
+    typedef std::map<DisplayOrder, Entity*>::iterator entityIterator;
 
     //std::vector<Player*> player;
 //    typedef std::vector<Player*>::iterator playerIterator;
@@ -75,6 +93,10 @@ public:
 
     void draw(float dt);
 
+    /**
+     * Zwraca id bloku w tablicy [world] na podstawie wspolrzednych z planszy
+     *
+     */
     sf::Vector2i getNField(sf::Vector2f pos);
     sf::Vector2i getNField(float x, float y);
 
@@ -82,7 +104,8 @@ public:
     sf::Vector2i getPlayerPos(int i) { return playerPos.at(i); }
     void setPlayerPos(int i, sf::Vector2i newPos) { playerPos.at(i) = newPos; }
 
-    void deleteFirstBomb() { delete bomb.front(); }
+    void bomb();
+   // void deleteFirstBomb() { delete bomb.front(); }
 
 public:
     void drawBackground();

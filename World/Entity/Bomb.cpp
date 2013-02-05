@@ -11,12 +11,19 @@ Bomb::Bomb(World *_ptr, int _fieldId, int _priority, sf::Vector2f _position) {
 	sp = Sprite::instance()->getSpriteData("Bomb");
 	sprite.SetPosition(info.position);
 
-	lifeTime = 2;
+	animation = new Animation(&sprite, sp, true);
+
+	animation->rotate(Animation::RotationDirection::left, 360);
+	lifeTime = 3;
 	live = true;
 }
 
+Bomb::~Bomb() {
+	LOG("Usunieta");
+}
 void Bomb::draw(float dt) {
-	Window::instance()->getRW()->Draw(sprite);
+	//Window::instance()->getRW()->Draw(sprite);
+	animation->process(dt);
 
 	lifeTime -= dt;
 
@@ -24,103 +31,46 @@ void Bomb::draw(float dt) {
 		live = false;
 		destroyStone(ptr, info.position, 2);
 	}
+
 	Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
 }
 
 void Bomb::destroyStone(World *ptr, sf::Vector2f position, int dis) {
 	sf::Vector2i bPos = ptr->getNField(position);
 
-	bool findRight = false;
-	bool findLeft  = false;
-	bool findTop   = false;
-	bool findBottom  = false;
+	/* right, left, top, bottom */
+	bool found[] = {false, false, false, false};
+	int  id[] = {0, 0, 0, 0};
 
 	for(int i=1; i<=dis; ++i) {
 		if(bPos.x-i > -1 && bPos.y-i > -1 && bPos.x+i < ptr->mapDimensions.x && bPos.y < ptr->mapDimensions.y) {
-			if(!findRight) {
-				FOREACH(ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x+i], it) {
-					if(it->second->sp.title == "Bomb")
-						static_cast<Bomb*>(it->second)->lifeTime = -1;
+			id[0] = bPos.y * ptr->mapDimensions.x + bPos.x+i;
+			id[1] = bPos.y * ptr->mapDimensions.x + bPos.x-i;
+			id[2] = (bPos.y-i) * ptr->mapDimensions.x + bPos.x;
+			id[3] = (bPos.y+i) * ptr->mapDimensions.x + bPos.x;
 
-					if(it->second->sp.title == "Stone") {
-						delete it->second;
-						ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x+i].erase(it);
+			for(int j=0; j<4; ++j) {
+				if(!found[j]) {
+					if(ptr->world[ id[j] ].find(World::DisplayOrder::bomb) != ptr->world[ id[j] ].end()) {
+						static_cast<Bomb*>(ptr->world[ id[j] ][World::DisplayOrder::bomb])->lifeTime = -1;
 
-						findRight = true;
-					  break;
-					}
+						found[j] = true;
 
-					if(it->second->sp.title != "Stone") {
-						findRight = true;
-					  break;
-					}
-				}
-			}
+					} else if(ptr->world[ id[j] ].find(World::DisplayOrder::block) != ptr->world[ id[j] ].end()) {
+						if(ptr->world[ id[j] ][World::DisplayOrder::block]->sp.title == "Stone") { // TODO: nie za ciekawie (string)
 
-			if(!findLeft) {
-				FOREACH(ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x-i], it) {
-					if(it->second->sp.title == "Bomb")
-						static_cast<Bomb*>(it->second)->lifeTime = -1;
+							delete ptr->world[ id[j] ][World::DisplayOrder::block];
+							ptr->world[ id[j] ].erase(World::DisplayOrder::block);
 
-					if(it->second->sp.title == "Stone") {
-						delete it->second;
-						ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x-i].erase(it);
+							found[j] = true;
 
-						findLeft = true;
-					  break;
-					}
-
-					if(it->second->sp.title != "Stone") {
-						findLeft = true;
-					  break;
-					}
-				}
-			}
-
-			if(!findTop) {
-				FOREACH(ptr->world[(bPos.y-i) * ptr->mapDimensions.x + bPos.x], it) {
-					if(it->second->sp.title == "Bomb")
-						static_cast<Bomb*>(it->second)->lifeTime = -1;
-
-					if(it->second->sp.title == "Stone") {
-						delete it->second;
-						ptr->world[(bPos.y-i) * ptr->mapDimensions.x + bPos.x].erase(it);
-
-						findTop = true;
-					  break;
-					}
-
-					if(it->second->sp.title != "Stone") {
-						findTop = true;
-					  break;
-					}
-				}
-			}
-
-			if(!findBottom) {
-				FOREACH(ptr->world[(bPos.y+i) * ptr->mapDimensions.x + bPos.x], it) {
-					if(it->second->sp.title == "Bomb")
-						static_cast<Bomb*>(it->second)->lifeTime = -1;
-
-					if(it->second->sp.title == "Stone") {
-						delete it->second;
-						ptr->world[(bPos.y+i) * ptr->mapDimensions.x + bPos.x].erase(it);
-
-						findBottom = true;
-					  break;
-					}
-
-					if(it->second->sp.title != "Stone") {
-						findBottom = true;
-					  break;
+						} else if(ptr->world[ id[j] ][World::DisplayOrder::block]->sp.title == "Bracket") // TODO: nie za ciekawie (string)
+							found[j] = true;
 					}
 				}
 			}
 		}
 	}
 
-	FOREACH(ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x], bombIt) {
-		if(bombIt->second->sp.title == "Bomb" && bombIt->second == this)
-			ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x].erase(bombIt);
-	}
+	ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x].erase(World::DisplayOrder::bomb);
 }

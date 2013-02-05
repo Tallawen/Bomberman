@@ -16,7 +16,7 @@ class Player : public Entity {
 public:
 
 	bool goDown, goTop, goLeft, goRight;
-		bool lockChangeDirection;
+	bool lockChangeDirection;
 
 private:
 	/* 0 - sprite go down
@@ -47,8 +47,8 @@ public:
 	void setVelocity(float x, float y) { velocity = sf::Vector2f(x, y); }
 	void setDistance(float newDis) { distanceToMove = newDis; }
 
-	void down() { goDown = lockChangeDirection = true;  animation->setSprite(&sprite.at(0), spriteData.at(0)); animation->setPos(position);}
-	void top() { goTop = lockChangeDirection = true; animation->setSprite(&sprite.at(1), spriteData.at(1)); animation->setPos(position); }
+	void down() { LOG("TEST"); goDown = lockChangeDirection = true;  animation->setSprite(&sprite.at(0), spriteData.at(0)); animation->setPos(position);}
+	void top() { LOG("TEST2"); goTop = lockChangeDirection = true; animation->setSprite(&sprite.at(1), spriteData.at(1)); animation->setPos(position); }
 	void right() { goRight = lockChangeDirection = true; animation->setSprite(&sprite.at(2), spriteData.at(2)); animation->setPos(position);}
 	void left() { goLeft = lockChangeDirection = true; animation->setSprite(&sprite.at(3), spriteData.at(3)); animation->setPos(position);}
 
@@ -59,10 +59,20 @@ public:
 	void setBomb(World *ptr);
 
 private:
-	bool isAnyFieldBelowMe(World *ptr, sf::Vector2i pos);
-	bool isAnyFieldAboveMe(World *ptr, sf::Vector2i pos);
-	bool isAnyFieldOnRight(World *ptr, sf::Vector2i pos);
-	bool isAnyFieldOnLeft(World *ptr, sf::Vector2i pos);
+	bool isAnyFieldBelowMe(World *ptr, sf::Vector2i pos) = delete;
+	bool isAnyFieldAboveMe(World *ptr, sf::Vector2i pos) = delete;
+	bool isAnyFieldOnRight(World *ptr, sf::Vector2i pos) = delete;
+	bool isAnyFieldOnLeft(World *ptr, sf::Vector2i pos) = delete;
+
+	/**
+	 * Sprawdza czy znajduje sie jakies pole obok danej jednostki
+	 *
+	 * @param pos pozycja punktu dla którego odbedzie sie sprawdzanie
+	 * @param pos2 pozycja ktora ma byc sprawdzona
+	 * @param color
+	 *
+	 */
+	bool isAnyField(World *ptr, sf::Vector2i pos, Aabb::Position pos2, sf::Color color = sf::Color::Blue);
 
 };
 

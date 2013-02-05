@@ -129,34 +129,34 @@ void World::loadWorld(unsigned int id) {
 	for(int i=0; i < mapDimensions.y; ++i) {
 		for(int j=0; j < mapDimensions.x; ++j) {
 			if(board[i*mapDimensions.x+j] == 1) /* TODO: Zmienic porównywanie na bardziej dynamiczne */ // RampTop
-				world[i*mapDimensions.x+j].insert(std::make_pair(0, new RampTop(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampTop(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 2) // RampBottom
-				world[i*mapDimensions.x+j].insert(std::make_pair(0, new RampDown(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampDown(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 3) // RampLeft
-				world[i*mapDimensions.x+j].insert(std::make_pair(0, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 4) // RampRight
-				world[i*mapDimensions.x+j].insert(std::make_pair(0, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			//if(board[i*mapDimensions.x+j] == 5) ;// DoorClose
-				//world[i*mapDimensions.x+j].insert(std::make_pair(0, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x, i*floorData.dimensions.y + floorStartPos.y))));
+				//world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x, i*floorData.dimensions.y + floorStartPos.y))));
 
 			//if(board[i*mapDimensions.x+j] == 6) ;// DoorOpen
-				//world[i*mapDimensions.x+j].insert(std::make_pair(0, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x, i*floorData.dimensions.y + floorStartPos.y))));
+				//world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x, i*floorData.dimensions.y + floorStartPos.y))));
 
 			if(board[i*mapDimensions.x+j] == 7) // Stone
-				world[i*mapDimensions.x+j].insert(std::make_pair(0, new Stone(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new Stone(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 8) // Bracket
-				world[i*mapDimensions.x+j].insert(std::make_pair(0, new Bracket(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new Bracket(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 9) { // Player
 				player.push_back(new Player(i*mapDimensions.y, 4, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - (floorData.dimensions.x - Sprite::instance()->getSpriteData("Player_White_Down").dimensions.x) / 2, i*floorData.dimensions.y + floorStartPos.y)));
 				playerPos.push_back(sf::Vector2i(j, i));
 
-				world[i*mapDimensions.x+j].insert(std::make_pair(4, player.back()));
+				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::player, player.back()));
 			}
 		}
 	}
@@ -186,10 +186,14 @@ void World::draw(float dt) {
 		++wI;
 	}
 
-	if(!bomb.empty()) {
-		if(!bomb.front()->isLive()) {
-			delete bomb.front();
-			bomb.erase(bomb.begin());
+	bomb();
+}
+
+void World::bomb() {
+	if(!bombs.empty()) {
+		if(!bombs.front()->isLive()) {
+			delete bombs.front();
+			bombs.erase(bombs.begin());
 		}
 	}
 }

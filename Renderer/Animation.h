@@ -7,6 +7,23 @@
 
 class Animation {
 public:
+	enum class RotationDirection {
+		left,
+		right,
+		none
+	};
+
+	/* TODO: Wymyslic lepsze nazwy (wyszystkiego) */
+	enum class MoveType {
+		left,
+		right,
+		top,
+		down,
+		topAndDown,
+		leftAndRight,
+		none
+	};
+
 
 private:
 	sf::Sprite *sprite;
@@ -17,6 +34,11 @@ private:
 
 	float timePerFrame;
 	float timeAccumulation;
+
+	float rotationSpeed;
+	float rotationTimeAccumulation;
+	float rotationAngle;
+	RotationDirection rotationDirection;
 
 public:
 	Animation() { }
@@ -36,6 +58,31 @@ public:
 	void setPos(sf::Vector2f newPos);
 	sf::Vector2f getPos();
 	SpriteData getSpriteInfo();
+
+	/**
+	 * Wlacza obracanie obiektu wzglêdem jego srodka.
+	 *
+	 * @param rd kierunek obracania [none - wylacza obracanie]
+	 * @param speed prêtkosc obracania
+	 *
+	 */
+	void rotate(RotationDirection rd, float speed = 1.f);
+
+	/**
+	 * Obraca obiekt
+	 *
+	 */
+	void rotate(float dt);
+
+	/**
+	 * Poruszanie obiektem od jego srodka do danego wychylenia i spowrotem.
+	 *
+	 * @param md typ wychylenia [none - wylacza obracanie]
+	 * @param distance amplituda wychylenia
+	 * @param speed prêtkosc obracania
+	 *
+	 */
+	void move(MoveType md, float distance, float speed = 1) = delete;
 
 private:
 

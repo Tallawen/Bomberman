@@ -5,6 +5,12 @@
 
 class Aabb {
 public:
+	enum class Position {
+		above,
+		below,
+		right,
+		left
+	};
 
 private:
 	sf::Vector2f lowerRightVertex;
