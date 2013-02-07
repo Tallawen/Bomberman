@@ -1,2 +1,16 @@
 /Debug
 /Graphic
+
+## Eclipse ##
+.project
+.metadata
+.classpath
+.settings/
+.loadpath
+
+# CDT-specific
+.cproject
+
+## C++ ##
+# Compiled Object files
+*.o
