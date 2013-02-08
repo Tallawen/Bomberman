@@ -134,5 +134,6 @@ void Player::setBomb(World *ptr) {
 void Player::draw(float dt) {
 	animation->process(dt);
 	animation->draw();
+
 	Window::instance()->drawAabb(Aabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y)), sf::Color::Red);
 }

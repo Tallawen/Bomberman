@@ -15,7 +15,6 @@
 #include <ctime>
 #include <cmath>
 
-
 #include <cassert>
 
 /***********************************************************************************
@@ -46,6 +45,7 @@
  *********************/
 
 #include "Macro.h"
+#include "wtypes.h"
 //#include "Srt.h"
 //#include "Function.h"
 

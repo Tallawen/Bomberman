@@ -15,7 +15,7 @@ Window* Window::instance() {
 /***********************************************************************************
  Window :: methods
  *********************/
-Window::Window() : height(0), width(0), bpp(0), icon(NULL), position(sf::Vector2f(0, 0)), style(0) {
+Window::Window() : height(0), width(0), bpp(0), icon(NULL), position(sf::Vector2i(0, 0)), style(0) {
 
 }
 
@@ -26,7 +26,12 @@ Window::~Window() {
 bool Window::init() {
 	if(width == 0 || height == 0 || bpp == 0) return false;
 
+	position.x = (sf::VideoMode::GetDesktopMode().Width  - width) / 2;
+	position.y = (sf::VideoMode::GetDesktopMode().Height - height) / 2;
+
 	app.Create(sf::VideoMode(width, height, bpp), title, style);
+	setPosition(position);
+
 	if(!app.IsOpened()) return false;
   return true;
 }
@@ -38,7 +43,7 @@ bool Window::init(unsigned int _width, unsigned int _height, std::string _title,
 	title = _title;
 	style = _style;
 	icon = NULL;
-	position = sf::Vector2f(0, 0);
+	position = sf::Vector2i(0, 0);
 
   return init();
 }
@@ -68,16 +73,14 @@ bool Window::close() {
   return !isOpen();
 }
 
-void Window::setPosition(const sf::Vector2f &newPos) {
+void Window::setPosition(const sf::Vector2i &newPos) {
 	position = newPos;
 
 	app.SetPosition(newPos.x, newPos.y);
 }
 
 void Window::setPosition(const float &x, const float &y) {
-	position = sf::Vector2f(x, y);
-
-	app.SetPosition(x, y);
+	setPosition(sf::Vector2i(x, y));
 }
 
 void Window::process(sf::Event &event) {

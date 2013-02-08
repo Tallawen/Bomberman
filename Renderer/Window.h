@@ -20,7 +20,7 @@ private:
 	unsigned int style;
 	std::string title;
 	sf::Uint8 *icon;
-	sf::Vector2f position;
+	sf::Vector2i position;
 
 public:
 	static Window* instance();
@@ -45,10 +45,10 @@ public:
 	bool isOpen() const { return app.IsOpened(); }
 	bool close();
 
-	void setPosition(const sf::Vector2f &newPos);
+	void setPosition(const sf::Vector2i &newPos);
 	void setPosition(const float &x, const float &y);
 
-	sf::Vector2f getPosition() const { return position; };
+	sf::Vector2i getPosition() const { return position; };
 
 	void process(sf::Event &event);
 
