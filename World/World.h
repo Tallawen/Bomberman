@@ -42,6 +42,13 @@ public:
 		other
 	};
 
+	enum class Direction {
+		right,
+		left,
+		top,
+		bottom
+	};
+
 	/**
 	 * std::map<int [a], std::map<int [b], Entity* [c]> >
 	 * [a] - id tablicy dwuwymiarowej w konwencji y*width+x
@@ -88,6 +95,8 @@ public:
 
     void loadWorld(std::string title);
     void loadWorld(unsigned int id);
+
+    void setWindowDimensions();
 
     Player* getPlayer(unsigned int id);
 

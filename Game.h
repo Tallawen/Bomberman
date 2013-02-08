@@ -22,6 +22,7 @@ public:
 
 private:
 	void playerControl();
+	void inline playerControl(sf::Key::Code keyCode, sf::Vector2f velocity, Player* player, World::Direction direction);
 	void changePlayerField();
 
 };

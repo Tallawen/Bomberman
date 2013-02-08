@@ -29,6 +29,7 @@
 #include <utility>
 #include <typeinfo>
 #include <limits>
+#include <functional>
 
 #include <algorithm>
 
