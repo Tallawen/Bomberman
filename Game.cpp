@@ -8,6 +8,7 @@ Game::Game() : input(Window::instance()->getRW()->GetInput()) {
 }
 
 void Game::startGame(int id) {
+	// DELETE THIS COMMENT
 	world->setWindowDimensions();
 
 	world->loadWorld(id);
