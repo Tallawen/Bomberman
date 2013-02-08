@@ -30,8 +30,10 @@ SpriteData::SpriteData(std::string _title, unsigned int _textureId, unsigned int
 Sprite* Sprite::_instance = 0;
 
 Sprite* Sprite::instance() {
-	if(_instance == 0)
+	if(_instance == 0) {
 		_instance = new Sprite;
+		LOG("Spirite");
+	}
 
   return _instance;
 }
@@ -143,6 +145,6 @@ void Sprite::showTextureList() {
 
 void Sprite::showSpriteList() {
 	std::cout << "Sprite list: " << std::endl;
-	FOREACH(textureId, it)
+	FOREACH(spriteId, it)
 	    std::cout << "  Title: " << it->first << ", id: " << it->second << std::endl;
 }

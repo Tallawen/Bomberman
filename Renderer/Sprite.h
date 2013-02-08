@@ -67,6 +67,8 @@ public:
 	void showTextureList();
 	void showSpriteList();
 
+	int getSpriteSize() { return sprite.size(); }
+
 private:
 
 };

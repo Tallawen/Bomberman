@@ -4,39 +4,8 @@
  World :: methods
  *********************/
 World::World() {
-	/* Load Texture */
-	Sprite::instance()->insertTexture("Data/Block.png");
-	Sprite::instance()->insertTexture("Data/Player_White.png", true);
-	Sprite::instance()->insertTexture("Data/PlayerGoRight2.png", true);
-	Sprite::instance()->insertTexture("Data/PlayerGoLeft.png", true);
-	Sprite::instance()->insertTexture("Data/PlayerGoTop.png", true);
-	Sprite::instance()->insertTexture("Data/Bomb.png", true);
-
-	/* Load Sprite */
-	Sprite::instance()->insertSprite("Background", "Block", 51, 40, 0, 21);
-	Sprite::instance()->insertSprite("Floor", "Block", 51, 40, 51, 21);
-	Sprite::instance()->insertSprite("Stone", "Block", 51, 60, 102, 1);
-	Sprite::instance()->insertSprite("Bracket", "Block", 51, 60, 153, 1);
-	Sprite::instance()->insertSprite("RampTop", "Block", 51, 41, 204, 20);
-	Sprite::instance()->insertSprite("RampDown", "Block", 51, 61, 255, 0);
-	Sprite::instance()->insertSprite("RampLeft", "Block", 51, 59, 306, 2);
-	Sprite::instance()->insertSprite("RampRight", "Block", 51, 59, 357, 2);
-	Sprite::instance()->insertSprite("DoorClose", "Block", 51, 60, 408, 1);
-	Sprite::instance()->insertSprite("DoorOpen", "Block", 51, 34, 459, 27);
-
-	Sprite::instance()->insertSprite("Bomb", "Bomb", 23, 25, 0, 0);
-
-	Sprite::instance()->insertSprite("Player_White_Down", "Player_White", 27, 42, 0, 0, true, 15);
-	Sprite::instance()->insertSprite("Player_White_Right", "PlayerGoRight2", 33, 42, 0, 0, true, 15);
-	Sprite::instance()->insertSprite("Player_White_Left", "PlayerGoLeft", 32, 42, 0, 0, true, 15);
-	Sprite::instance()->insertSprite("Player_White_Top", "PlayerGoTop", 27, 41, 0, 0, true, 15);
-
 	/* Insert Map */
 	map.insertMap("Test", "test.map");
-
-	/* Set Data */
-	windowDimensions.x = Window::instance()->getWidth();
-	windowDimensions.y = Window::instance()->getHeight();
 
 	backgroundData = Sprite::instance()->getSpriteData("Background");
 	floorData = Sprite::instance()->getSpriteData("Floor");
@@ -164,6 +133,11 @@ void World::loadWorld(unsigned int id) {
 
 void World::loadWorld(std::string title) {
 	loadWorld(map.getId(title));
+}
+
+void World::setWindowDimensions() {
+	windowDimensions.x = Window::instance()->getWidth();
+	windowDimensions.y = Window::instance()->getHeight();
 }
 
 void World::draw(float dt) {
