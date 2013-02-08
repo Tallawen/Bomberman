@@ -23,7 +23,8 @@ void Game::startGame(int id) {
 			}
 
 			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
-				Window::instance()->showAabb ? Window::instance()->showAabb = false : Window::instance()->showAabb = true;
+				Window::instance()->showAabb = !Window::instance()->showAabb;
+
 		}
 
 		Window::instance()->getRW()->Clear();
