@@ -32,7 +32,7 @@ void Bomb::draw(float dt) {
 		destroyStone(ptr, info.position, 2);
 	}
 
-	Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
+	Window::instance()->drawHitbox(Hitbox(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
 }
 
 void Bomb::destroyStone(World *ptr, sf::Vector2f position, int dis) {

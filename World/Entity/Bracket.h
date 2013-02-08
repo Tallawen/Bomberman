@@ -19,6 +19,7 @@ public:
 	~Bracket() { }
 
 	void draw(float dt);
+	Hitbox getHitbox() const;
 
 private:
 

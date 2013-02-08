@@ -42,12 +42,12 @@ int Menu::main(int id) {
 			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Up)
 				if(id > 0) id--;
 
-			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Return)
-				if(id == (int)OptionsType::Options)
+			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Return) {
+				if(id == (int) OptionsType::Options)
 					createTest();
 				else
 					done = true;
-
+			}
 			Window::instance()->process(event);
 		}
 

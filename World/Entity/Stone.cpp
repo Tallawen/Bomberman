@@ -12,5 +12,10 @@ Stone::Stone(int _fieldId, int _priority, sf::Vector2f _position) {
 
 void Stone::draw(float dt) {
 	Window::instance()->getRW()->Draw(sprite);
-	//Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Cyan);
+//	Window::instance()->drawHitbox(Hitbox(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
+}
+
+Hitbox Stone::getHitbox() const {
+	return Hitbox(info.position, info.position + sf::Vector2f(51,-40));
 }

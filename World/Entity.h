@@ -1,6 +1,8 @@
 #ifndef __ENTITY_H__
 #define __ENTITY_H__
 
+#include "Hitbox.h"
+
 #include "../StdAfx.h"
 #include "../Renderer/Sprite.h"
 
@@ -23,6 +25,12 @@ public:
 
 	virtual void update(float dt) { }
 	virtual void draw(float dt) { }
+
+	virtual Hitbox getHitbox() const {
+		// no collide: hitbox will ignore any collisions
+		// See Hitbox.h
+		return Hitbox(sf::Vector2f(0,0),sf::Vector2f(0,0));
+	}
 	//virtual void checkCollisions(float dt) const = 0;
 
 private:

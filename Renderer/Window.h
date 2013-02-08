@@ -2,11 +2,12 @@
 #define __WINDOW_H__
 
 #include "../StdAfx.h"
-#include "../World/Aabb.h"
+#include "../World/Hitbox.h"
 
+/// Window Singleton
 class Window { /*Singleton*/
 public:
-	bool showAabb;
+	bool showHitbox;
 
 private:
 	static Window *_instance;
@@ -23,6 +24,7 @@ private:
 	sf::Vector2i position;
 
 public:
+	/** Return pointer to instance of the Window singleton */
 	static Window* instance();
 
 	~Window();
@@ -52,7 +54,7 @@ public:
 
 	void process(sf::Event &event);
 
-	void drawAabb(const Aabb &box, sf::Color color);
+	void drawHitbox(const Hitbox &box, sf::Color color);
 
 private:
 	Window();
