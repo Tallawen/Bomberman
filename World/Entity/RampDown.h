@@ -20,6 +20,7 @@ public:
 
 
 	void draw(float dt);
+	Hitbox getHitbox() const;
 
 private:
 

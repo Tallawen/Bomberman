@@ -43,6 +43,10 @@ private:
 
 	float distanceToMove;
 
+	/// przesuniecie hitboxa dla ruchu w prawo
+	// TODO: Sprawdzic czy blad przesuniecia nie wynika z zle podpietej tekstury
+	sf::Vector2f hitboxOffset;
+
 public:
 	Player(int _fieldId, int _priority, sf::Vector2f _position);
 
@@ -61,22 +65,30 @@ public:
 	void down() {
 		goDown = lockChangeDirection = true;
 		animation->setSprite(&sprite.at(0), spriteData.at(0));
-		animation->setPos(position);
+		animation->setPos(position + animation_offset);
+
+		hitboxOffset = sf::Vector2f(0, 0);
 	}
 	void top() {
 		goUp = lockChangeDirection = true;
 		animation->setSprite(&sprite.at(1), spriteData.at(1));
-		animation->setPos(position);
+		animation->setPos(position + animation_offset);
+
+		hitboxOffset = sf::Vector2f(0, 0);
 	}
 	void right() {
 		goRight = lockChangeDirection = true;
 		animation->setSprite(&sprite.at(2), spriteData.at(2));
-		animation->setPos(position);
+		animation->setPos(position + animation_offset);
+
+		hitboxOffset = sf::Vector2f(10, 0);
 	}
 	void left() {
 		goLeft = lockChangeDirection = true;
 		animation->setSprite(&sprite.at(3), spriteData.at(3));
-		animation->setPos(position);
+		animation->setPos(position + animation_offset);
+
+		hitboxOffset = sf::Vector2f(0, 0);
 	}
 
 	sf::Vector2f* getPosition() { return &position; }

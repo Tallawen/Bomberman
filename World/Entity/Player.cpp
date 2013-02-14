@@ -53,22 +53,22 @@ void Player::detectTileCollisions(World *ptr) {
 	 *   . . .   . . %   % % %   % . .
 	 *
 	 * */
-	if (goDown) {
+	if(goDown) {
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x    ) );
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
 	}
-	if (goUp) {
+	if(goUp) {
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x    ) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
 	}
-	if (goRight){
+	if(goRight){
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
 		collideWithTile(ptr, (currField.y    ) * width + (currField.x + 1) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
 	}
-	if (goLeft) {
+	if(goLeft) {
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y    ) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
@@ -90,10 +90,10 @@ void Player::collideWithTile(World *ptr, int id){
 		sf::Vector2f offset(0,0);
 
 		// calculate where to push the player
-		if(goDown) offset.y =  block.getMinY() - self.getMaxY() - 1; // Negative value -- push up and a little more
-		if(goUp)   offset.y =  block.getMaxY() - self.getMinY() + 1; // Positive value -- push down
-		if(goRight)offset.x =  block.getMinX() - self.getMaxX() - 1; // push left
-		if(goLeft) offset.x =  block.getMaxX() - self.getMinX() + 1; // push right
+		if(goDown)  offset.y =  block.getMinY() - self.getMaxY() - 1; // Negative value -- push up and a little more
+		if(goUp)    offset.y =  block.getMaxY() - self.getMinY() + 1; // Positive value -- push down
+		if(goRight) offset.x =  block.getMinX() - self.getMaxX() - 1; // push left
+		if(goLeft)  offset.x =  block.getMaxX() - self.getMinX() + 1; // push right
 
 		// Correct position and update player
 		position += offset;
@@ -102,10 +102,10 @@ void Player::collideWithTile(World *ptr, int id){
 		// TODO: Going towards a wall causes player's sprite to derp out -- find out why
 
 		// Lock further movement
-		if(goDown)goDown = lockChangeDirection = false;
-		if(goUp)goUp = lockChangeDirection = false;
-		if(goRight)goRight = lockChangeDirection = false;
-		if(goLeft)goLeft = lockChangeDirection = false;
+		if(goDown)  goDown  = lockChangeDirection = false;
+		if(goUp)    goUp    = lockChangeDirection = false;
+		if(goRight) goRight = lockChangeDirection = false;
+		if(goLeft)  goLeft  = lockChangeDirection = false;
 	}
 }
 
@@ -128,7 +128,8 @@ void Player::draw(float dt) {
 	Window::instance()->drawHitbox(getHitbox(),sf::Color::Red);
 }
 
+// TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
 Hitbox Player::getHitbox() const {
-	// square 27*27 centered on player -- to be placed somewhere else.
-	return 	Hitbox( position + sf::Vector2f(-13,-13), position + sf::Vector2f(13,13) );
+	// square 22*22 centered on player -- to be placed somewhere else.
+	return Hitbox( position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset );
 }
