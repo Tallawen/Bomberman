@@ -1,5 +1,5 @@
 #include "Explosion.h"
-
+/*
 Bomb::Bomb(World *_ptr, int _fieldId, int _priority, sf::Vector2f _position) {
 	ptr = _ptr;
 
@@ -23,13 +23,13 @@ Bomb::~Bomb() {
 /**
  * pisane o 2 w nocy (jesli komus chce sie poprawic to prosze bardzo)
  *
- */
+ *//*
 void Bomb::draw(float dt) {
 	if(lifeTime > 0) {
 		lifeTime -= dt;
 
 		Window::instance()->getRW()->Draw(sprite);
-		Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
+		//Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
 
 	} else {
 		if(live && !detonated) {
@@ -61,7 +61,7 @@ void Bomb::destroyStone(World *ptr, sf::Vector2f position, int dis) {
 	sf::Vector2i bPos = ptr->getNField(position);
 
 	/* right, left, top, bottom */
-	bool found[] = {false, false, false, false};
+	/*bool found[] = {false, false, false, false};
 	int  id[] = {0, 0, 0, 0};
 
 	for(int i=1; i<=dis; ++i) {
@@ -106,4 +106,4 @@ void Bomb::destroyStone(World *ptr, sf::Vector2f position, int dis) {
 		}
 	}
 	//ptr->world[bPos.y * ptr->mapDimensions.x + bPos.x].erase(World::DisplayOrder::bomb);
-}
+}*/

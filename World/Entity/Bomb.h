@@ -27,6 +27,7 @@ public:
 	~Bomb();
 
 	void draw(float dt);
+	Hitbox getHitbox() const;
 
 	bool isLive() const { return live; }
 	void destroyStone(World *ptr, sf::Vector2f position, int dis);

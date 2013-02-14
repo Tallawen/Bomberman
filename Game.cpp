@@ -11,7 +11,7 @@ void Game::startGame(int id) {
 	world->setWindowDimensions();
 
 	world->loadWorld(id);
-	Window::instance()->showAabb = false;
+	Window::instance()->showHitbox = false;
 
 	bool gameStart = true;
 	sf::Clock clock;
@@ -25,7 +25,8 @@ void Game::startGame(int id) {
 			}
 
 			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
-				Window::instance()->showAabb = !Window::instance()->showAabb;
+				// Press Z while playing to toggle hitboxes
+				Window::instance()->showHitbox = !Window::instance()->showHitbox;
 
 			Window::instance()->process(event);
 		}
@@ -40,7 +41,7 @@ void Game::startGame(int id) {
 		playerControl();
 
 		for(unsigned int i=0; i<world->player.size(); ++i)
-			world->player.at(i)->checkCollisionsWorld(world);
+			world->player.at(i)->detectTileCollisions(world);
 
 		changePlayerField();
 
@@ -65,7 +66,7 @@ void inline Game::playerControl(sf::Key::Code keyCode, sf::Vector2f velocity, Pl
 
 	    case World::Direction::top:
 	    	ptrFun = &Player::top;
-	    	move = &player->goTop;
+	    	move = &player->goUp;
 	      break;
 
 	    case World::Direction::bottom:

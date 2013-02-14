@@ -9,6 +9,7 @@ Bomb::Bomb(World *_ptr, int _fieldId, int _priority, sf::Vector2f _position) {
 
 	sprite = Sprite::instance()->getSprite("Bomb");
 	sp = Sprite::instance()->getSpriteData("Bomb");
+
 	sprite.SetPosition(info.position);
 
 	lifeTime = 3;
@@ -29,16 +30,16 @@ void Bomb::draw(float dt) {
 		lifeTime -= dt;
 
 		Window::instance()->getRW()->Draw(sprite);
-		Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
+		Window::instance()->drawHitbox(getHitbox(), sf::Color::Yellow);
 
 	} else {
-		if(live && !detonated) {
+		/*if(live && !detonated) {
 			destroyStone(ptr, info.position, 2);
 			detonated = true;
 
 		} else if(live && detonated) {
 
-			if(!animationArray.empty()) {
+	/*		if(!animationArray.empty()) {
 				for(int i=0; i<animationArray.size(); ++i) {
 					if(!animationArray[i].isPlay()) {
 						animationArray.erase(animationArray.begin()+i);
@@ -53,8 +54,12 @@ void Bomb::draw(float dt) {
 
 				ptr->world[ptr->getNField(info.position).y * ptr->mapDimensions.x + ptr->getNField(info.position).x].erase(World::DisplayOrder::bomb);
 			}
-		}
+		}*/
 	}
+}
+
+Hitbox Bomb::getHitbox() const {
+   return Hitbox(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y));
 }
 
 void Bomb::destroyStone(World *ptr, sf::Vector2f position, int dis) {

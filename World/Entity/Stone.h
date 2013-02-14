@@ -19,6 +19,7 @@ public:
 	~Stone() { }
 
 	void draw(float dt);
+	Hitbox getHitbox() const;
 
 private:
 

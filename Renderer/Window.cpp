@@ -16,7 +16,7 @@ Window* Window::instance() {
  Window :: methods
  *********************/
 Window::Window() : height(0), width(0), bpp(0), icon(NULL), position(sf::Vector2i(0, 0)), style(0) {
-
+	showHitbox=false;
 }
 
 Window::~Window() {
@@ -93,9 +93,11 @@ void Window::process(sf::Event &event) {
 		setPosition(position.x + (app.GetInput().GetMouseX() - mouseCoordinates.x), position.y + app.GetInput().GetMouseY() - mouseCoordinates.y);
 }
 
-void Window::drawAabb(const Aabb &box, sf::Color color) {
-	if(showAabb) {
-		sf::Shape boxA = sf::Shape::Rectangle(box.getULVertexX(), box.getULVertexY(), box.getLRVertexX(), box.getLRVertexY(), sf::Color(0, 0, 0, 0), 1.0f, color);
+void Window::drawHitbox(const Hitbox &box, sf::Color color) {
+	if(showHitbox) {
+		sf::Shape boxA = sf::Shape::Rectangle(
+				box.getMinX(), box.getMinY(), box.getMaxX(), box.getMaxY(),
+				sf::Color(0, 0, 0, 0), 1.0f, color);
 		app.Draw(boxA);
 	}
 }

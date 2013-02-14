@@ -15,4 +15,9 @@ void RampLeft::draw(float dt) {
 
 	Window::instance()->getRW()->Draw(sprite);
 	Window::instance()->getRW()->Draw(shadow);
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Blue);
+}
+
+Hitbox RampLeft::getHitbox() const {
+   return Hitbox(info.position, info.position + sf::Vector2f(51,-40));
 }

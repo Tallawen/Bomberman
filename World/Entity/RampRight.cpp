@@ -11,4 +11,9 @@ RampRight::RampRight(int _fieldId, int _priority, sf::Vector2f _position) {
 
 void RampRight::draw(float dt) {
 	Window::instance()->getRW()->Draw(sprite);
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Blue);
+}
+
+Hitbox RampRight::getHitbox() const {
+   return Hitbox(info.position, info.position + sf::Vector2f(51,-40));
 }

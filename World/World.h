@@ -8,7 +8,7 @@
 
 #include "Entity.h"
 #include "Map.h"
-#include "Aabb.h"
+#include "Hitbox.h"
 
 #include "Entity/Player.h"
 #include "Entity/RampDown.h"
@@ -18,7 +18,7 @@
 #include "Entity/Stone.h"
 #include "Entity/Bracket.h"
 #include "Entity/Bomb.h"
-#include "Bac.h"
+
 
 class Player;
 class Entity;
@@ -79,6 +79,8 @@ private:
 	//sf::Vector2i mapDimensions;
 
 	sf::Vector2i backgroundStartPos;
+
+	/// corresponds to bottom-left corner of tile(0,0) of the map
 	sf::Vector2i floorStartPos;
 
     // Mala optymalizacja

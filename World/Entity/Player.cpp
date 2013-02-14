@@ -1,6 +1,6 @@
 #include "Player.h"
 
-#include "../Aabb.h"
+#include "../Hitbox.h"
 
 Player::Player(int _fieldId, int _priority, sf::Vector2f _position) {
 	info.fieldId = _fieldId;
@@ -19,83 +19,94 @@ Player::Player(int _fieldId, int _priority, sf::Vector2f _position) {
 
 	animation = new Animation(sprite.at(0), spriteData.at(0));
 
-	goDown = goTop = goLeft = goRight = false;
+	goDown = goUp = goLeft = goRight = false;
 	lockChangeDirection = false;
 
-	position = _position + sf::Vector2f(12, -10); // sf::Vector2f(12, -10) wysrodkowania gracza na kaflu
-	animation->setPos(position);
+	// See World::loadWorld()
+	position = _position;
+
+	/// Offset of animation sprite from
+	animation_offset = sf::Vector2f(-12,10);
+
+	animation->setPos(position+animation_offset);
 }
 
 void Player::update(float dt) {
-	if(!goDown && !goRight && !goLeft && !goTop)
+	if(!goDown && !goRight && !goLeft && !goUp) {
 		animation->stop();
-
-	if(goDown || goTop || goLeft || goRight) {
+	} else {
 		animation->play();
-
 		position += velocity * dt;
-		animation->setPos(position);
+		animation->setPos(position+animation_offset);
 	}
 }
 
-bool Player::isAnyField(World *ptr, sf::Vector2i pos, Aabb::Position pos2, sf::Color color) {
-	int id;
-	switch(pos2) {
-	    case Aabb::Position::above:
-	    	if(pos.x < 0 || pos.y-1 < 0) return true;
-	    	id = (pos.y-1) * ptr->mapDimensions.x + pos.x;
-	      break;
+// Choose which tiles to check based on movement
+void Player::detectTileCollisions(World *ptr) {
+	sf::Vector2i currField = ptr->getNField(position);
+	int width = ptr->mapDimensions.x;
 
-	    case Aabb::Position::below:
-	    	if(pos.x < 0 || pos.y+1 > ptr->mapDimensions.y) return true;
-	    	id = (pos.y+1) * ptr->mapDimensions.x + pos.x;
-	      break;
-
-	    case Aabb::Position::left:
-	    	if(pos.x-1 < 0 || pos.y < 0) return true;
-	    	id = pos.y * ptr->mapDimensions.x + (pos.x-1);
-	      break;
-
-	    case Aabb::Position::right:
-	    	if(pos.x+1 > ptr->mapDimensions.x || pos.y < 0) return true;
-	    	id = pos.y * ptr->mapDimensions.x + (pos.x+1);
-	      break;
+	/* Fig.1: Tile checking pattern.
+	 *
+	 *   % % %   . . %   . . .   % . .
+	 *   . ^ .   . > %   . v .   % < .
+	 *   . . .   . . %   % % %   % . .
+	 *
+	 * */
+	if(goDown) {
+		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
+		collideWithTile(ptr, (currField.y + 1) * width + (currField.x    ) );
+		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
 	}
-
-	if(ptr->world.find(id) == ptr->world.end()) return false;
-	if(ptr->world[id].find(World::DisplayOrder::block) == ptr->world[id].end()) return false;
-
-	Entity* entityPtr = ptr->world[id][World::DisplayOrder::block];
-
-	sf::Vector2f startAabb = entityPtr->info.position + sf::Vector2f(0, -18);
-	sf::Vector2f stopAabb = entityPtr->info.position + sf::Vector2f(ptr->floorData.dimensions.x, -ptr->floorData.dimensions.y);
-
-	Aabb tileAabb(startAabb, stopAabb);
-	Aabb currentAabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y));
-
-	Window::instance()->drawAabb(tileAabb, color);
-
-  return currentAabb.collides(tileAabb);
+	if(goUp) {
+		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
+		collideWithTile(ptr, (currField.y - 1) * width + (currField.x    ) );
+		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
+	}
+	if(goRight){
+		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
+		collideWithTile(ptr, (currField.y    ) * width + (currField.x + 1) );
+		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
+	}
+	if(goLeft) {
+		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
+		collideWithTile(ptr, (currField.y    ) * width + (currField.x - 1) );
+		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
+	}
 }
 
+// Check for collision, correct position if necessary
+// Colliding will stop the player and push them back.
+void Player::collideWithTile(World *ptr, int id){
+	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
+	if(ptr->world[id].find(World::DisplayOrder::block) == ptr->world[id].end()) return; //Field has no blocks
 
-void Player::checkCollisionsWorld(World *ptr) {
-	sf::Vector2i pPosLeftUpperCorner = ptr->getNField(position);
-	sf::Vector2i pPosRightUpperCorner = ptr->getNField(position.x + 30, position.y);
-	sf::Vector2i pPosLeftLowerCorner = ptr->getNField(position.x, position.y - 40);
-	sf::Vector2i pPosRightLowerCorner = ptr->getNField(position.x + 30, position.y - 40);
+	Entity* entity = ptr->world[id][World::DisplayOrder::block];
 
-	if(isAnyField(ptr, pPosLeftLowerCorner, Aabb::Position::below) || isAnyField(ptr, pPosRightLowerCorner, Aabb::Position::below))
-		if(goDown) goDown = lockChangeDirection = false;
+	Hitbox self = getHitbox();
+	Hitbox block = entity->getHitbox();
 
-	if(isAnyField(ptr, pPosLeftUpperCorner, Aabb::Position::above) || isAnyField(ptr, pPosRightUpperCorner, Aabb::Position::above))
-		if(goTop) goTop = lockChangeDirection = false;
+	if( Hitbox::collide(self, block) ) {
+		sf::Vector2f offset(0,0);
 
-	if(isAnyField(ptr, pPosRightUpperCorner, Aabb::Position::right, sf::Color::Cyan) || isAnyField(ptr, pPosRightLowerCorner, Aabb::Position::right, sf::Color::Cyan))
+		// calculate where to push the player
+		if(goDown)  offset.y =  block.getMinY() - self.getMaxY() - 1; // Negative value -- push up and a little more
+		if(goUp)    offset.y =  block.getMaxY() - self.getMinY() + 1; // Positive value -- push down
+		if(goRight) offset.x =  block.getMinX() - self.getMaxX() - 1; // push left
+		if(goLeft)  offset.x =  block.getMaxX() - self.getMinX() + 1; // push right
+
+		// Correct position and update player
+		position += offset;
+		update(0); // instant correction, no velocity
+
+		// TODO: Going towards a wall causes player's sprite to derp out -- find out why
+
+		// Lock further movement
+		if(goDown)  goDown  = lockChangeDirection = false;
+		if(goUp)    goUp    = lockChangeDirection = false;
 		if(goRight) goRight = lockChangeDirection = false;
-
-	if(isAnyField(ptr, pPosLeftUpperCorner, Aabb::Position::left, sf::Color::Cyan) || isAnyField(ptr, pPosLeftLowerCorner, Aabb::Position::left, sf::Color::Cyan))
-		if(goLeft) goLeft = lockChangeDirection = false;
+		if(goLeft)  goLeft  = lockChangeDirection = false;
+	}
 }
 
 void Player::setBomb(World *ptr) {
@@ -114,5 +125,11 @@ void Player::draw(float dt) {
 	animation->process(dt);
 	animation->draw();
 
-	Window::instance()->drawAabb(Aabb(animation->getPos(), animation->getPos() + sf::Vector2f(animation->getSpriteInfo().dimensions.x, -animation->getSpriteInfo().dimensions.y)), sf::Color::Red);
+	Window::instance()->drawHitbox(getHitbox(),sf::Color::Red);
+}
+
+// TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
+Hitbox Player::getHitbox() const {
+	// square 22*22 centered on player -- to be placed somewhere else.
+	return Hitbox( position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset );
 }

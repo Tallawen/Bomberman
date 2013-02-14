@@ -83,6 +83,9 @@ void World::loadWorld(unsigned int id) {
 
 	mapDimensions = sf::Vector2i(map.getWidth(), map.getHeight());
 
+	/* floorData.dimensions -- Vector2i(width,height) of one tile */
+
+	// Put map area in the middle of the window:
 	floorStartPos.x = windowDimensions.x;
 	floorStartPos.x /= floorData.dimensions.x;
 	floorStartPos.x = ceil(floorStartPos.x);
@@ -92,6 +95,8 @@ void World::loadWorld(unsigned int id) {
 	floorStartPos.y /= floorData.dimensions.y;
 	floorStartPos.y = ceil(floorStartPos.y);
 	floorStartPos.y = (floorStartPos.y - mapDimensions.y) / 2 * floorData.dimensions.y + backgroundStartPos.y + floorData.dimensions.y - (floorStartPos.y - mapDimensions.y) / 2 - 2;
+	// end
+
 
 	unsigned int *board = map.getMap();
 
@@ -122,7 +127,17 @@ void World::loadWorld(unsigned int id) {
 				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new Bracket(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 9) { // Player
-				player.push_back(new Player(i*mapDimensions.y, 4, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - (floorData.dimensions.x - Sprite::instance()->getSpriteData("Player_White_Down").dimensions.x) / 2, i*floorData.dimensions.y + floorStartPos.y)));
+				// Player is placed in the middle of tile (j, i)
+				player.push_back(new Player(i * mapDimensions.y, 4,
+					sf::Vector2f(
+						floorStartPos.x	+ (j * floorData.dimensions.x - j) - floorData.dimensions.x/2,
+						floorStartPos.y	+ (i * floorData.dimensions.y - i) - floorData.dimensions.y/2
+					)
+				));
+				/* floorStartPos -- bottom-left corner of Tile(0,0)
+				 * floorData.dimensions -- width,height of one tile
+				 * `- j` is used to counter one-pixel offset */
+
 				playerPos.push_back(sf::Vector2i(j, i));
 
 				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::player, player.back()));
@@ -172,6 +187,7 @@ void World::bomb() {
 	}
 }
 
+/// Return field containing this vector
 sf::Vector2i World::getNField(sf::Vector2f pos) {
 	pos.x -= floorStartPos.x;
 	pos.y -= floorStartPos.y;

@@ -16,6 +16,9 @@ void Bracket::draw(float dt) {
 
 	Window::instance()->getRW()->Draw(sprite);
 	Window::instance()->getRW()->Draw(shadow);
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Blue);
+}
 
-	//Window::instance()->drawAabb(Aabb(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y)), sf::Color::Green);
+Hitbox Bracket::getHitbox() const {
+   return Hitbox(info.position, info.position + sf::Vector2f(51,-40));
 }

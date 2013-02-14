@@ -18,8 +18,9 @@ public:
 	RampDown(int _fieldId, int _priority, sf::Vector2f _position);
 	~RampDown() { }
 
-
 	void draw(float dt);
+
+	Hitbox getHitbox() const;
 
 private:
 

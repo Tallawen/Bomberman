@@ -5,7 +5,6 @@
 #include "Renderer/Animation.h"
 
 #include "World/World.h"
-#include "Settings.h"
 #include "Menu.h"
 
 int main() {
@@ -63,15 +62,15 @@ int main() {
 
 	Sprite::instance()->insertSprite("Explosion", "explosion", 64, 64, 0, 0, true, 60);
 
-	/*Sprite::instance()->insertSprite("Player_White_Down",  "Player_White", 27, 42, 0, 0, true, 15);
+	Sprite::instance()->insertSprite("Player_White_Down",  "Player_White", 27, 42, 0, 0, true, 15);
 	Sprite::instance()->insertSprite("Player_White_Right", "PlayerGoRight2", 33, 42, 0, 0, true, 15);
 	Sprite::instance()->insertSprite("Player_White_Left",  "PlayerGoLeft", 32, 42, 0, 0, true, 15);
-	Sprite::instance()->insertSprite("Player_White_Top",   "PlayerGoTop", 27, 41, 0, 0, true, 15);*/
+	Sprite::instance()->insertSprite("Player_White_Top",   "PlayerGoTop", 27, 41, 0, 0, true, 15);
 
-	Sprite::instance()->insertSprite("Player_White_Down",  "Enemy1_GoDown",  33, 32, 0, 0, true, 3);
-	Sprite::instance()->insertSprite("Player_White_Right", "Enemy1_GoRight", 33, 32, 0, 0, true, 3);
-	Sprite::instance()->insertSprite("Player_White_Left",  "Enemy1_GoLeft",  33, 32, 0, 0, true, 3);
-	Sprite::instance()->insertSprite("Player_White_Top",   "Enemy1_GoTop",   33, 32, 0, 0, true, 3);
+//	Sprite::instance()->insertSprite("Player_White_Down",  "Enemy1_GoDown", 33, 32, 0, 0,  true, 3);
+//	Sprite::instance()->insertSprite("Player_White_Right", "Enemy1_GoRight", 33, 32, 0, 0, true, 3);
+//	Sprite::instance()->insertSprite("Player_White_Left",  "Enemy1_GoLeft", 33, 32, 0, 0,  true, 3);
+//	Sprite::instance()->insertSprite("Player_White_Top",   "Enemy1_GoTop", 33, 32, 0, 0,   true, 3);
 
 	Menu menu;
 	Game game;

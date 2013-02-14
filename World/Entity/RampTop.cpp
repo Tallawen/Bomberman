@@ -12,4 +12,9 @@ RampTop::RampTop(int _fieldId, int _priority, sf::Vector2f _position) {
 
 void RampTop::draw(float dt) {
 	Window::instance()->getRW()->Draw(sprite);
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Blue);
+}
+
+Hitbox RampTop::getHitbox() const {
+   return Hitbox(info.position, info.position + sf::Vector2f(51,-40));
 }
