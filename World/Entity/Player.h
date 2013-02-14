@@ -48,10 +48,10 @@ public:
 	void setVelocity(sf::Vector2f _velocity) { velocity = _velocity; }
 	void setDistance(float newDis) { distanceToMove = newDis; }
 
-	void down() { goDown = lockChangeDirection = true;  animation->setSprite(&sprite.at(0), spriteData.at(0)); animation->setPos(position); }
-	void top() { goTop = lockChangeDirection = true; animation->setSprite(&sprite.at(1), spriteData.at(1)); animation->setPos(position); }
-	void right() { goRight = lockChangeDirection = true; animation->setSprite(&sprite.at(2), spriteData.at(2)); animation->setPos(position); }
-	void left() { goLeft = lockChangeDirection = true; animation->setSprite(&sprite.at(3), spriteData.at(3)); animation->setPos(position); }
+	void down() { goDown = lockChangeDirection = true;  animation->setSprite(sprite.at(0), spriteData.at(0)); animation->setPos(position); }
+	void top() { goTop = lockChangeDirection = true; animation->setSprite(sprite.at(1), spriteData.at(1)); animation->setPos(position); }
+	void right() { goRight = lockChangeDirection = true; animation->setSprite(sprite.at(2), spriteData.at(2)); animation->setPos(position); }
+	void left() { goLeft = lockChangeDirection = true; animation->setSprite(sprite.at(3), spriteData.at(3)); animation->setPos(position); }
 
 	sf::Vector2f* getPosition() { return &position; }
 

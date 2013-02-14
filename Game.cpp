@@ -8,7 +8,6 @@ Game::Game() : input(Window::instance()->getRW()->GetInput()) {
 }
 
 void Game::startGame(int id) {
-	// DELETE THIS COMMENT
 	world->setWindowDimensions();
 
 	world->loadWorld(id);
@@ -98,10 +97,10 @@ void Game::playerControl() {
 	}
 
 	if(world->player.size() > 1) {
-		playerControl(sf::Key::S,  sf::Vector2f(0, 100),  world->player.at(1), World::Direction::bottom);
-		playerControl(sf::Key::W,    sf::Vector2f(0, -100), world->player.at(1), World::Direction::top);
+		playerControl(sf::Key::S, sf::Vector2f(0, 100),  world->player.at(1), World::Direction::bottom);
+		playerControl(sf::Key::W, sf::Vector2f(0, -100), world->player.at(1), World::Direction::top);
 		playerControl(sf::Key::D, sf::Vector2f(100, 0),  world->player.at(1), World::Direction::right);
-		playerControl(sf::Key::A,  sf::Vector2f(-100, 0), world->player.at(1), World::Direction::left);
+		playerControl(sf::Key::A, sf::Vector2f(-100, 0), world->player.at(1), World::Direction::left);
 
 		if(input.IsKeyDown(sf::Key::LShift))
 			world->player.at(1)->setBomb(world);

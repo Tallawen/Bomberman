@@ -15,15 +15,13 @@ private:
 	/**
 	 * 0 - StartGame
 	 * 1 - StartGameActive
-	 * 2 - Options
-	 * 2 - OptionsActive
-	 * 4 - About
-	 * 5 - AboutActive
-	 * 6 - Exit
-	 * 7 - ExitActive
+	 * 2 - About
+	 * 3 - AboutActive
+	 * 4 - Exit
+	 * 5 - ExitActive
 	 *
 	 */
-	sf::Sprite text[8];
+	sf::Sprite text[6];
 	sf::Sprite background;
 
 	/**
@@ -36,9 +34,8 @@ private:
 	 */
 	enum class OptionsType {
 		StartGame, // 0
-		Options,   // 1
-		About,     // 2
-		Exit       // 3
+		About,     // 1
+		Exit       // 2
 	};
 
 public:

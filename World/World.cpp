@@ -185,3 +185,23 @@ sf::Vector2i World::getNField(sf::Vector2f pos) {
 sf::Vector2i World::getNField(float x, float y) {
   return getNField(sf::Vector2f(x, y));
 }
+
+sf::Vector2i World::getPixelPosition(sf::Vector2i pos) {
+	pos.y *= (floorData.dimensions.y - 1);
+	pos.x *= (floorData.dimensions.x - 1);
+
+	pos.x += floorStartPos.x;
+	pos.y += floorStartPos.y;
+  return pos;
+}
+
+sf::Vector2i World::getPixelPosition(float x, float y) {
+  return getPixelPosition(sf::Vector2i(x, y));
+}
+
+sf::Vector2i World::getPixelPosition(int id) {
+	int y = floor(id / mapDimensions.x);
+	int x = id - y * mapDimensions.x;
+
+  return getPixelPosition(sf::Vector2i(x, y));
+}

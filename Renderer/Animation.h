@@ -26,11 +26,14 @@ public:
 
 
 private:
-	sf::Sprite *sprite;
+	//sf::Sprite *sprite;
+	sf::Sprite sprite;
+
 	SpriteData info;
 
 	bool playAnimation;
 	bool autoDraw;
+	bool autoStop;
 
 	float timePerFrame;
 	float timeAccumulation;
@@ -42,14 +45,17 @@ private:
 
 public:
 	Animation() { }
-	Animation(sf::Sprite *_sprite, const SpriteData &_info, bool _autoDraw = true);
+	//Animation(sf::Sprite *_sprite, const SpriteData &_info, bool _autoDraw = true);
+	Animation(sf::Sprite _sprite, const SpriteData &_info, bool _autoDraw = true, bool _autoStop = false);
 
 	void play();
 	void stop();
 	void pause();
 
+	void setAutoStop(bool _autoStop = true);
+
 	sf::Sprite* getSprite();
-	void setSprite(sf::Sprite *_sprite, const SpriteData &_info);
+	void setSprite(sf::Sprite _sprite, const SpriteData &_info);
 
 	void draw();
 
@@ -59,11 +65,13 @@ public:
 	sf::Vector2f getPos();
 	SpriteData getSpriteInfo();
 
+	bool isPlay() { return playAnimation; }
+
 	/**
-	 * Wlacza obracanie obiektu wzglêdem jego srodka.
+	 * Wlacza obracanie obiektu wzglÃªdem jego srodka.
 	 *
 	 * @param rd kierunek obracania [none - wylacza obracanie]
-	 * @param speed prêtkosc obracania
+	 * @param speed prÃªtkosc obracania
 	 *
 	 */
 	void rotate(RotationDirection rd, float speed = 1.f);
@@ -79,7 +87,7 @@ public:
 	 *
 	 * @param md typ wychylenia [none - wylacza obracanie]
 	 * @param distance amplituda wychylenia
-	 * @param speed prêtkosc obracania
+	 * @param speed prÃªtkosc obracania
 	 *
 	 */
 	void move(MoveType md, float distance, float speed = 1) = delete;
@@ -89,4 +97,3 @@ private:
 };
 
 #endif /*__ANIMATION_H__*/
-

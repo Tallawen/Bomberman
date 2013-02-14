@@ -1,4 +1,4 @@
-#include "Bomb.h"
+#include "Explosion.h"
 
 Bomb::Bomb(World *_ptr, int _fieldId, int _priority, sf::Vector2f _position) {
 	ptr = _ptr;

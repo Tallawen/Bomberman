@@ -41,7 +41,7 @@ bool SubWindow::init(sf::Vector2i dimensions, sf::Vector2i pos) {
   return init();
 }
 
-void SubWindow::show() {
+void SubWindow::show(void(* processPtr)(sf::Event)) {
 	bool done = false;
 
 	while(!done) {

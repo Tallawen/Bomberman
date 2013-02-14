@@ -17,45 +17,24 @@ Player::Player(int _fieldId, int _priority, sf::Vector2f _position) {
 	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Right"));
 	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Left"));
 
-	animation = new Animation(&sprite.at(0), spriteData.at(0));
+	animation = new Animation(sprite.at(0), spriteData.at(0));
 
 	goDown = goTop = goLeft = goRight = false;
 	lockChangeDirection = false;
 
-	position = _position + sf::Vector2f(12, -10);
-	sprite.at(0).SetPosition(position);
+	position = _position + sf::Vector2f(12, -10); // sf::Vector2f(12, -10) wysrodkowania gracza na kaflu
+	animation->setPos(position);
 }
 
 void Player::update(float dt) {
 	if(!goDown && !goRight && !goLeft && !goTop)
 		animation->stop();
 
-	if(goDown) {
+	if(goDown || goTop || goLeft || goRight) {
 		animation->play();
 
 		position += velocity * dt;
 		animation->setPos(position);
-	}
-
-	if(goTop) {
-		animation->play();
-
-		position += velocity * dt;
-		animation->setPos(position);
-	}
-
-	if(goLeft) {
-		animation->play();
-
-		position += velocity * dt;
-		animation->setPos(position);
-
-	}
-
-	if(goRight) {
-		animation->play();
-			position += velocity * dt;
-			animation->setPos(position);
 	}
 }
 

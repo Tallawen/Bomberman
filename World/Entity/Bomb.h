@@ -16,9 +16,10 @@ public:
 	float lifeTime;
 
 private:
-	Animation *animation;
+	std::vector<Animation> animationArray;
 
 	bool live;
+	bool detonated;
 	World *ptr;
 
 public:
@@ -26,7 +27,6 @@ public:
 	~Bomb();
 
 	void draw(float dt);
-	//void draw(float dt);
 
 	bool isLive() const { return live; }
 	void destroyStone(World *ptr, sf::Vector2f position, int dis);

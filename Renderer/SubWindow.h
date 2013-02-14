@@ -39,7 +39,7 @@ public:
 	unsigned int getWidth() const { return width; }
 	unsigned int getHeight() const { return height; }
 
-	void show();
+	void show(void(* processPtr)(sf::Event) = nullptr);
 	void close();
 
 	void setPosition(const sf::Vector2f &newPos);

@@ -109,6 +109,19 @@ public:
     sf::Vector2i getNField(sf::Vector2f pos);
     sf::Vector2i getNField(float x, float y);
 
+    /**
+     * Zwraca wspolrzedne na planszy na podstawie x i y tablicy
+     *
+     */
+    sf::Vector2i getPixelPosition(sf::Vector2i pos);
+    sf::Vector2i getPixelPosition(float x, float y);
+
+    /**
+     * Zwraca wspolrzedne na planszy na podstawie id tablicy
+     *
+     */
+    sf::Vector2i getPixelPosition(int id);
+
     sf::Vector2i getFloorStartPosition() { return floorStartPos; }
     sf::Vector2i getPlayerPos(int i) { return playerPos.at(i); }
     void setPlayerPos(int i, sf::Vector2i newPos) { playerPos.at(i) = newPos; }
