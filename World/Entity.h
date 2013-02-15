@@ -17,11 +17,14 @@ class World;
 
 class Entity {
 public:
-	Entity() { }
+	Entity() { remove = false; }
 	virtual ~Entity() { }
 
 	EntityData info;
 	SpriteData sp;
+
+	/// Czy entity ma zostac usuniete
+	bool remove;
 
 	virtual void update(float dt) { }
 	virtual void draw(float dt) { }

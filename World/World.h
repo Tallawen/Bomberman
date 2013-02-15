@@ -19,7 +19,6 @@
 #include "Entity/Bracket.h"
 #include "Entity/Bomb.h"
 
-
 class Player;
 class Entity;
 class Bomb;
@@ -38,6 +37,7 @@ public:
 		player,
 		shadow,
 		bomb,
+		explosion,
 		block,
 		other
 	};

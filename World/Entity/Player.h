@@ -14,7 +14,6 @@
 
 class Player : public Entity {
 public:
-
 	/// if true, currently moving in certain direction
 	bool goDown, goUp, goLeft, goRight;
 
@@ -38,14 +37,16 @@ private:
 	sf::Vector2f velocity;
 	sf::Vector2f position;
 
-	//bool goDown, goTop, goLeft, goRight;
-	//bool lockChangeDirection;
-
-	float distanceToMove;
+	//float distanceToMove;
 
 	/// przesuniecie hitboxa dla ruchu w prawo
 	// TODO: Sprawdzic czy blad przesuniecia nie wynika z zle podpietej tekstury
 	sf::Vector2f hitboxOffset;
+
+	/// Liczba bomb ktore posiada aktualne gracz
+	int bombNum;
+
+	int explosionLength;
 
 public:
 	Player(int _fieldId, int _priority, sf::Vector2f _position);
@@ -59,7 +60,7 @@ public:
 	void setVelocity(float x, float y) { velocity = sf::Vector2f(x, y); }
 	void setVelocity(sf::Vector2f _velocity) { velocity = _velocity; }
 
-	void setDistance(float newDis) { distanceToMove = newDis; }
+	//void setDistance(float newDis) { distanceToMove = newDis; }
 
 	/// Initialize movement in a direction
 	void down() {

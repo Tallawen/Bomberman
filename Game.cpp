@@ -19,16 +19,15 @@ void Game::startGame(int id) {
 
 	while(gameStart) {
 		while(Window::instance()->getRW()->GetEvent(event)) {
-			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
+			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape)
 				gameStart = false;
-				//Window::instance()->process(event);
-			}
 
 			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
 				// Press Z while playing to toggle hitboxes
 				Window::instance()->showHitbox = !Window::instance()->showHitbox;
 
 			Window::instance()->process(event);
+			playerControl(event);
 		}
 
 		Window::instance()->getRW()->Clear();
@@ -38,7 +37,7 @@ void Game::startGame(int id) {
 
 		world->draw(dt);
 
-		playerControl();
+		playerControlRealtime();
 
 		for(unsigned int i=0; i<world->player.size(); ++i)
 			world->player.at(i)->detectTileCollisions(world);
@@ -85,16 +84,24 @@ void inline Game::playerControl(sf::Key::Code keyCode, sf::Vector2f velocity, Pl
 			*move = player->lockChangeDirection = false;
 }
 
+void Game::playerControl(sf::Event &event) {
+	if(world->player.size() > 0) {
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Space)
+			world->player.at(0)->setBomb(world);
+	}
 
-void Game::playerControl() {
+	if(world->player.size() > 1) {
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Space)
+			world->player.at(1)->setBomb(world);
+	}
+}
+
+void Game::playerControlRealtime() {
 	if(world->player.size() > 0) {
 		playerControl(sf::Key::Down,  sf::Vector2f(0, 100),  world->player.at(0), World::Direction::bottom);
 		playerControl(sf::Key::Up,    sf::Vector2f(0, -100), world->player.at(0), World::Direction::top);
 		playerControl(sf::Key::Right, sf::Vector2f(100, 0),  world->player.at(0), World::Direction::right);
 		playerControl(sf::Key::Left,  sf::Vector2f(-100, 0), world->player.at(0), World::Direction::left);
-
-		if(input.IsKeyDown(sf::Key::Space))
-			world->player.at(0)->setBomb(world);
 	}
 
 	if(world->player.size() > 1) {
@@ -102,12 +109,8 @@ void Game::playerControl() {
 		playerControl(sf::Key::W, sf::Vector2f(0, -100), world->player.at(1), World::Direction::top);
 		playerControl(sf::Key::D, sf::Vector2f(100, 0),  world->player.at(1), World::Direction::right);
 		playerControl(sf::Key::A, sf::Vector2f(-100, 0), world->player.at(1), World::Direction::left);
-
-		if(input.IsKeyDown(sf::Key::LShift))
-			world->player.at(1)->setBomb(world);
 	}
 }
-
 
 void Game::changePlayerField() {
 	for(unsigned int i=0; i<world->player.size(); ++i) {

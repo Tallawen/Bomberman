@@ -1,11 +1,15 @@
 #include "Player.h"
 
 #include "../Hitbox.h"
+#include "Explosion.h"
 
 Player::Player(int _fieldId, int _priority, sf::Vector2f _position) {
 	info.fieldId = _fieldId;
 	info.priority = _priority;
 	info.position = _position;
+
+	bombNum = 2;
+	explosionLength = 5;
 
 	sprite.push_back(Sprite::instance()->getSprite("Player_White_Down"));
 	sprite.push_back(Sprite::instance()->getSprite("Player_White_Top"));
@@ -110,15 +114,15 @@ void Player::collideWithTile(World *ptr, int id){
 }
 
 void Player::setBomb(World *ptr) {
+	if(bombNum == 0) return;
+
 	sf::Vector2i pPos = ptr->getNField(position);
+	int id = pPos.y * ptr->mapDimensions.x + pPos.x;
 
-	Bomb *newBomb = new Bomb(ptr, pPos.y * ptr->mapDimensions.x + pPos.x, 2, position);
+	Bomb *bomb = new Bomb(ptr, bombNum, explosionLength, id, 0, position + animation_offset);
 
-	if(ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].find(World::DisplayOrder::bomb) == ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].end()) {
-
-		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(World::DisplayOrder::bomb, newBomb));
-		ptr->bombs.push_back(newBomb);
-	}
+	if(ptr->world[id].find(World::DisplayOrder::bomb) == ptr->world[id].end())
+		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(World::DisplayOrder::bomb, bomb));
 }
 
 void Player::draw(float dt) {

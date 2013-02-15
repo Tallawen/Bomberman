@@ -159,31 +159,30 @@ void World::draw(float dt) {
 	drawBackground();
 	drawFloor();
 
-	worldIterator wI = world.begin();
-	entityIterator eI;
+	worldIterator worldIt = world.begin();
+	entityIterator entityIt;
 
-	while(wI != world.end()) {
-		eI = wI->second.begin();
+	while(worldIt != world.end()) {
+		entityIt = worldIt->second.begin();
 
-		while(eI != wI->second.end()) {
-			if(eI->second != NULL) {
-				eI->second->draw(dt);
-				eI->second->update(dt);
+		while(entityIt != worldIt->second.end()) {
+			if(entityIt->second->remove) {
+				delete entityIt->second;
+				entityIt->second = nullptr;
 			}
-			++eI;
-		}
-		++wI;
-	}
 
-	bomb();
-}
+			// Wywolanie metody wylaczone z if'a znajdujacego sie wyzej na wypadek gdyby entity zostal usuniety z listy gdzies indziej
+			if(entityIt->second == nullptr)
+				entityIt = worldIt->second.erase(entityIt);
 
-void World::bomb() {
-	if(!bombs.empty()) {
-		if(!bombs.front()->isLive()) {
-			delete bombs.front();
-			bombs.erase(bombs.begin());
+			else {
+				entityIt->second->draw(dt);
+				entityIt->second->update(dt);
+
+				++entityIt;
+			}
 		}
+		++worldIt;
 	}
 }
 
@@ -198,9 +197,11 @@ sf::Vector2i World::getNField(sf::Vector2f pos) {
   return sf::Vector2i(x, y+1);
 }
 
+
 sf::Vector2i World::getNField(float x, float y) {
   return getNField(sf::Vector2f(x, y));
 }
+
 
 sf::Vector2i World::getPixelPosition(sf::Vector2i pos) {
 	pos.y *= (floorData.dimensions.y - 1);
@@ -211,9 +212,11 @@ sf::Vector2i World::getPixelPosition(sf::Vector2i pos) {
   return pos;
 }
 
+
 sf::Vector2i World::getPixelPosition(float x, float y) {
   return getPixelPosition(sf::Vector2i(x, y));
 }
+
 
 sf::Vector2i World::getPixelPosition(int id) {
 	int y = floor(id / mapDimensions.x);

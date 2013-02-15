@@ -21,8 +21,14 @@ public:
 	void startGame(int id);
 
 private:
-	void playerControl();
+	/// Eventy wymagajace tylko reakcji na klikniecie
+	void playerControl(sf::Event &event);
+
+	/// Eventy dzialajace w czasie trzymania klawisza
+	void playerControlRealtime();
+
 	void inline playerControl(sf::Key::Code keyCode, sf::Vector2f velocity, Player* player, World::Direction direction);
+
 	void changePlayerField();
 
 };

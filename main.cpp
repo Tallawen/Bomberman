@@ -26,7 +26,7 @@ int main() {
 
 	Sprite::instance()->insertTexture("Data/Bomb.png",           true);
 
-	Sprite::instance()->insertTexture("Data/explosion.png", true);
+	Sprite::instance()->insertTexture("Data/explosion3.png", true);
 
 	Sprite::instance()->insertTexture("Data/Player_White.png",   true);
 	Sprite::instance()->insertTexture("Data/PlayerGoRight2.png", true);
@@ -60,7 +60,7 @@ int main() {
 
 	Sprite::instance()->insertSprite("Bomb", "Bomb", 23, 25, 0, 0);
 
-	Sprite::instance()->insertSprite("Explosion", "explosion", 64, 64, 0, 0, true, 60);
+	Sprite::instance()->insertSprite("Explosion", "explosion3", 50, 50, 0, 0, true, 60);
 
 	Sprite::instance()->insertSprite("Player_White_Down",  "Player_White", 27, 42, 0, 0, true, 15);
 	Sprite::instance()->insertSprite("Player_White_Right", "PlayerGoRight2", 33, 42, 0, 0, true, 15);
@@ -80,7 +80,7 @@ int main() {
 		int id = menu.main(0);
 
 		if(id == 1) {
-			Window::instance()->init(Settings::Game::DEFAULT_WINDOW_WIDTH, Settings::Game::DEFAULT_WINDOW_HEIGHT, "Bomberman", sf::Style::None);
+			Window::instance()->init(959, 640, "Bomberman", sf::Style::None);
 			game.startGame(0);
 		}
 

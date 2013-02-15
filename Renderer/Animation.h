@@ -24,11 +24,8 @@ public:
 		none
 	};
 
-
 private:
-	//sf::Sprite *sprite;
 	sf::Sprite sprite;
-
 	SpriteData info;
 
 	bool playAnimation;
@@ -38,6 +35,9 @@ private:
 	float timePerFrame;
 	float timeAccumulation;
 
+	float delayPerFrame;
+	float delayAccumulation;
+
 	float rotationSpeed;
 	float rotationTimeAccumulation;
 	float rotationAngle;
@@ -45,7 +45,6 @@ private:
 
 public:
 	Animation() { }
-	//Animation(sf::Sprite *_sprite, const SpriteData &_info, bool _autoDraw = true);
 	Animation(sf::Sprite _sprite, const SpriteData &_info, bool _autoDraw = true, bool _autoStop = false);
 
 	void play();
@@ -53,6 +52,8 @@ public:
 	void pause();
 
 	void setAutoStop(bool _autoStop = true);
+	void setAutoDraw(bool _autoDraw = true);
+	void setDelay(float delay = 0.f);
 
 	sf::Sprite* getSprite();
 	void setSprite(sf::Sprite _sprite, const SpriteData &_info);
@@ -62,6 +63,7 @@ public:
 	void process(float dt);
 
 	void setPos(sf::Vector2f newPos);
+
 	sf::Vector2f getPos();
 	SpriteData getSpriteInfo();
 

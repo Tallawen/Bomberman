@@ -10,29 +10,36 @@
 #include "../../Renderer/Animation.h"
 #include "../../Renderer/Window.h"
 
+#include "Explosion.h"
+
 class Bomb : public Entity {
 public:
-	sf::Sprite sprite;
-	float lifeTime;
+	bool live;
 
 private:
-	std::vector<Animation> animationArray;
-
-	bool live;
-	bool detonated;
 	World *ptr;
 
+	sf::Sprite sprite;
+
+	int &bombNum;
+
+	float lifeTime;
+
+	int explosionLength;
+
 public:
-	Bomb(World *_ptr, int _fieldId, int _priority, sf::Vector2f _position);
+	Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _priority, sf::Vector2f _position);
 	~Bomb();
 
 	void draw(float dt);
+	void update(float dt);
+
 	Hitbox getHitbox() const;
 
 	bool isLive() const { return live; }
-	void destroyStone(World *ptr, sf::Vector2f position, int dis);
 
 private:
+	void explosion();
 
 };
 
