@@ -117,12 +117,12 @@ void Game::changePlayerField() {
 		sf::Vector2i playerPosition = world->getNField(*world->player.at(i)->getPosition());
 
 		if(playerPosition != world->getPlayerPos(i)) {
-			world->world[playerPosition.y * world->mapDimensions.x + playerPosition.x][World::DisplayOrder::player] = world->world[world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x][World::DisplayOrder::player];
+			world->world[playerPosition.y * world->mapDimensions.x + playerPosition.x][DisplayOrder::player] = world->world[world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x][DisplayOrder::player];
 
 			if(world->world.size() == 1)
 				world->world.erase(world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x);
 			else
-				world->world.at(world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x).erase(World::DisplayOrder::player);
+				world->world.at(world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x).erase(DisplayOrder::player);
 
 			world->setPlayerPos(i, sf::Vector2i(playerPosition.x, playerPosition.y));
 		}

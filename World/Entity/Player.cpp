@@ -83,9 +83,9 @@ void Player::detectTileCollisions(World *ptr) {
 // Colliding will stop the player and push them back.
 void Player::collideWithTile(World *ptr, int id){
 	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
-	if(ptr->world[id].find(World::DisplayOrder::block) == ptr->world[id].end()) return; //Field has no blocks
+	if(ptr->world[id].find(DisplayOrder::block) == ptr->world[id].end()) return; //Field has no blocks
 
-	Entity* entity = ptr->world[id][World::DisplayOrder::block];
+	Entity* entity = ptr->world[id][DisplayOrder::block];
 
 	Hitbox self = getHitbox();
 	Hitbox block = entity->getHitbox();
@@ -121,8 +121,8 @@ void Player::setBomb(World *ptr) {
 
 	Bomb *bomb = new Bomb(ptr, bombNum, explosionLength, id, 0, position + animation_offset);
 
-	if(ptr->world[id].find(World::DisplayOrder::bomb) == ptr->world[id].end())
-		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(World::DisplayOrder::bomb, bomb));
+	if(ptr->world[id].find(DisplayOrder::bomb) == ptr->world[id].end())
+		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(DisplayOrder::bomb, bomb));
 }
 
 void Player::draw(float dt) {

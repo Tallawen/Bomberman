@@ -44,7 +44,10 @@
 //	void update(float dt);
 //
 //
-//	bool checkTile(World *ptr, int id, World::DisplayOrder displayOrder,  bool (*ptrFun)(World*, int));
+//	bool checkTile(World *ptr, int id, DisplayOrder displayOrder,  bool (*ptrFun)(World*, int));
+//	bool stone(World *ptr, int id);
+//
+//
 //	bool collideWithStone(World *ptr, int id);
 //	bool collideWithExplosion(World *ptr, int id);
 //	bool collideWithBomb(World *ptr, int id);
@@ -57,5 +60,5 @@
 //private:
 //
 //};
-
+//
 #endif /*__EXPLOSION_H__*/

@@ -1,5 +1,5 @@
-//#include "Explosion.h"
-///*
+#include "Explosion.h"
+//
 //Explosion::Explosion(World *_ptr, int _fieldId, float _delay, int _priority, sf::Vector2f _position, int _explosionLength, Directions _directions) {
 //	ptr = _ptr;
 //
@@ -58,17 +58,18 @@
 //			switch(directions) {
 //			    case Directions::allSite: // -1
 //			    	for(int i = 0; i < 4; ++i) {
-//			    		if(collideWithStone(ptr, id[i]))
+//			    		if(checkTile(ptr, id[i], DisplayOrder::block, stone))
 //			    			newExplosion = new Explosion(ptr, id[i], delay + 0.1f, 0, position[i], explosionLength - 1, Directions::none);
 //
 //			    		else
 //			    			newExplosion = new Explosion(ptr, id[i], delay + 0.1f, 0, position[i], explosionLength - 1, Directions(i));
 //
-//			    		ptr->world[ id[i] ].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
+//			    		ptr->world[ id[i] ].insert( std::make_pair(DisplayOrder::explosion, newExplosion) );
 //			    	}
 //			       break;
+//
 //			    case Directions::right: // 0
-//			    	if(collideWithStone(ptr, id[0]))
+//			    	if(checkTile(ptr, id[0], DisplayOrder::block, stone))
 //			    		newExplosion = new Explosion(ptr, id[0], delay + 0.1f, 0, position[0], explosionLength - 1, Directions::none);
 //
 //			    /*	else if(collideWithExplosion(ptr, id[0]))
@@ -77,11 +78,11 @@
 //			    	else
 //			    		newExplosion = new Explosion(ptr, id[0], delay + 0.1f, 0, position[0], explosionLength - 1, Directions::right);
 //
-//			    	ptr->world[ id[0] ].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
+//			    	ptr->world[ id[0] ].insert( std::make_pair(DisplayOrder::explosion, newExplosion) );
 //			       break;
 //
 //			    case Directions::left: // 1
-//			    	if(collideWithStone(ptr, id[1]))
+//			    	if(checkTile(ptr, id[1], DisplayOrder::block, stone))
 //			    		newExplosion = new Explosion(ptr, id[1], delay + 0.1f, 0, position[1], explosionLength - 1, Directions::none);
 //
 //			    /*	else if(collideWithExplosion(ptr, id[1]))
@@ -90,11 +91,11 @@
 //			    	else
 //			    		newExplosion = new Explosion(ptr, id[1], delay + 0.1f, 0, position[1], explosionLength - 1, Directions::left);
 //
-//			    	ptr->world[ id[1] ].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
+//			    	ptr->world[ id[1] ].insert( std::make_pair(DisplayOrder::explosion, newExplosion) );
 //			       break;
 //
 //			    case Directions::top: // 2
-//			    	if(collideWithStone(ptr, id[2]))
+//			    	if(checkTile(ptr, id[2], DisplayOrder::block, stone))
 //			    		newExplosion = new Explosion(ptr, id[2], delay + 0.1f, 0, position[2], explosionLength - 1, Directions::none);
 //
 //			    	/*else if(collideWithExplosion(ptr, id[2]))
@@ -103,11 +104,11 @@
 //			    	else
 //			    		newExplosion = new Explosion(ptr, id[2], delay + 0.1f, 0, position[2], explosionLength - 1, Directions::top);
 //
-//			    	ptr->world[ id[2] ].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
+//			    	ptr->world[ id[2] ].insert( std::make_pair(DisplayOrder::explosion, newExplosion) );
 //			       break;
 //
 //			    case Directions::down: // 3
-//			    	if(collideWithStone(ptr, id[3]))
+//			    	if(checkTile(ptr, id[3], DisplayOrder::block, stone))
 //			    		newExplosion = new Explosion(ptr, id[3], delay + 0.1f, 0, position[3], explosionLength - 1, Directions::none);
 //
 //			    /*	else if(collideWithExplosion(ptr, id[3]))
@@ -116,7 +117,7 @@
 //			    	else
 //			    		newExplosion = new Explosion(ptr, id[3], delay + 0.1f, 0, position[3], explosionLength - 1, Directions::left);
 //
-//			    	ptr->world[ id[3] ].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
+//			    	ptr->world[ id[3] ].insert( std::make_pair(DisplayOrder::explosion, newExplosion) );
 //			       break;
 //			}
 //
@@ -127,38 +128,38 @@
 //
 //	if(!animation->isPlay())
 //		setRemove();
-//}*/
-///*
+//}
+//
 //void Explosion::setDelay(float delay) {
 //	if(animation != nullptr)
 //		animation->setDelay(delay);
 //}
 //
-//bool Explosion::checkTile(World *ptr, int id, World::DisplayOrder displayOrder,  bool (ptrFun*)(World* int) ) {
+//bool Explosion::checkTile(World *ptr, int id, DisplayOrder displayOrder,  bool (*ptrFun)(World*, int) ) {
 //	if(ptr->world.find(id) == ptr->world.end()) return false; //No such field on map
 //	if(ptr->world[id].find(displayOrder) == ptr->world[id].end()) return false; //Field has no displayOrder
 //
-//	(ptrFun)(ptr, id);
+//	return (ptrFun)(ptr, id);
 //
 //  return false;
 //}
 //
 //bool Explosion::stone(World *ptr, int id) {
-//	Entity* entity = ptr->world[id][World::DisplayOrder::block];
+//	Entity* entity = ptr->world[id][DisplayOrder::block];
 //
-//	if(!entity->remove)
+//	if(!entity->remove) {
 //		entity->remove = true;
-//
 //	  return true;
 //	}
+//
 //  return false;
-//}*/
+//}
 ///*
 //bool Explosion::bomb(World *ptr, int id) {
 //	if(ptr->world.find(id) == ptr->world.end()) return false; //No such field on map
-//	if(ptr->world[id].find(World::DisplayOrder::bomb) == ptr->world[id].end()) return false; //Field has no bomb
+//	if(ptr->world[id].find(DisplayOrder::bomb) == ptr->world[id].end()) return false; //Field has no bomb
 //
-//	Entity* entity = ptr->world[id][World::DisplayOrder::bomb];
+//	Entity* entity = ptr->world[id][DisplayOrder::bomb];
 //
 //	Hitbox self = getHitbox();
 //	Hitbox bomb = entity->getHitbox();
@@ -171,7 +172,7 @@
 //	}
 //  return false;
 //}
-//
+//*/
 //void Explosion::setRemove() {
 //	if(animation == nullptr) return;
 //
@@ -180,9 +181,9 @@
 //	delete animation;
 //	animation = nullptr;
 //}
-//*/
-///*
+//
+//
 //Hitbox Explosion::getHitbox() const {
 //    return Hitbox( info.position + sf::Vector2f(10, -10), info.position + sf::Vector2f(sp.dimensions.x, -sp.dimensions.y) + sf::Vector2f(-10, 10));
 //}
-//*/
+//

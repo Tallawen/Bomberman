@@ -23,16 +23,8 @@ class Player;
 class Entity;
 class Bomb;
 
-class World {
-public:
-	std::vector<Player*> player;
-	typedef std::vector<Player*>::iterator playerIterator;
-
-	std::vector<Bomb*> bombs;
-	//typedef std::vector<Bomb*>::iterator bombIterator;
-
-	enum class DisplayOrder {
-		equipment,
+enum class DisplayOrder {
+	equipment,
 		opponent,
 		player,
 		shadow,
@@ -41,6 +33,14 @@ public:
 		block,
 		other
 	};
+
+class World {
+public:
+	std::vector<Player*> player;
+	typedef std::vector<Player*>::iterator playerIterator;
+
+	std::vector<Bomb*> bombs;
+	//typedef std::vector<Bomb*>::iterator bombIterator;
 
 	enum class Direction {
 		right,
