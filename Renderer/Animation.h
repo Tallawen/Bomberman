@@ -68,6 +68,7 @@ public:
 	SpriteData getSpriteInfo();
 
 	bool isPlay() { return playAnimation; }
+	bool isDelay();
 
 	/**
 	 * Wlacza obracanie obiektu wzglêdem jego srodka.

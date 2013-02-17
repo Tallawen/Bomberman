@@ -1,5 +1,9 @@
 #include "Game.h"
 
+#include "Constants.h"
+
+#include "Renderer/Window.h"
+
 /***********************************************************************************
  Game :: methods
  *********************/
@@ -98,17 +102,17 @@ void Game::playerControl(sf::Event &event) {
 
 void Game::playerControlRealtime() {
 	if(world->player.size() > 0) {
-		playerControl(sf::Key::Down,  sf::Vector2f(0, 100),  world->player.at(0), World::Direction::bottom);
-		playerControl(sf::Key::Up,    sf::Vector2f(0, -100), world->player.at(0), World::Direction::top);
-		playerControl(sf::Key::Right, sf::Vector2f(100, 0),  world->player.at(0), World::Direction::right);
-		playerControl(sf::Key::Left,  sf::Vector2f(-100, 0), world->player.at(0), World::Direction::left);
+		playerControl(sf::Key::Down,  sf::Vector2f(0, Constants::Player::SPEED),  world->player.at(0), World::Direction::bottom);
+		playerControl(sf::Key::Up,    sf::Vector2f(0, -Constants::Player::SPEED), world->player.at(0), World::Direction::top);
+		playerControl(sf::Key::Right, sf::Vector2f(Constants::Player::SPEED,  0),  world->player.at(0), World::Direction::right);
+		playerControl(sf::Key::Left,  sf::Vector2f(-Constants::Player::SPEED, 0), world->player.at(0), World::Direction::left);
 	}
 
 	if(world->player.size() > 1) {
-		playerControl(sf::Key::S, sf::Vector2f(0, 100),  world->player.at(1), World::Direction::bottom);
-		playerControl(sf::Key::W, sf::Vector2f(0, -100), world->player.at(1), World::Direction::top);
-		playerControl(sf::Key::D, sf::Vector2f(100, 0),  world->player.at(1), World::Direction::right);
-		playerControl(sf::Key::A, sf::Vector2f(-100, 0), world->player.at(1), World::Direction::left);
+		playerControl(sf::Key::S, sf::Vector2f(0, Constants::Player::SPEED),  world->player.at(1), World::Direction::bottom);
+		playerControl(sf::Key::W, sf::Vector2f(0, -Constants::Player::SPEED), world->player.at(1), World::Direction::top);
+		playerControl(sf::Key::D, sf::Vector2f(Constants::Player::SPEED,  0),  world->player.at(1), World::Direction::right);
+		playerControl(sf::Key::A, sf::Vector2f(-Constants::Player::SPEED, 0), world->player.at(1), World::Direction::left);
 	}
 }
 
@@ -117,12 +121,12 @@ void Game::changePlayerField() {
 		sf::Vector2i playerPosition = world->getNField(*world->player.at(i)->getPosition());
 
 		if(playerPosition != world->getPlayerPos(i)) {
-			world->world[playerPosition.y * world->mapDimensions.x + playerPosition.x][DisplayOrder::player] = world->world[world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x][DisplayOrder::player];
+			world->world[playerPosition.y * world->mapDimensions.x + playerPosition.x][LayerType::LAYER_CHARACTERS] = world->world[world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x][LayerType::LAYER_CHARACTERS];
 
 			if(world->world.size() == 1)
 				world->world.erase(world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x);
 			else
-				world->world.at(world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x).erase(DisplayOrder::player);
+				world->world.at(world->getPlayerPos(i).y * world->mapDimensions.x + world->getPlayerPos(i).x).erase(LayerType::LAYER_CHARACTERS);
 
 			world->setPlayerPos(i, sf::Vector2i(playerPosition.x, playerPosition.y));
 		}

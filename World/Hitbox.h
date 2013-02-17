@@ -30,20 +30,20 @@ public:
     /// Return vector for top-left corner
     sf::Vector2f getMin() const { return min; }
 
-    	/// Return left x coordinate
-    	float getMinX() const { return min.x; }
+    /// Return left x coordinate
+    float getMinX() const { return min.x; }
 
-    	/// Return top y coordinate
-    	float getMinY() const { return min.y; }
+    /// Return top y coordinate
+    float getMinY() const { return min.y; }
 
     /// Return vector for bottom-right corner
     sf::Vector2f getMax() const { return max; }
 
-    	/// Return right x coordinate
-    	float getMaxX() const { return max.x; }
+    /// Return right x coordinate
+    float getMaxX() const { return max.x; }
 
-    	/// Return bottom y coordinate
-    	float getMaxY() const { return max.y; }
+    /// Return bottom y coordinate
+    float getMaxY() const { return max.y; }
 
 };
 

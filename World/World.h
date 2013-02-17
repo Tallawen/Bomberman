@@ -3,51 +3,29 @@
 
 #include "../StdAfx.h"
 
-#include "../Renderer/Window.h"
 #include "../Renderer/Sprite.h"
+#include "../Renderer/Layers.h"
+
+#include "Map.h"
 
 #include "Entity.h"
-#include "Map.h"
-#include "Hitbox.h"
-
 #include "Entity/Player.h"
-#include "Entity/RampDown.h"
-#include "Entity/RampLeft.h"
-#include "Entity/RampRight.h"
-#include "Entity/RampTop.h"
-#include "Entity/Stone.h"
-#include "Entity/Bracket.h"
-#include "Entity/Bomb.h"
 
 class Player;
-class Entity;
-class Bomb;
-
-enum class DisplayOrder {
-	equipment,
-		opponent,
-		player,
-		shadow,
-		bomb,
-		explosion,
-		block,
-		other
-	};
+//class Entity;
 
 class World {
 public:
-	std::vector<Player*> player;
-	typedef std::vector<Player*>::iterator playerIterator;
-
-	std::vector<Bomb*> bombs;
-	//typedef std::vector<Bomb*>::iterator bombIterator;
-
 	enum class Direction {
 		right,
 		left,
 		top,
 		bottom
 	};
+
+public:
+	std::vector<Player*> player;
+	typedef std::vector<Player*>::iterator playerIterator;
 
 	/**
 	 * std::map<int [a], std::map<int [b], Entity* [c]> >
@@ -57,7 +35,7 @@ public:
 	 * [c] - wskaznik na element który znajduje siê na danym polu i na danej kolejnosci
 	 *
 	 */
-	std::map<int, std::map<DisplayOrder, Entity*> > world;
+	std::map<int, std::map<LayerType, Entity*> > world;
 
 	sf::Vector2i mapDimensions;
 
@@ -66,18 +44,12 @@ public:
 private:
     Map map;
 
-    //std::map<int, std::map<int, Entity*> > world;
-    typedef std::map<int, std::map<DisplayOrder, Entity*> >::iterator worldIterator;
-    typedef std::map<DisplayOrder, Entity*>::iterator entityIterator;
-
-    //std::vector<Player*> player;
-//    typedef std::vector<Player*>::iterator playerIterator;
+    typedef std::map<int, std::map<LayerType, Entity*> >::iterator worldIterator;
+    typedef std::map<LayerType, Entity*>::iterator entityIterator;
 
     std::vector<sf::Vector2i> playerPos;
 
     sf::Vector2f windowDimensions;
-	//sf::Vector2i mapDimensions;
-
 	sf::Vector2i backgroundStartPos;
 
 	/// corresponds to bottom-left corner of tile(0,0) of the map
@@ -89,6 +61,7 @@ private:
 
 	sf::Image newBackgroundImg;
 	sf::Image newSpriteImg;
+
 	sf::Sprite *backgroundSprite;
 	sf::Sprite *floorSprite;
 
@@ -126,10 +99,8 @@ public:
 
     sf::Vector2i getFloorStartPosition() { return floorStartPos; }
     sf::Vector2i getPlayerPos(int i) { return playerPos.at(i); }
-    void setPlayerPos(int i, sf::Vector2i newPos) { playerPos.at(i) = newPos; }
 
-    void bomb();
-   // void deleteFirstBomb() { delete bomb.front(); }
+    void setPlayerPos(int i, sf::Vector2i newPos) { playerPos.at(i) = newPos; }
 
 public:
     void drawBackground();

@@ -1,10 +1,13 @@
 #ifndef __ENTITY_H__
 #define __ENTITY_H__
 
-#include "Hitbox.h"
-
 #include "../StdAfx.h"
+
 #include "../Renderer/Sprite.h"
+#include "../Renderer/Animation.h"
+#include "../Renderer/Window.h"
+
+#include "Hitbox.h"
 
 struct EntityData {
 	sf::Vector2f position;

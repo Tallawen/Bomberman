@@ -3,8 +3,6 @@
 
 #include "../StdAfx.h"
 
-#include "Window.h"
-
 class SubWindow {
 public:
 

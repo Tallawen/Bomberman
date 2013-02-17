@@ -2,6 +2,7 @@
 #define __WINDOW_H__
 
 #include "../StdAfx.h"
+
 #include "../World/Hitbox.h"
 
 /// Window Singleton

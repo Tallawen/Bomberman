@@ -1,5 +1,11 @@
 #include "Bomb.h"
 
+#include "../../constants.h"
+
+#include "../../Renderer/SoundManager.h"
+
+#include "Explosion.h"
+
 Bomb::Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _priority, sf::Vector2f _position) : bombNum(_bombNum) {
 	ptr = _ptr;
 
@@ -7,7 +13,10 @@ Bomb::Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _
 	info.priority = _priority;
 	info.position = _position;
 
-	lifeTime = 3;
+	bombNum = _bombNum;
+	bombNum -= 1;
+
+	lifeTime = Constants::Bomb::LIFE_TIME;
 	live = true;
 
 	explosionLength = _explosionLength;
@@ -21,6 +30,8 @@ Bomb::Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _
 }
 
 Bomb::~Bomb() {
+	bombNum += 1;
+
 	LOG("Delete bomb");
 }
 
@@ -33,9 +44,13 @@ void Bomb::draw(float dt) {
 
 void Bomb::update(float dt) {
 	if(lifeTime < 0 || !live) {
-		if(!remove)
+		if(!remove) {
 			explosion();
 
+			SoundManager::getQueue().push(sf::Sound());
+			SoundManager::getQueue().back().SetBuffer(SoundManager::instance().getSoundBuffer("bomb.explode"));
+		 	SoundManager::getQueue().back().Play();
+		}
 		remove = true;
 	  return;
 	}
@@ -48,29 +63,17 @@ Hitbox Bomb::getHitbox() const {
 }
 
 void Bomb::explosion() {
-	/* right, left, top, bottom */
-	int id[] = {0, 0, 0, 0};
-	sf::Vector2f position[] = {info.position, info.position, info.position, info.position};
+	if(ptr->world[info.fieldId].find(LayerType::LAYER_EXPLOSIONS) != ptr->world[info.fieldId].end()) {
+		Entity* entity = ptr->world[info.fieldId][LayerType::LAYER_EXPLOSIONS];
 
-	// Eksplozja w miejscu bomby
-//	Explosion *newExplosion = new Explosion(ptr, info.fieldId, 0.1f, 0, info.position, 1, Explosion::Directions::allSite);
-//	ptr->world[info.fieldId].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
+		ptr->world[info.fieldId].erase(LayerType::LAYER_EXPLOSIONS);
 
-	/*
-	id[0] = info.fieldId + 1;
-	id[1] = info.fieldId - 1;
-	id[2] = info.fieldId + ptr->mapDimensions.x;
-	id[3] = info.fieldId - ptr->mapDimensions.x;
+		static_cast<Explosion*>(entity)->setRemove();
+		delete entity;
+	}
 
-	position[0].x += ptr->floorData.dimensions.x;
-	position[1].x -= ptr->floorData.dimensions.x;
-	position[2].y += ptr->floorData.dimensions.y;
-	position[3].y -= ptr->floorData.dimensions.y;
 
-	for(int i = 0; i < 4; ++i) {
-		if(ptr->world[ id[i] ].find(World::DisplayOrder::explosion) == ptr->world[ id[i] ].end()) {
-			newExplosion = new Explosion(ptr, id[i], 0.2f, 0, position[i], explosionLength - 1, i);
-			ptr->world[ id[i] ].insert( std::make_pair(World::DisplayOrder::explosion, newExplosion) );
-		}
-	}*/
+	/// Eksplozja w miejscu bomby
+	Explosion *newExplosion = new Explosion(ptr, info.fieldId, Constants::Explosion::DELAY, 0, info.position, explosionLength, Explosion::Directions::allSite);
+	ptr->world[info.fieldId].insert(std::make_pair(LayerType::LAYER_EXPLOSIONS, newExplosion));
 }

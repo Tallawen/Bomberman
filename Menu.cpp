@@ -1,5 +1,11 @@
 #include "Menu.h"
 
+#include "Constants.h"
+
+#include "Renderer/Window.h"
+#include "Renderer/SubWindow.h"
+#include "Renderer/Sprite.h"
+
 /***********************************************************************************
  Game :: methods
  *********************/
@@ -25,7 +31,10 @@ Menu::Menu() : maxOptions(3) {
 }
 
 int Menu::main(int id) {
-	Window::instance()->init(570, 570, "Bomberman", sf::Style::None);
+	Window::instance()->init(Constants::Menu::SCREEN_WIDTH,
+			                 Constants::Menu::SCREEN_HEIGHT,
+			                 Constants::Menu::SCREEN_TITLE,
+                             sf::Style::None);
 
 	bool done = false;
 	sf::Event event;

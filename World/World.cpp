@@ -1,5 +1,23 @@
 #include "World.h"
 
+
+#include "../Renderer/Window.h"
+#include "../Renderer/Sprite.h"
+#include "../Renderer/Layers.h"
+
+#include "Entity.h"
+#include "Map.h"
+#include "Hitbox.h"
+
+#include "Entity/Player.h"
+#include "Entity/RampDown.h"
+#include "Entity/RampLeft.h"
+#include "Entity/RampRight.h"
+#include "Entity/RampTop.h"
+#include "Entity/Stone.h"
+#include "Entity/Bracket.h"
+#include "Entity/Bomb.h"
+
 /***********************************************************************************
  World :: methods
  *********************/
@@ -103,16 +121,16 @@ void World::loadWorld(unsigned int id) {
 	for(int i=0; i < mapDimensions.y; ++i) {
 		for(int j=0; j < mapDimensions.x; ++j) {
 			if(board[i*mapDimensions.x+j] == 1) /* TODO: Zmienic porównywanie na bardziej dynamiczne */ // RampTop
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampTop(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_BLOCKS, new RampTop(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 2) // RampBottom
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampDown(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_BLOCKS, new RampDown(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 3) // RampLeft
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_BLOCKS, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 4) // RampRight
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_BLOCKS, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			//if(board[i*mapDimensions.x+j] == 5) ;// DoorClose
 				//world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampLeft(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x, i*floorData.dimensions.y + floorStartPos.y))));
@@ -121,10 +139,10 @@ void World::loadWorld(unsigned int id) {
 				//world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new RampRight(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x, i*floorData.dimensions.y + floorStartPos.y))));
 
 			if(board[i*mapDimensions.x+j] == 7) // Stone
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new Stone(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_STONES, new Stone(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 8) // Bracket
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::block, new Bracket(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_BLOCKS, new Bracket(i*mapDimensions.y, 0, sf::Vector2f(j*floorData.dimensions.x + floorStartPos.x - j, i*floorData.dimensions.y + floorStartPos.y - i))));
 
 			if(board[i*mapDimensions.x+j] == 9) { // Player
 				// Player is placed in the middle of tile (j, i)
@@ -140,7 +158,7 @@ void World::loadWorld(unsigned int id) {
 
 				playerPos.push_back(sf::Vector2i(j, i));
 
-				world[i*mapDimensions.x+j].insert(std::make_pair(DisplayOrder::player, player.back()));
+				world[i*mapDimensions.x+j].insert(std::make_pair(LayerType::LAYER_CHARACTERS, player.back()));
 			}
 		}
 	}

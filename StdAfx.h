@@ -39,6 +39,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 /***********************************************************************************
  Third party
@@ -48,6 +49,14 @@
 #include "wtypes.h"
 //#include "Srt.h"
 //#include "Function.h"
+
+extern "C"
+{
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+}
+
 
 /***********************************************************************************
  Typedefs

@@ -3,14 +3,9 @@
 
 #include "../../StdAfx.h"
 
-#include "../Entity.h"
 #include "../World.h"
 
-#include "../../Renderer/Sprite.h"
-#include "../../Renderer/Animation.h"
-#include "../../Renderer/Window.h"
-
-#include "Bomb.h"
+#include "../Entity.h"
 
 class Player : public Entity {
 public:
@@ -37,30 +32,29 @@ private:
 	sf::Vector2f velocity;
 	sf::Vector2f position;
 
-	//float distanceToMove;
-
 	/// przesuniecie hitboxa dla ruchu w prawo
 	// TODO: Sprawdzic czy blad przesuniecia nie wynika z zle podpietej tekstury
 	sf::Vector2f hitboxOffset;
 
 	/// Liczba bomb ktore posiada aktualne gracz
-	int bombNum;
+	int bombNumber;
 
+	/// Liczba ogolnie posiadanych bomb
+	int bombMaxNumber;
 	int explosionLength;
+
+	sf::Color hitboxColor;
 
 public:
 	Player(int _fieldId, int _priority, sf::Vector2f _position);
 
 	void update(float dt);
 	void draw(float dt);
-	Hitbox getHitbox() const;
 
-	bool isLock() const { return lockChangeDirection; }
+	Hitbox getHitbox() const;
 
 	void setVelocity(float x, float y) { velocity = sf::Vector2f(x, y); }
 	void setVelocity(sf::Vector2f _velocity) { velocity = _velocity; }
-
-	//void setDistance(float newDis) { distanceToMove = newDis; }
 
 	/// Initialize movement in a direction
 	void down() {
@@ -97,6 +91,8 @@ public:
 	void detectTileCollisions(World *ptr);
 
 	void setBomb(World *ptr);
+
+	bool isLock() const { return lockChangeDirection; }
 
 private:
 	//used in detectTileCollisions

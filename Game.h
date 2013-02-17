@@ -3,8 +3,6 @@
 
 #include "StdAfx.h"
 
-#include "Renderer/Window.h"
-
 #include "World/World.h"
 
 class Game {

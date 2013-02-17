@@ -88,25 +88,25 @@ void Animation::setDelay(float delay) {
 	delayPerFrame = delay;
 }
 
+bool Animation::isDelay() {
+	return !(delayAccumulation >= delayPerFrame);
+}
+
 void Animation::draw() {
 	Window::instance()->getRW()->Draw(sprite);
 }
-
 
 void Animation::setPos(sf::Vector2f newPos) {
 	sprite.SetPosition(newPos);
 }
 
-
 sf::Vector2f Animation::getPos() {
   return sprite.GetPosition();
 }
 
-
 SpriteData Animation::getSpriteInfo() {
   return info;
 }
-
 
 void Animation::rotate(RotationDirection rd, float speed) {
 	if(rotationDirection == RotationDirection::none && rd != RotationDirection::none) {
@@ -127,7 +127,6 @@ void Animation::rotate(RotationDirection rd, float speed) {
 
 	rotationDirection == RotationDirection::left ? rotationAngle = -1 : rotationAngle = 1;
 }
-
 
 void Animation::rotate(float dt) {
 	if(rotationDirection == RotationDirection::none) return;

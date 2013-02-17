@@ -52,6 +52,6 @@ bool Hitbox::collide(const Hitbox &a, const Hitbox &b) { //static method
 }
 
 bool Hitbox::collidesWith(const Hitbox &box) const {
-	return collide(*this, box);
+  return collide(*this, box);
 }
 

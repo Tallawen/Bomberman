@@ -3,11 +3,6 @@
 
 #include "StdAfx.h"
 
-#include "Renderer/Window.h"
-#include "Renderer/SubWindow.h"
-#include "Renderer/Text.h"
-#include "Game.h"
-
 class Menu {
 public:
 

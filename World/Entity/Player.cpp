@@ -1,15 +1,16 @@
 #include "Player.h"
 
-#include "../Hitbox.h"
-#include "Explosion.h"
+#include "../../constants.h"
+
+#include "Bomb.h"
 
 Player::Player(int _fieldId, int _priority, sf::Vector2f _position) {
 	info.fieldId = _fieldId;
 	info.priority = _priority;
 	info.position = _position;
 
-	bombNum = 2;
-	explosionLength = 5;
+	bombMaxNumber = bombNumber = Constants::Bomb::NUMBER;
+	explosionLength = Constants::Explosion::LENGTH;
 
 	sprite.push_back(Sprite::instance()->getSprite("Player_White_Down"));
 	sprite.push_back(Sprite::instance()->getSprite("Player_White_Top"));
@@ -33,6 +34,8 @@ Player::Player(int _fieldId, int _priority, sf::Vector2f _position) {
 	animation_offset = sf::Vector2f(-12,10);
 
 	animation->setPos(position+animation_offset);
+
+	hitboxColor = sf::Color::Red;
 }
 
 void Player::update(float dt) {
@@ -83,15 +86,21 @@ void Player::detectTileCollisions(World *ptr) {
 // Colliding will stop the player and push them back.
 void Player::collideWithTile(World *ptr, int id){
 	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
-	if(ptr->world[id].find(DisplayOrder::block) == ptr->world[id].end()) return; //Field has no blocks
 
-	Entity* entity = ptr->world[id][DisplayOrder::block];
+	Entity *entity = nullptr;
+
+	if(ptr->world[id].find(LayerType::LAYER_STONES) != ptr->world[id].end())
+		entity = ptr->world[id][LayerType::LAYER_STONES];
+	else if(ptr->world[id].find(LayerType::LAYER_BLOCKS) != ptr->world[id].end())
+		entity = ptr->world[id][LayerType::LAYER_BLOCKS];
+	else
+		return; //Field has no blocks and stones
 
 	Hitbox self = getHitbox();
 	Hitbox block = entity->getHitbox();
 
-	if( Hitbox::collide(self, block) ) {
-		sf::Vector2f offset(0,0);
+	if(Hitbox::collide(self, block)) {
+		sf::Vector2f offset(0, 0);
 
 		// calculate where to push the player
 		if(goDown)  offset.y =  block.getMinY() - self.getMaxY() - 1; // Negative value -- push up and a little more
@@ -114,26 +123,26 @@ void Player::collideWithTile(World *ptr, int id){
 }
 
 void Player::setBomb(World *ptr) {
-	if(bombNum == 0) return;
+	if(bombNumber == 0) return;
 
 	sf::Vector2i pPos = ptr->getNField(position);
 	int id = pPos.y * ptr->mapDimensions.x + pPos.x;
 
-	Bomb *bomb = new Bomb(ptr, bombNum, explosionLength, id, 0, position + animation_offset);
+	Bomb *bomb = new Bomb(ptr, bombNumber, explosionLength, id, 0, position + animation_offset);
 
-	if(ptr->world[id].find(DisplayOrder::bomb) == ptr->world[id].end())
-		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(DisplayOrder::bomb, bomb));
+	if(ptr->world[id].find(LayerType::LAYER_BOMBS) == ptr->world[id].end())
+		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(LayerType::LAYER_BOMBS, bomb));
 }
 
 void Player::draw(float dt) {
 	animation->process(dt);
 	animation->draw();
 
-	Window::instance()->drawHitbox(getHitbox(),sf::Color::Red);
+	Window::instance()->drawHitbox(getHitbox(), hitboxColor);
 }
 
 // TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
 Hitbox Player::getHitbox() const {
 	// square 22*22 centered on player -- to be placed somewhere else.
-	return Hitbox( position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset );
+	return Hitbox(position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset);
 }

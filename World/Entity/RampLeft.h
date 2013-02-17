@@ -4,9 +4,6 @@
 #include "../../StdAfx.h"
 
 #include "../Entity.h"
-#include "../../Renderer/Sprite.h"
-#include "../../Renderer/Animation.h"
-#include "../../Renderer/Window.h"
 
 class RampLeft : public Entity {
 public:

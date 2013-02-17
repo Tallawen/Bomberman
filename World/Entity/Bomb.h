@@ -3,14 +3,9 @@
 
 #include "../../StdAfx.h"
 
-#include "../Entity.h"
 #include "../World.h"
 
-#include "../../Renderer/Sprite.h"
-#include "../../Renderer/Animation.h"
-#include "../../Renderer/Window.h"
-
-#include "Explosion.h"
+#include "../Entity.h"
 
 class Bomb : public Entity {
 public:
@@ -22,10 +17,9 @@ private:
 	sf::Sprite sprite;
 
 	int &bombNum;
+	int explosionLength;
 
 	float lifeTime;
-
-	int explosionLength;
 
 public:
 	Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _priority, sf::Vector2f _position);
