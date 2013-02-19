@@ -39,7 +39,7 @@ private:
 	bool first;
 
 public:
-	Explosion(World *_ptr, int _fieldId, float delay, int _priority, sf::Vector2f _position, int _explosionLength, Directions _directions);
+	Explosion(World *_ptr, int _id, float delay, sf::Vector2f _position, int _explosionLength, Directions _directions);
 	~Explosion();
 
 	void draw(float dt);

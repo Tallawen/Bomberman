@@ -1,8 +1,7 @@
 #include "RampLeft.h"
 
-RampLeft::RampLeft(int _fieldId, int _priority, sf::Vector2f _position) {
-	info.fieldId = _fieldId;
-	info.priority = _priority;
+RampLeft::RampLeft(int _id, sf::Vector2f _position) {
+	info.id = _id;
 	info.position = _position;
 
 	sprite = Sprite::instance()->getSprite("RampLeft");

@@ -12,7 +12,7 @@ public:
 private:
 
 public:
-	RampRight(int _fieldId, int _priority, sf::Vector2f _position);
+	RampRight(int _id, sf::Vector2f _position);
 	~RampRight() { }
 
 	void draw(float dt);

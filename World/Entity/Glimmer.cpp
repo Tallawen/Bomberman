@@ -1,35 +1,26 @@
-#include "Player.h"
+#include "Glimmer.h"
 
 #include "../../constants.h"
 
-#include "Bomb.h"
+Glimmer::Glimmer(World *_ptr, int _id, sf::Vector2f _position) {
+	ptr = _ptr;
 
-Player::Player(int _id, sf::Vector2f _position) {
 	info.id = _id;
 	info.position = _position;
 
-	maxBombAmount = Constants::Bomb::MAX_AMOUNT;
-	bombAmount  = Constants::Bomb::START_AMOUNT;
+	sprite.push_back(Sprite::instance()->getSprite("Enemi_down"));
+	sprite.push_back(Sprite::instance()->getSprite("Enemi_top"));
+	sprite.push_back(Sprite::instance()->getSprite("Enemi_right"));
+	sprite.push_back(Sprite::instance()->getSprite("Enemi_left"));
 
-	healthAmount = Constants::Player::HEALTH;
-	maxHealthAmount = Constants::Player::MAX_HEALTH;
-
-	explosionLength = Constants::Explosion::LENGTH;
-
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Down"));
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Top"));
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Right"));
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Left"));
-
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Down"));
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Top"));
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Right"));
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Left"));
+	spriteData.push_back(Sprite::instance()->getSpriteData("Enemi_down"));
+	spriteData.push_back(Sprite::instance()->getSpriteData("Enemi_top"));
+	spriteData.push_back(Sprite::instance()->getSpriteData("Enemi_right"));
+	spriteData.push_back(Sprite::instance()->getSpriteData("Enemi_left"));
 
 	animation = new Animation(sprite.at(0), spriteData.at(0));
 
 	goDown = goUp = goLeft = goRight = false;
-	lockChangeDirection = false;
 
 	// See World::loadWorld()
 	position = _position;
@@ -40,20 +31,68 @@ Player::Player(int _id, sf::Vector2f _position) {
 	animation->setPos(position+animation_offset);
 
 	hitboxColor = sf::Color::Red;
+
+	movement(Direction::right);
 }
 
-void Player::update(float dt) {
+void Glimmer::movement(Glimmer::Direction direction) {
+	animation->setSprite(sprite.at( int(direction) ), spriteData.at( int(direction) ));
+	animation->setPos(position + animation_offset);
+
+	switch(direction) {
+	    case Direction::down:
+	    	goDown = true;
+	    	velocity = sf::Vector2f(0, 50);
+
+			hitboxOffset = sf::Vector2f(0, 0);
+	      break;
+
+	    case Direction::top:
+	    	goUp = true;
+	    	velocity = sf::Vector2f(0, -50);
+
+			hitboxOffset = sf::Vector2f(0, 0);
+	      break;
+
+	    case Direction::right:
+	    	goRight = true;
+	    	velocity = sf::Vector2f(50, 0);
+
+			hitboxOffset = sf::Vector2f(10, 0);
+	      break;
+
+	    case Direction::left:
+	    	goLeft = true;
+	    	velocity = sf::Vector2f(-50, 0);
+
+			hitboxOffset = sf::Vector2f(0, 0);
+	      break;
+	}
+}
+
+void Glimmer::update(float dt) {
 	if(!goDown && !goRight && !goLeft && !goUp) {
 		animation->stop();
 	} else {
+		detectTileCollisions();
+
 		animation->play();
 		position += velocity * dt;
 		animation->setPos(position+animation_offset);
+
+		sf::Vector2i newId = ptr->getNField(position);
+		if(newId.x != ptr->xByID(info.id) || newId.y != ptr->yByID(info.id)) {
+			ptr->world[ptr->ID(newId.x, newId.y)][LayerType::LAYER_CHARACTERS] = ptr->world[info.id][LayerType::LAYER_CHARACTERS];
+
+			ptr->world[info.id].erase(LayerType::LAYER_CHARACTERS);
+
+			info.id = ptr->ID(newId.x, newId.y);
+		}
 	}
 }
 
 // Choose which tiles to check based on movement
-void Player::detectTileCollisions(World *ptr) {
+void Glimmer::detectTileCollisions() {
 	sf::Vector2i currField = ptr->getNField(position);
 	int width = ptr->mapDimensions.x;
 
@@ -88,7 +127,7 @@ void Player::detectTileCollisions(World *ptr) {
 
 // Check for collision, correct position if necessary
 // Colliding will stop the player and push them back.
-void Player::collideWithTile(World *ptr, int id){
+void Glimmer::collideWithTile(World *ptr, int id){
 	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
 
 	Entity *entity = nullptr;
@@ -119,26 +158,61 @@ void Player::collideWithTile(World *ptr, int id){
 		// TODO: Going towards a wall causes player's sprite to derp out -- find out why
 
 		// Lock further movement
-		if(goDown)  goDown  = lockChangeDirection = false;
-		if(goUp)    goUp    = lockChangeDirection = false;
-		if(goRight) goRight = lockChangeDirection = false;
-		if(goLeft)  goLeft  = lockChangeDirection = false;
+		route(true);
 	}
 }
 
-void Player::setBomb(World *ptr) {
-	if(bombAmount == 0) return;
+void Glimmer::route(bool current) {
+	int k = sf::Randomizer::Random(0, 2);
 
-	sf::Vector2i pPos = ptr->getNField(position);
-	int id = pPos.y * ptr->mapDimensions.x + pPos.x;
+	if(goDown) {
+		goDown = false;
+		if(k == 0)
+			movement(Direction::left);
 
-	Bomb *bomb = new Bomb(ptr, bombAmount, explosionLength, id, position + animation_offset);
+		if(k == 1)
+					movement(Direction::top);
 
-	if(ptr->world[id].find(LayerType::LAYER_BOMBS) == ptr->world[id].end())
-		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(LayerType::LAYER_BOMBS, bomb));
+		if(k == 2)
+					movement(Direction::right);
+
+	} else if(goUp) {
+		goUp = false;
+		if(k == 0)
+					movement(Direction::left);
+
+				if(k == 1)
+							movement(Direction::down);
+
+				if(k == 2)
+							movement(Direction::right);
+
+	} else if(goRight) {
+		goRight = false;
+		if(k == 0)
+					movement(Direction::left);
+
+				if(k == 1)
+							movement(Direction::top);
+
+				if(k == 2)
+							movement(Direction::down);
+
+	} else if(goLeft) {
+		goLeft = false;
+		if(k == 0)
+					movement(Direction::down);
+
+				if(k == 1)
+							movement(Direction::top);
+
+				if(k == 2)
+							movement(Direction::right);
+
+	}
 }
 
-void Player::draw(float dt) {
+void Glimmer::draw(float dt) {
 	animation->process(dt);
 	animation->draw();
 
@@ -146,7 +220,7 @@ void Player::draw(float dt) {
 }
 
 // TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
-Hitbox Player::getHitbox() const {
+Hitbox Glimmer::getHitbox() const {
 	// square 22*22 centered on player -- to be placed somewhere else.
 	return Hitbox(position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset);
 }

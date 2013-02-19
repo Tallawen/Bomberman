@@ -12,7 +12,7 @@ public:
 private:
 
 public:
-	RampTop(int _fieldId, int _priority, sf::Vector2f _position);
+	RampTop(int _id, sf::Vector2f _position);
 	~RampTop() { }
 
 	void draw(float dt);

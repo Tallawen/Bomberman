@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include "Constants.h"
+#include "UI.h"
 
 #include "Renderer/Window.h"
 
@@ -20,6 +21,8 @@ void Game::startGame(int id) {
 	bool gameStart = true;
 	sf::Clock clock;
 	sf::Event event;
+	UI ui;
+	int tmp = 1;
 
 	while(gameStart) {
 		while(Window::instance()->getRW()->GetEvent(event)) {
@@ -29,6 +32,12 @@ void Game::startGame(int id) {
 			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
 				// Press Z while playing to toggle hitboxes
 				Window::instance()->showHitbox = !Window::instance()->showHitbox;
+
+			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::U)
+				tmp++;
+
+			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::D)
+							tmp--;
 
 			Window::instance()->process(event);
 			playerControl(event);
@@ -41,12 +50,17 @@ void Game::startGame(int id) {
 
 		world->draw(dt);
 
+		ui.drawHealthBar(tmp);
+		ui.drawBombBar(tmp);
+
 		playerControlRealtime();
 
 		for(unsigned int i=0; i<world->player.size(); ++i)
 			world->player.at(i)->detectTileCollisions(world);
 
 		changePlayerField();
+
+		ui.drawFPS(dt);
 
 		Window::instance()->getRW()->Display();
 	}

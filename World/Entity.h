@@ -10,24 +10,27 @@
 #include "Hitbox.h"
 
 struct EntityData {
+
+	/** Pozycja na ekranie **/
 	sf::Vector2f position;
 
-	int fieldId;
-	int priority;
+	/** Id kafla **/
+	int id;
 };
 
 class World;
 
 class Entity {
 public:
-	Entity() { remove = false; }
-	virtual ~Entity() { }
-
 	EntityData info;
-	SpriteData sp;
+	SpriteData sd;
 
 	/// Czy entity ma zostac usuniete
 	bool remove;
+
+public:
+	Entity() { remove = false; }
+	virtual ~Entity() { }
 
 	virtual void update(float dt) { }
 	virtual void draw(float dt) { }
@@ -38,13 +41,6 @@ public:
 		return Hitbox(sf::Vector2f(0,0),sf::Vector2f(0,0));
 	}
 	//virtual void checkCollisions(float dt) const = 0;
-
-private:
-
-public:
-
-private:
-
 };
 
 #endif /*__ENTITY_H__*/

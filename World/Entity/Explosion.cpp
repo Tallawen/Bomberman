@@ -4,11 +4,10 @@
 
 #include "Bomb.h"
 
-Explosion::Explosion(World *_ptr, int _fieldId, float _delay, int _priority, sf::Vector2f _position, int _explosionLength, Directions _directions) {
+Explosion::Explosion(World *_ptr, int _id, float _delay, sf::Vector2f _position, int _explosionLength, Directions _directions) {
 	ptr = _ptr;
 
-	info.fieldId = _fieldId;
-	info.priority = _priority;
+	info.id = _id;
 	info.position = _position;
 
 	explosionLength = _explosionLength;
@@ -17,18 +16,37 @@ Explosion::Explosion(World *_ptr, int _fieldId, float _delay, int _priority, sf:
 	delay = _delay;
 	first = false;
 
-	id[0] = info.fieldId + 1;
-	id[1] = info.fieldId - 1;
-	id[2] = info.fieldId + ptr->mapDimensions.x;
-	id[3] = info.fieldId - ptr->mapDimensions.x;
+	id[0] = (int(ptr->xByID(info.id) + 1) < ptr->mapDimensions.x) ?
+			ptr->ID(
+					ptr->xByID(info.id) + 1,
+					ptr->yByID(info.id)
+			) :	-1;
+
+	id[1] = (int(ptr->xByID(info.id) - 1) > -1) ?
+			ptr->ID(
+					ptr->xByID(info.id) - 1,
+					ptr->yByID(info.id)
+			) :	-1;
+
+	id[2] = (int(ptr->yByID(info.id) + 1) < ptr->mapDimensions.y) ?
+			ptr->ID(
+					ptr->xByID(info.id),
+					ptr->yByID(info.id) + 1
+			) :	-1;
+
+	id[3] = (int(ptr->yByID(info.id) - 1) > -1) ?
+			ptr->ID(
+					ptr->xByID(info.id),
+					ptr->yByID(info.id) - 1
+			) :	-1;
 
 	position[0] = info.position;  position[0].x += ptr->floorData.dimensions.x;
 	position[1] = info.position;  position[1].x -= ptr->floorData.dimensions.x;
 	position[2] = info.position;  position[2].y += ptr->floorData.dimensions.y;
 	position[3] = info.position;  position[3].y -= ptr->floorData.dimensions.y;
 
-	sp = Sprite::instance()->getSpriteData("Explosion");
-	animation = new Animation(Sprite::instance()->getSprite("Explosion"), sp);
+	sd = Sprite::instance()->getSpriteData("Explosion");
+	animation = new Animation(Sprite::instance()->getSprite("Explosion"), sd);
 
 	animation->setAutoStop();
 	animation->setAutoDraw(true);
@@ -36,8 +54,7 @@ Explosion::Explosion(World *_ptr, int _fieldId, float _delay, int _priority, sf:
 	animation->setDelay(delay);
 	animation->play();
 
-	//LOG("Create explosion ");
-	std::cerr << "Create explosion: " << explosionLength << std::endl;
+    std::cerr << "Create explosion: " << explosionLength << std::endl;
 }
 
 Explosion::~Explosion() {
@@ -58,7 +75,7 @@ void Explosion::update(float dt) {
 		if(explosionLength > 0) {
 
 			switch(directions) {
-			    case Directions::none: //
+			    case Directions::none: // -2
 
 			      break;
 
@@ -100,15 +117,17 @@ void Explosion::setDelay(float delay) {
 }
 
 void Explosion::create(int _id) {
+	if(id[_id] == -1) return;
+
 	Explosion *newExplosion = nullptr;
 
 	checkTile(ptr, id[_id], LayerType::LAYER_EXPLOSIONS, &Explosion::explosion);
 
 	if(checkTile(ptr, id[_id], LayerType::LAYER_STONES, &Explosion::stone) || checkTile(ptr, id[_id], LayerType::LAYER_BOMBS, &Explosion::bomb))
-		newExplosion = new Explosion(ptr, id[_id], delay + Constants::Explosion::DELAY, 0, position[_id], explosionLength - 1, Directions::none);
+		newExplosion = new Explosion(ptr, id[_id], delay + Constants::Explosion::DELAY, position[_id], explosionLength - 1, Directions::none);
 
 	else if(!checkTile(ptr, id[_id], LayerType::LAYER_BLOCKS, &Explosion::block))
-		newExplosion = new Explosion(ptr, id[_id], delay + Constants::Explosion::DELAY, 0, position[_id], explosionLength - 1, Directions(_id));
+		newExplosion = new Explosion(ptr, id[_id], delay + Constants::Explosion::DELAY, position[_id], explosionLength - 1, Directions(_id));
 
 	if(newExplosion != nullptr)
 		ptr->world[ id[_id] ].insert( std::make_pair(LayerType::LAYER_EXPLOSIONS, newExplosion) );
@@ -162,5 +181,5 @@ void Explosion::setRemove() {
 }
 
 Hitbox Explosion::getHitbox() const {
-    return Hitbox( info.position + sf::Vector2f(10, -10), info.position + sf::Vector2f(sp.dimensions.x, -sp.dimensions.y) + sf::Vector2f(-10, 10));
+    return Hitbox( info.position + sf::Vector2f(10, -10), info.position + sf::Vector2f(sd.dimensions.x, -sd.dimensions.y) + sf::Vector2f(-10, 10));
 }

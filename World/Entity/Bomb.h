@@ -13,16 +13,15 @@ public:
 
 private:
 	World *ptr;
-
 	sf::Sprite sprite;
 
-	int &bombNum;
+	int &bombAmount;
 	int explosionLength;
 
 	float lifeTime;
 
 public:
-	Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _priority, sf::Vector2f _position);
+	Bomb(World *_ptr, int &_bombAmount, int _explosionLength, int _id, sf::Vector2f _position);
 	~Bomb();
 
 	void draw(float dt);

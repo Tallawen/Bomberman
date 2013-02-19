@@ -10,6 +10,9 @@ class Window { /*Singleton*/
 public:
 	bool showHitbox;
 
+	const uint desktopHeight;
+	const uint desktopWidth;
+
 private:
 	static Window *_instance;
 

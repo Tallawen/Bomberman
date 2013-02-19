@@ -9,16 +9,12 @@ class Bracket : public Entity {
 public:
 	sf::Sprite sprite;
 
-private:
-
 public:
-	Bracket(int _fieldId, int _priority, sf::Vector2f _position);
+	Bracket(int _id, sf::Vector2f _position);
 	~Bracket() { }
 
 	void draw(float dt);
 	Hitbox getHitbox() const;
-
-private:
 
 };
 

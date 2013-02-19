@@ -37,16 +37,18 @@ private:
 	sf::Vector2f hitboxOffset;
 
 	/// Liczba bomb ktore posiada aktualne gracz
-	int bombNumber;
+	int bombAmount;
 
-	/// Liczba ogolnie posiadanych bomb
-	int bombMaxNumber;
+	int maxBombAmount;
 	int explosionLength;
+
+	uint healthAmount;
+	uint maxHealthAmount;
 
 	sf::Color hitboxColor;
 
 public:
-	Player(int _fieldId, int _priority, sf::Vector2f _position);
+	Player(int _id, sf::Vector2f _position);
 
 	void update(float dt);
 	void draw(float dt);
@@ -93,6 +95,9 @@ public:
 	void setBomb(World *ptr);
 
 	bool isLock() const { return lockChangeDirection; }
+
+	int getBombAmount() const { return bombAmount; }
+	int getHealthAmount() const { return healthAmount; }
 
 private:
 	//used in detectTileCollisions

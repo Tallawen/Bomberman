@@ -15,7 +15,7 @@ Window* Window::instance() {
 /***********************************************************************************
  Window :: methods
  *********************/
-Window::Window() : height(0), width(0), bpp(0), icon(NULL), position(sf::Vector2i(0, 0)), style(0) {
+Window::Window() : height(0), width(0), bpp(0), icon(NULL), position(sf::Vector2i(0, 0)), style(0), desktopWidth(sf::VideoMode::GetDesktopMode().Width), desktopHeight(sf::VideoMode::GetDesktopMode().Height) {
 	showHitbox=false;
 }
 

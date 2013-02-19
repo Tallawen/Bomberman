@@ -12,7 +12,7 @@ public:
 private:
 
 public:
-	Stone(int _fieldId, int _priority, sf::Vector2f _position);
+	Stone(int _id, sf::Vector2f _position);
 	~Stone() { }
 
 	void draw(float dt);

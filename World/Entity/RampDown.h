@@ -12,7 +12,7 @@ public:
 private:
 
 public:
-	RampDown(int _fieldId, int _priority, sf::Vector2f _position);
+	RampDown(int _id, sf::Vector2f _position);
 	~RampDown() { }
 
 	void draw(float dt);

@@ -6,15 +6,13 @@
 
 #include "Explosion.h"
 
-Bomb::Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _priority, sf::Vector2f _position) : bombNum(_bombNum) {
+Bomb::Bomb(World *_ptr, int &_bombAmount, int _explosionLength, int _id, sf::Vector2f _position) : bombAmount(_bombAmount) {
 	ptr = _ptr;
 
-	info.fieldId  = _fieldId;
-	info.priority = _priority;
+	info.id  = _id;
 	info.position = _position;
 
-	bombNum = _bombNum;
-	bombNum -= 1;
+	bombAmount -= 1;
 
 	lifeTime = Constants::Bomb::LIFE_TIME;
 	live = true;
@@ -22,7 +20,7 @@ Bomb::Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _
 	explosionLength = _explosionLength;
 
 	sprite = Sprite::instance()->getSprite("Bomb");
-	sp     = Sprite::instance()->getSpriteData("Bomb");
+	sd     = Sprite::instance()->getSpriteData("Bomb");
 
 	sprite.SetPosition(info.position);
 
@@ -30,7 +28,7 @@ Bomb::Bomb(World *_ptr, int &_bombNum, int _explosionLength, int _fieldId, int _
 }
 
 Bomb::~Bomb() {
-	bombNum += 1;
+	bombAmount += 1;
 
 	LOG("Delete bomb");
 }
@@ -63,10 +61,10 @@ Hitbox Bomb::getHitbox() const {
 }
 
 void Bomb::explosion() {
-	if(ptr->world[info.fieldId].find(LayerType::LAYER_EXPLOSIONS) != ptr->world[info.fieldId].end()) {
-		Entity* entity = ptr->world[info.fieldId][LayerType::LAYER_EXPLOSIONS];
+	if(ptr->world[info.id].find(LayerType::LAYER_EXPLOSIONS) != ptr->world[info.id].end()) {
+		Entity* entity = ptr->world[info.id][LayerType::LAYER_EXPLOSIONS];
 
-		ptr->world[info.fieldId].erase(LayerType::LAYER_EXPLOSIONS);
+		ptr->world[info.id].erase(LayerType::LAYER_EXPLOSIONS);
 
 		static_cast<Explosion*>(entity)->setRemove();
 		delete entity;
@@ -74,6 +72,6 @@ void Bomb::explosion() {
 
 
 	/// Eksplozja w miejscu bomby
-	Explosion *newExplosion = new Explosion(ptr, info.fieldId, Constants::Explosion::DELAY, 0, info.position, explosionLength, Explosion::Directions::allSite);
-	ptr->world[info.fieldId].insert(std::make_pair(LayerType::LAYER_EXPLOSIONS, newExplosion));
+	Explosion *newExplosion = new Explosion(ptr, info.id, Constants::Explosion::DELAY, info.position, explosionLength, Explosion::Directions::allSite);
+	ptr->world[info.id].insert(std::make_pair(LayerType::LAYER_EXPLOSIONS, newExplosion));
 }

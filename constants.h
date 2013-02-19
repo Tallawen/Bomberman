@@ -24,12 +24,15 @@ namespace Constants {
     namespace Player {
 
         extern ConstInt SPEED;
+        extern ConstInt HEALTH;
+        extern ConstInt MAX_HEALTH;
 
     }
 
     namespace Bomb {
 
-        extern ConstInt NUMBER;
+        extern ConstInt START_AMOUNT;
+        extern ConstInt MAX_AMOUNT;
         extern ConstNum LIFE_TIME;
 
     }
@@ -38,6 +41,36 @@ namespace Constants {
 
         extern ConstInt LENGTH;
         extern ConstNum DELAY;
+
+    }
+
+    namespace UI {
+
+        namespace HealthBar {
+
+            extern ConstInt X;
+            extern ConstInt Y;
+            extern ConstInt LENGHT;
+            extern ConstInt ALPHA;
+
+        }
+
+        namespace BombBar {
+
+            extern ConstInt X;
+            extern ConstInt Y;
+            extern ConstInt OFFSET;
+            extern ConstInt ALPHA;
+
+        }
+
+        namespace FPS {
+
+            extern ConstInt X;
+            extern ConstInt Y;
+            extern ConstInt SIZE;
+
+        }
 
     }
 

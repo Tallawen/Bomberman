@@ -57,7 +57,7 @@ int Menu::main(int id) {
 			Window::instance()->process(event);
 		}
 
-		Window::instance()->getRW()->Clear();
+		Window::instance()->getRW()->Clear(sf::Color(255,255,255, 0));
 		Window::instance()->getRW()->Draw(background);
 
 		for(int i=0; i<maxOptions; ++i) {

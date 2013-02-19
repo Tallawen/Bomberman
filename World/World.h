@@ -6,7 +6,7 @@
 #include "../Renderer/Sprite.h"
 #include "../Renderer/Layers.h"
 
-#include "Map.h"
+#include "MapGen.h"
 
 #include "Entity.h"
 #include "Entity/Player.h"
@@ -42,7 +42,7 @@ public:
 	SpriteData floorData;
 
 private:
-    Map map;
+    MapGen map;
 
     typedef std::map<int, std::map<LayerType, Entity*> >::iterator worldIterator;
     typedef std::map<LayerType, Entity*>::iterator entityIterator;
@@ -56,13 +56,10 @@ private:
 	sf::Vector2i floorStartPos;
 
     // Mala optymalizacja
-	SpriteData backgroundData;
 	//SpriteData floorData;
 
-	sf::Image newBackgroundImg;
 	sf::Image newSpriteImg;
 
-	sf::Sprite *backgroundSprite;
 	sf::Sprite *floorSprite;
 
 public:
@@ -102,9 +99,14 @@ public:
 
     void setPlayerPos(int i, sf::Vector2i newPos) { playerPos.at(i) = newPos; }
 
+    int ID(uint x, uint y) const { return y * mapDimensions.x + x; }
+
+    uint xByID(uint id) const { return id % mapDimensions.x; }
+
+    uint yByID(uint id) const { return id / mapDimensions.x; }
+
 public:
-    void drawBackground();
-	void drawFloor();
+    void drawFloor();
 
 };
 
