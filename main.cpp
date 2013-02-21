@@ -40,6 +40,19 @@ int main() {
 	Sprite::instance()->insertTexture("Data/gfx/characters/PlayerGoLeft.png",   true);
 	Sprite::instance()->insertTexture("Data/gfx/characters/PlayerGoTop.png",    true);
 
+	Sprite::instance()->insertTexture("Data/gfx/characters/Bat_Top.png",   true);
+	Sprite::instance()->insertTexture("Data/gfx/characters/Bat_Right.png", true);
+	Sprite::instance()->insertTexture("Data/gfx/characters/Bat_Down.png",   true);
+	Sprite::instance()->insertTexture("Data/gfx/characters/Bat_Left.png",    true);
+
+	Sprite::instance()->insertTexture("Data/gfx/characters/Death_Top.png",   true);
+		Sprite::instance()->insertTexture("Data/gfx/characters/Death_Right.png", true);
+		Sprite::instance()->insertTexture("Data/gfx/characters/Death_Down.png",   true);
+		Sprite::instance()->insertTexture("Data/gfx/characters/Death_Left.png",    true);
+
+	Sprite::instance()->insertTexture("Data/gfx/elements/wall2.png");
+	Sprite::instance()->insertTexture("Data/gfx/elements/ledder.png");
+
 	Sprite::instance()->insertTexture("Data/gfx/elements/test.png");
 	Sprite::instance()->insertTexture("Data/gfx/elements/test2.png");
 	Sprite::instance()->insertTexture("Data/gfx/elements/test3.png");
@@ -78,6 +91,9 @@ int main() {
 	Sprite::instance()->insertSprite("DoorOpen",   "Block", 51, 34, 459, 27);
 	Sprite::instance()->insertSprite("Shadow",     "Block", 51, 40, 530, 21);
 
+	Sprite::instance()->insertSprite("Wall", "wall2", 1, 108, 0, 0);
+	Sprite::instance()->insertSprite("Ledder", "ledder", 18, 99, 0, 0);
+
 	Sprite::instance()->insertSprite("UI_HealtBar",     "test", 1, 16, 0, 0);
 	Sprite::instance()->insertSprite("UI_HealtBarLeft",     "test2", 2, 16, 0, 0);
 	Sprite::instance()->insertSprite("UI_HealtBarRight",     "test3", 2, 16, 0, 0);
@@ -95,6 +111,17 @@ int main() {
 	Sprite::instance()->insertSprite("Enemi_right", "Enemy1_GoRight", 33, 32, 0, 0, true, 3);
 	Sprite::instance()->insertSprite("Enemi_left",  "Enemy1_GoLeft", 33, 32, 0, 0,  true, 3);
 	Sprite::instance()->insertSprite("Enemi_top",   "Enemy1_GoTop", 33, 32, 0, 0,   true, 3);
+
+	Sprite::instance()->insertSprite("Bat_top",  "Bat_Top", 32, 43, 0, 0,  true, 4);
+	Sprite::instance()->insertSprite("Bat_down", "Bat_Down", 32, 43, 0, 0, true, 4);
+	Sprite::instance()->insertSprite("Bat_left",  "Bat_Left", 32, 43, 0, 0,  true, 4);
+	Sprite::instance()->insertSprite("Bat_right",   "Bat_Right", 32, 43, 0, 0,   true, 4);
+
+	Sprite::instance()->insertSprite("Death_top",  "Death_Top", 47, 46, 0, 0,  true, 4);
+		Sprite::instance()->insertSprite("Death_down", "Death_Down", 47, 46, 0, 0, true, 4);
+		Sprite::instance()->insertSprite("Death_left",  "Death_Left", 47, 46, 0, 0,  true, 4);
+		Sprite::instance()->insertSprite("Death_right",   "Death_Right", 47, 46, 0, 0,   true, 4);
+
 
 	/* Load sounds */
 	SoundManager::instance().registerSound("Data/audio/Bomb_Explode.ogg", "bomb.explode");

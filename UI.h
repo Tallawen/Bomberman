@@ -22,6 +22,8 @@ private:
 
 	sf::String *fps;
 
+	sf::Shape board;
+
 public:
 	UI();
 	~UI() { };
@@ -29,6 +31,7 @@ public:
 	void drawHealthBar(int _health);
 	void drawBombBar(int _health);
 	void drawFPS(float dt);
+	void drawBoard();
 
 private:
 

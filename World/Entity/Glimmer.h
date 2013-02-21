@@ -49,6 +49,7 @@ private:
 
 public:
 	Glimmer(World  *_ptr, int _id, sf::Vector2f _position);
+	~Glimmer();
 
 	void update(float dt);
 	void draw(float dt);

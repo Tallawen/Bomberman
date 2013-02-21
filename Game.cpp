@@ -50,17 +50,19 @@ void Game::startGame(int id) {
 
 		world->draw(dt);
 
+
+		for(unsigned int i=0; i<world->player.size(); ++i)
+					world->player.at(i)->detectTileCollisions(world);
+
 		ui.drawHealthBar(tmp);
 		ui.drawBombBar(tmp);
 
 		playerControlRealtime();
 
-		for(unsigned int i=0; i<world->player.size(); ++i)
-			world->player.at(i)->detectTileCollisions(world);
-
 		changePlayerField();
 
 		ui.drawFPS(dt);
+		ui.drawBoard();
 
 		Window::instance()->getRW()->Display();
 	}
@@ -116,12 +118,12 @@ void Game::playerControl(sf::Event &event) {
 
 void Game::playerControlRealtime() {
 	if(world->player.size() > 0) {
-		playerControl(sf::Key::Down,  sf::Vector2f(0, Constants::Player::SPEED),  world->player.at(0), World::Direction::bottom);
-		playerControl(sf::Key::Up,    sf::Vector2f(0, -Constants::Player::SPEED), world->player.at(0), World::Direction::top);
-		playerControl(sf::Key::Right, sf::Vector2f(Constants::Player::SPEED,  0),  world->player.at(0), World::Direction::right);
-		playerControl(sf::Key::Left,  sf::Vector2f(-Constants::Player::SPEED, 0), world->player.at(0), World::Direction::left);
-	}
+			playerControl(sf::Key::Down,  sf::Vector2f(0, Constants::Player::SPEED),  world->player.at(0), World::Direction::bottom);
+			playerControl(sf::Key::Up,    sf::Vector2f(0, -Constants::Player::SPEED), world->player.at(0), World::Direction::top);
+			playerControl(sf::Key::Right, sf::Vector2f(Constants::Player::SPEED,  0),  world->player.at(0), World::Direction::right);
+			playerControl(sf::Key::Left,  sf::Vector2f(-Constants::Player::SPEED, 0), world->player.at(0), World::Direction::left);
 
+	}
 	if(world->player.size() > 1) {
 		playerControl(sf::Key::S, sf::Vector2f(0, Constants::Player::SPEED),  world->player.at(1), World::Direction::bottom);
 		playerControl(sf::Key::W, sf::Vector2f(0, -Constants::Player::SPEED), world->player.at(1), World::Direction::top);

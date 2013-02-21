@@ -83,12 +83,32 @@ void World::drawFloor() {
 			Window::instance()->getRW()->Draw(shadow);
 		}
 
+		drawWall();
+
 		newSpriteImg = Window::instance()->getRW()->Capture();
 		newSpriteImg.SetSmooth(false);
 
 		floorSprite = new sf::Sprite(newSpriteImg);
 	} else
 		Window::instance()->getRW()->Draw(*floorSprite);
+}
+
+void World::drawWall() {
+	sf::Sprite sprite = Sprite::instance()->getSprite("Wall");
+	sprite.SetCenter(0, 0);
+	sprite.SetBlendMode(sf::Blend::Alpha);
+
+	for(int i = 0; i < windowDimensions.x; ++i) {
+		sprite.SetPosition(i, 0);
+
+		Window::instance()->getRW()->Draw(sprite);
+	}
+
+	 sprite = Sprite::instance()->getSprite("Ledder");
+	 sprite.SetCenter(0, 0);
+	 sprite.SetPosition(sf::Randomizer::Random(600.0f, windowDimensions.x - 100.0f), 0);
+
+	 Window::instance()->getRW()->Draw(sprite);
 }
 
 void World::loadWorld(unsigned int id) {
@@ -137,8 +157,8 @@ void World::loadWorld(unsigned int id) {
 				// Player is placed in the middle of tile (j, i)
 				player.push_back(new Player(ID(x, y),
 					sf::Vector2f(
-							x * floorData.dimensions.x + floorStartPos.x,
-							y * floorData.dimensions.y + floorStartPos.y
+							x * floorData.dimensions.x + floorStartPos.x + 30,
+							y * floorData.dimensions.y + floorStartPos.y - 30
 							//floorStartPos.x	+ (x * floorData.dimensions.x - x) - floorData.dimensions.x / 2,
 						//floorStartPos.y	+ (y * floorData.dimensions.y - y) - floorData.dimensions.y / 2
 					)
@@ -154,7 +174,7 @@ void World::loadWorld(unsigned int id) {
 			}
 
 			if(board[ID(x, y)] == MapGen::ElementType::exit) { // Player
-				world[ID(x, y)].insert(std::make_pair(LayerType::LAYER_CHARACTERS, new Glimmer(this, ID(x, y),
+				world[ID(x, y)].insert(std::make_pair(LayerType::LAYER_OPPONENTS, new Glimmer(this, ID(x, y),
 										sf::Vector2f(
 												x * floorData.dimensions.x + floorStartPos.x,
 												y * floorData.dimensions.y + floorStartPos.y
@@ -204,35 +224,32 @@ void World::draw(float dt) {
 
 /// Return field containing this vector
 sf::Vector2i World::getNField(sf::Vector2f pos) {
-	pos.x -= floorStartPos.x;
-	pos.y -= floorStartPos.y;
+	float x = pos.x - floorStartPos.x;
+	float y = pos.y - floorStartPos.y + 50;
 
-	int x = pos.x / (floorData.dimensions.x - 1);
-	int y = pos.y / (floorData.dimensions.y - 1);
+	x /= floorData.dimensions.x;
+	y /= floorData.dimensions.y;
 
-  return sf::Vector2i(x, y+1);
+  return sf::Vector2i(int(x), int(y));
 }
 
 sf::Vector2i World::getNField(float x, float y) {
   return getNField(sf::Vector2f(x, y));
 }
 
-sf::Vector2i World::getPixelPosition(sf::Vector2i pos) {
-	pos.y *= (floorData.dimensions.y - 1);
-	pos.x *= (floorData.dimensions.x - 1);
+sf::Vector2f World::getPixelPosition(sf::Vector2f pos) {
+	pos.y *= floorData.dimensions.y;
+	pos.x *= floorData.dimensions.x;
 
 	pos.x += floorStartPos.x;
 	pos.y += floorStartPos.y;
   return pos;
 }
 
-sf::Vector2i World::getPixelPosition(float x, float y) {
-  return getPixelPosition(sf::Vector2i(x, y));
+sf::Vector2f World::getPixelPosition(float x, float y) {
+  return getPixelPosition(sf::Vector2f(x, y));
 }
 
-sf::Vector2i World::getPixelPosition(int id) {
-	int y = floor(id / mapDimensions.x);
-	int x = id - y * mapDimensions.x;
-
-  return getPixelPosition(sf::Vector2i(x, y));
+sf::Vector2f World::getPixelPosition(int id) {
+  return getPixelPosition(sf::Vector2f(xByID(id), yByID(id)));
 }

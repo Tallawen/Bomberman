@@ -45,6 +45,14 @@ public:
     /// Return bottom y coordinate
     float getMaxY() const { return max.y; }
 
+    bool isOver(const Hitbox &box) const;
+
+    bool isUpper(const Hitbox &box) const;
+
+    bool isOnLeft(const Hitbox &box) const;
+
+    bool isOnRight(const Hitbox &box) const;
+
 };
 
 #endif /* __HITBOX_H__ */

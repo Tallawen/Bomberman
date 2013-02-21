@@ -120,7 +120,6 @@ void UI::drawBombBar(int bombAmount) {
 	}
 }
 
-
 void UI::drawFPS(float dt) {
 	static float time = 0;
 	static float frames = 0;
@@ -152,4 +151,26 @@ void UI::drawFPS(float dt) {
 	}
 
 	Window::instance()->getRW()->Draw(*fps);
+}
+
+void UI::drawBoard() {
+	static bool create = false;
+
+	if(!create) {
+		board = sf::Shape::Rectangle(
+				2,
+				2,
+				Window::instance()->getWidth()-2,
+				Window::instance()->getHeight()-2,
+				sf::Color(255, 255, 255, 0),
+				4,
+				sf::Color::Black
+		);
+
+		create = true;
+	}
+	else
+		Window::instance()->getRW()->Draw(board);
+
+
 }

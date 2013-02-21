@@ -3,12 +3,21 @@
 /***********************************************************************************
  Animation :: methods
  *********************/
-Animation::Animation(sf::Sprite _sprite, const SpriteData &_info, bool _autoDraw, bool _autoStop) : sprite(_sprite), info(_info), playAnimation(false), autoDraw(_autoDraw), autoStop(_autoStop) {
+Animation::Animation(sf::Sprite _sprite, const SpriteData &_info, bool _autoDraw, bool _autoStop) {
+	sprite = _sprite;
+	info = _info;
+	playAnimation = false;
+	autoDraw = _autoDraw;
+	autoStop = _autoStop;
+
 	timePerFrame = float(1 / float(info.frame));
 	timeAccumulation = 0;
 
-	rotationAngle = 0.f;
-	rotationSpeed = 0.f;
+	delayAccumulation = 0.0f;
+	delayPerFrame = 0.0f;
+
+	rotationAngle = 0.0f;
+	rotationSpeed = 0.0f;
 	rotationTimeAccumulation = 0.f;
 	rotationDirection = Animation::RotationDirection::none;
 

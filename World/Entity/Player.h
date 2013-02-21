@@ -9,11 +9,20 @@
 
 class Player : public Entity {
 public:
+	enum class Dire {
+		none,
+		down,
+		top,
+		left,
+		right
+	};
 	/// if true, currently moving in certain direction
 	bool goDown, goUp, goLeft, goRight;
 
 	/// if true, the player is moving
 	bool lockChangeDirection;
+
+	Dire lastMove;
 
 private:
 	/* 0 - sprite go down
@@ -65,6 +74,7 @@ public:
 		animation->setPos(position + animation_offset);
 
 		hitboxOffset = sf::Vector2f(0, 0);
+		lastMove = Dire::down;
 	}
 	void top() {
 		goUp = lockChangeDirection = true;
@@ -72,6 +82,8 @@ public:
 		animation->setPos(position + animation_offset);
 
 		hitboxOffset = sf::Vector2f(0, 0);
+
+		lastMove = Dire::top;
 	}
 	void right() {
 		goRight = lockChangeDirection = true;
@@ -79,6 +91,8 @@ public:
 		animation->setPos(position + animation_offset);
 
 		hitboxOffset = sf::Vector2f(10, 0);
+
+		lastMove = Dire::right;
 	}
 	void left() {
 		goLeft = lockChangeDirection = true;
@@ -86,6 +100,7 @@ public:
 		animation->setPos(position + animation_offset);
 
 		hitboxOffset = sf::Vector2f(0, 0);
+		lastMove = Dire::left;
 	}
 
 	sf::Vector2f* getPosition() { return &position; }

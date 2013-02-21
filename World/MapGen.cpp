@@ -63,11 +63,25 @@ bool MapGen::generate() {
 		map[y * width + x] = ElementType::box;
 	}
 
-	LOG(3);
 
-	x = sf::Randomizer::Random(0, width);
-	y = sf::Randomizer::Random(0, height);
-	map[y * width + x] = ElementType::characters;
+	boxAmount = 6;
+
+		LOG(2);
+
+		while(boxAmount--) {
+			x = sf::Randomizer::Random(1, width);
+			y = sf::Randomizer::Random(1, height);
+
+			map[y * width + x] = ElementType::exit;
+		}
+
+
+		LOG(3);
+
+			x = sf::Randomizer::Random(0, width);
+			y = sf::Randomizer::Random(0, height);
+			map[y * width + x] = ElementType::characters;
+
 
 	LOG(4);
 

@@ -35,7 +35,18 @@ Glimmer::Glimmer(World *_ptr, int _id, sf::Vector2f _position) {
 	movement(Direction::right);
 }
 
+Glimmer::~Glimmer() {
+	animation->stop();
+	delete animation;
+
+	animation = nullptr;
+
+	LOG("KILL GLIMMER");
+}
+
 void Glimmer::movement(Glimmer::Direction direction) {
+	if(animation == nullptr) return;
+
 	animation->setSprite(sprite.at( int(direction) ), spriteData.at( int(direction) ));
 	animation->setPos(position + animation_offset);
 
@@ -71,6 +82,8 @@ void Glimmer::movement(Glimmer::Direction direction) {
 }
 
 void Glimmer::update(float dt) {
+	if(animation == nullptr) return;
+
 	if(!goDown && !goRight && !goLeft && !goUp) {
 		animation->stop();
 	} else {
@@ -82,9 +95,9 @@ void Glimmer::update(float dt) {
 
 		sf::Vector2i newId = ptr->getNField(position);
 		if(newId.x != ptr->xByID(info.id) || newId.y != ptr->yByID(info.id)) {
-			ptr->world[ptr->ID(newId.x, newId.y)][LayerType::LAYER_CHARACTERS] = ptr->world[info.id][LayerType::LAYER_CHARACTERS];
+			ptr->world[ptr->ID(newId.x, newId.y)][LayerType::LAYER_OPPONENTS] = ptr->world[info.id][LayerType::LAYER_OPPONENTS];
 
-			ptr->world[info.id].erase(LayerType::LAYER_CHARACTERS);
+			ptr->world[info.id].erase(LayerType::LAYER_OPPONENTS);
 
 			info.id = ptr->ID(newId.x, newId.y);
 		}
@@ -93,6 +106,8 @@ void Glimmer::update(float dt) {
 
 // Choose which tiles to check based on movement
 void Glimmer::detectTileCollisions() {
+	if(animation == nullptr) return;
+
 	sf::Vector2i currField = ptr->getNField(position);
 	int width = ptr->mapDimensions.x;
 
@@ -128,7 +143,14 @@ void Glimmer::detectTileCollisions() {
 // Check for collision, correct position if necessary
 // Colliding will stop the player and push them back.
 void Glimmer::collideWithTile(World *ptr, int id){
+	if(animation == nullptr) return;
+
 	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
+
+	if(ptr->world[id].find(LayerType::LAYER_OPPONENTS) != ptr->world[id].end()) {
+		route(true);
+	  return;
+	}
 
 	Entity *entity = nullptr;
 
@@ -163,6 +185,8 @@ void Glimmer::collideWithTile(World *ptr, int id){
 }
 
 void Glimmer::route(bool current) {
+	if(animation == nullptr) return;
+
 	int k = sf::Randomizer::Random(0, 2);
 
 	if(goDown) {
@@ -213,8 +237,18 @@ void Glimmer::route(bool current) {
 }
 
 void Glimmer::draw(float dt) {
+	if(animation == nullptr) return;
+
 	animation->process(dt);
 	animation->draw();
+
+	std::ostringstream ss;
+			ss << info.id;
+
+	sf::String id(ss.str());
+	id.SetPosition(position);
+	//sf::Shape shape = sf::Shape::Rectangle(position.x, position.y, position.x + 1, position.y + 1, sf::Color::White);
+	Window::instance()->getRW()->Draw(id);
 
 	Window::instance()->drawHitbox(getHitbox(), hitboxColor);
 }
@@ -222,5 +256,5 @@ void Glimmer::draw(float dt) {
 // TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
 Hitbox Glimmer::getHitbox() const {
 	// square 22*22 centered on player -- to be placed somewhere else.
-	return Hitbox(position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset);
+	return Hitbox(position + sf::Vector2f(-15,-15) + hitboxOffset, position + sf::Vector2f(15,15) + hitboxOffset);
 }

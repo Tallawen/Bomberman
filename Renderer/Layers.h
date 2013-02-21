@@ -16,6 +16,7 @@ enum class LayerType {
     LAYER_BOMBS,
     LAYER_EXPLOSIONS,
     LAYER_CHARACTERS,
+    LAYER_OPPONENTS,
     LAYER_GUI
 };
 

@@ -30,6 +30,7 @@ Player::Player(int _id, sf::Vector2f _position) {
 
 	goDown = goUp = goLeft = goRight = false;
 	lockChangeDirection = false;
+	//lockMoving = true;
 
 	// See World::loadWorld()
 	position = _position;
@@ -37,7 +38,7 @@ Player::Player(int _id, sf::Vector2f _position) {
 	/// Offset of animation sprite from
 	animation_offset = sf::Vector2f(-12,10);
 
-	animation->setPos(position+animation_offset);
+	animation->setPos(position);
 
 	hitboxColor = sf::Color::Red;
 }
@@ -48,7 +49,10 @@ void Player::update(float dt) {
 	} else {
 		animation->play();
 		position += velocity * dt;
-		animation->setPos(position+animation_offset);
+		animation->setPos(position);
+
+	//	goTo(velocity * dt);
+
 	}
 }
 
@@ -64,26 +68,27 @@ void Player::detectTileCollisions(World *ptr) {
 	 *   . . .   . . %   % % %   % . .
 	 *
 	 * */
-	if(goDown) {
-		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
+
+	//if(goDown) {
+	//	collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x    ) );
-		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
-	}
-	if(goUp) {
-		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
+		//collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
+	//}
+	//if(goUp) {
+		//collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x    ) );
-		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
-	}
-	if(goRight){
+		//collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
+	//}
+	//if(goRight){
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
 		collideWithTile(ptr, (currField.y    ) * width + (currField.x + 1) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
-	}
-	if(goLeft) {
+	//}
+	//if(goLeft) {
 		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y    ) * width + (currField.x - 1) );
 		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
-	}
+	//b}
 }
 
 // Check for collision, correct position if necessary
@@ -92,29 +97,58 @@ void Player::collideWithTile(World *ptr, int id){
 	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
 
 	Entity *entity = nullptr;
+	LayerType lt;
 
-	if(ptr->world[id].find(LayerType::LAYER_STONES) != ptr->world[id].end())
+	if(ptr->world[id].find(LayerType::LAYER_STONES) != ptr->world[id].end()) {
 		entity = ptr->world[id][LayerType::LAYER_STONES];
-	else if(ptr->world[id].find(LayerType::LAYER_BLOCKS) != ptr->world[id].end())
+		lt = LayerType::LAYER_STONES;
+
+	} else if(ptr->world[id].find(LayerType::LAYER_BLOCKS) != ptr->world[id].end()) {
 		entity = ptr->world[id][LayerType::LAYER_BLOCKS];
-	else
+		lt = LayerType::LAYER_BLOCKS;
+
+	} else if(ptr->world[id].find(LayerType::LAYER_OPPONENTS) != ptr->world[id].end()) {
+		entity = ptr->world[id][LayerType::LAYER_OPPONENTS];
+		lt = LayerType::LAYER_OPPONENTS;
+
+	} else
 		return; //Field has no blocks and stones
 
 	Hitbox self = getHitbox();
 	Hitbox block = entity->getHitbox();
 
 	if(Hitbox::collide(self, block)) {
+		if(lt == LayerType::LAYER_OPPONENTS) {
+			entity->remove = true;
+
+		}
+
 		sf::Vector2f offset(0, 0);
 
 		// calculate where to push the player
-		if(goDown)  offset.y =  block.getMinY() - self.getMaxY() - 1; // Negative value -- push up and a little more
-		if(goUp)    offset.y =  block.getMaxY() - self.getMinY() + 1; // Positive value -- push down
-		if(goRight) offset.x =  block.getMinX() - self.getMaxX() - 1; // push left
-		if(goLeft)  offset.x =  block.getMaxX() - self.getMinX() + 1; // push right
+		if(goDown || (!goDown && lastMove == Dire::down)) {
+			offset.y =  block.getMinY() - self.getMaxY() - 4.0f; // Negative value -- push up and a little more
+			LOG("OVER");
+			lastMove = Dire::none;
+		}
+		if(goUp || (!goUp && lastMove == Dire::top)) {
+			offset.y =  block.getMaxY() - self.getMinY() + 4.0f; // Positive value -- push down
+			LOG("UPPER");
+		}
+		if(goLeft || (!goLeft && lastMove == Dire::left)) {
+			offset.x =  block.getMaxX() - self.getMinX() + 4.0f; // push right
+			LOG("RIGHT");
+		}
+		if(goRight || (!goRight && lastMove == Dire::right)) {
+			offset.x =  block.getMinX() - self.getMaxX() - 4.0f; // push left
+
+			LOG("LEFT");
+		}
 
 		// Correct position and update player
 		position += offset;
-		update(0); // instant correction, no velocity
+		animation->setPos(position);
+		//update(1); // instant correction, no velocity
 
 		// TODO: Going towards a wall causes player's sprite to derp out -- find out why
 
@@ -129,22 +163,79 @@ void Player::collideWithTile(World *ptr, int id){
 void Player::setBomb(World *ptr) {
 	if(bombAmount == 0) return;
 
-	sf::Vector2i pPos = ptr->getNField(position);
-	int id = pPos.y * ptr->mapDimensions.x + pPos.x;
+	sf::Vector2i tileCoord = ptr->getNField(position);
+	int id = ptr->ID(tileCoord.x, tileCoord.y);
 
-	Bomb *bomb = new Bomb(ptr, bombAmount, explosionLength, id, position + animation_offset);
+	sf::Vector2f position = ptr->getPixelPosition(id);
+	position.x += ptr->floorData.dimensions.x / 2;
+	position.y -= ptr->floorData.dimensions.y / 2;
+
+	Bomb *bomb = new Bomb(ptr, bombAmount, explosionLength, id, position);
 
 	if(ptr->world[id].find(LayerType::LAYER_BOMBS) == ptr->world[id].end())
-		ptr->world[pPos.y * ptr->mapDimensions.x + pPos.x].insert(std::make_pair(LayerType::LAYER_BOMBS, bomb));
+		ptr->world[id].insert(std::make_pair(LayerType::LAYER_BOMBS, bomb));
 }
 
 void Player::draw(float dt) {
 	animation->process(dt);
 	animation->draw();
 
+	std::ostringstream ss;
+				ss << info.id;
+
+		sf::String id(ss.str());
+		id.SetPosition(position);
+		//sf::Shape shape = sf::Shape::Rectangle(position.x, position.y, position.x + 1, position.y + 1, sf::Color::White);
+		Window::instance()->getRW()->Draw(id);
+
+
 	Window::instance()->drawHitbox(getHitbox(), hitboxColor);
 }
+/*
+void Player::goTo(sf::Vector2f offset) {
+	if(!lockMoving) return;
 
+	if(distanceToGo.x != 0) {
+		if(distanceToGo.x > 0 && !goRight)
+			right();
+		else if(distanceToGo.x > 0 && goRight) {
+			distanceToGo += offset;
+
+			if(distanceToGo.x <= 0)
+				distanceToGo.x = 0;
+
+		} else if(distanceToGo.x < 0 && !goLeft)
+			left();
+		else if(distanceToGo.x < 0 && goLeft) {
+			distanceToGo += offset;
+
+			if(distanceToGo.x >= 0)
+				distanceToGo.x = 0;
+		}
+
+	} else if(distanceToGo.y != 0) {
+		if(distanceToGo.y > 0 && !goDown)
+			down();
+		else if(distanceToGo.y > 0 && goDown) {
+			distanceToGo += offset;
+
+			if(distanceToGo.y <= 0)
+				distanceToGo.y = 0;
+
+		} else if(distanceToGo.y < 0 && !goUp)
+			top();
+		else if(distanceToGo.y < 0 && goUp) {
+			distanceToGo += offset;
+
+			if(distanceToGo.y >= 0)
+				distanceToGo.y = 0;
+		}
+	}
+
+	if(distanceToGo.x == 0 && distanceToGo.y == 0)
+		m
+}
+*/
 // TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
 Hitbox Player::getHitbox() const {
 	// square 22*22 centered on player -- to be placed somewhere else.

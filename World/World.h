@@ -35,7 +35,7 @@ public:
 	 * [c] - wskaznik na element który znajduje siê na danym polu i na danej kolejnosci
 	 *
 	 */
-	std::map<int, std::map<LayerType, Entity*> > world;
+	std::map<int, std::multimap<LayerType, Entity*> > world;
 
 	sf::Vector2i mapDimensions;
 
@@ -85,21 +85,21 @@ public:
      * Zwraca wspolrzedne na planszy na podstawie x i y tablicy
      *
      */
-    sf::Vector2i getPixelPosition(sf::Vector2i pos);
-    sf::Vector2i getPixelPosition(float x, float y);
+    sf::Vector2f getPixelPosition(sf::Vector2f pos);
+    sf::Vector2f getPixelPosition(float x, float y);
 
     /**
      * Zwraca wspolrzedne na planszy na podstawie id tablicy
      *
      */
-    sf::Vector2i getPixelPosition(int id);
+    sf::Vector2f getPixelPosition(int id);
 
     sf::Vector2i getFloorStartPosition() { return floorStartPos; }
     sf::Vector2i getPlayerPos(int i) { return playerPos.at(i); }
 
     void setPlayerPos(int i, sf::Vector2i newPos) { playerPos.at(i) = newPos; }
 
-    int ID(uint x, uint y) const { return y * mapDimensions.x + x; }
+    int ID(int x, int y) const { return y * mapDimensions.x + x; }
 
     uint xByID(uint id) const { return id % mapDimensions.x; }
 
@@ -107,6 +107,7 @@ public:
 
 public:
     void drawFloor();
+    void drawWall();
 
 };
 

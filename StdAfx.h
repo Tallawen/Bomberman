@@ -29,6 +29,7 @@
 #include <typeinfo>
 #include <limits>
 #include <functional>
+#include <unordered_map>
 
 #include <algorithm>
 

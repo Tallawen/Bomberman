@@ -95,6 +95,39 @@ void Window::process(sf::Event &event) {
 
 void Window::drawHitbox(const Hitbox &box, sf::Color color) {
 	if(showHitbox) {
+		std::ostringstream ss;
+		std::ostringstream sss;
+	/*	ss << box.getMinX();
+		std::string s = "(";
+		s += ss.str();
+		s += ",";
+		ss << box.getMinY();
+		s += ss.str();
+		s += ")";
+
+		sf::String coord(ss.str());
+		coord.SetSize(11);
+		coord.SetPosition(box.getMin());
+
+		Window::instance()->getRW()->Draw(coord);
+*/
+		ss << box.getMaxX();
+		std::string s = "(";
+		s += ss.str();
+		s += ",";
+		sss << box.getMaxY();
+		s += sss.str();
+		s += ")";
+
+		sf::String coord;
+				coord.SetSize(11);
+		coord.SetText(s);
+		coord.SetPosition(box.getMax());
+
+		Window::instance()->getRW()->Draw(coord);
+
+
+
 		sf::Shape boxA = sf::Shape::Rectangle(
 				box.getMinX(), box.getMinY(), box.getMaxX(), box.getMaxY(),
 				sf::Color(0, 0, 0, 0), 1.0f, color);

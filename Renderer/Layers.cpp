@@ -1,6 +1,6 @@
 #include "Layers.h"
 
-static const uint LAYER_COUNT = 10;
+static const uint LAYER_COUNT = 11;
 
 static std::string strToLayer[LAYER_COUNT] = {
 		"BACKGROUND",
@@ -12,6 +12,7 @@ static std::string strToLayer[LAYER_COUNT] = {
 		"BOMBS",
 		"EXPLOSIONS",
 		"CHARACTERS",
+		"OPPONENTS",
 		"GUI"
 };
 
