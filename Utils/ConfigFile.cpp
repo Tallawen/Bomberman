@@ -1,5 +1,8 @@
 #include "ConfigFile.h"
 
+/***********************************************************************************
+ ConfigFile :: methods
+ *********************/
 ConfigFile::ConfigFile(std::string filename) {
 	luaState = lua_open();
 	luaL_openlibs(luaState);
@@ -23,14 +26,14 @@ bool ConfigFile::pushVar(std::string name) {
 
 	for(int i = 0; i < 2; ++i) {
 
-		if(index != -1 || lua_istable(luaState, -1)) { // -1 w lua_istable oznacza wierzcholek stosu
-			lua_getfield(luaState, index, buff.c_str()); // dodaje elemet na stos tablicy
+		if(index != -1 || lua_istable(luaState, -1)) { /// -1 w lua_istable oznacza wierzcholek stosu
+			lua_getfield(luaState, index, buff.c_str()); /// dodaje elemet na stos tablicy
 
 			if(index == -1)
-				lua_remove(luaState, -2); // usun ze stosu nadrzedna tablice
+				lua_remove(luaState, -2); /// usun ze stosu nadrzedna tablice
 
 		} else {
-			lua_remove(luaState, -1); // przywroc poprzedni stan stosu
+			lua_remove(luaState, -1); /// przywroc poprzedni stan stosu
 		  return false;
 		}
 

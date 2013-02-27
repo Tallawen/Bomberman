@@ -4,74 +4,46 @@
 
 #include "Bomb.h"
 
-Explosion::Explosion(World *_ptr, int _id, float _delay, sf::Vector2f _position, int _explosionLength, Directions _directions) {
-	ptr = _ptr;
-
-	info.id = _id;
-	info.position = _position;
-
-	explosionLength = _explosionLength;
+Explosion::Explosion(sf::Vector2f _position, Player *_playerPtr, std::queue<Entity*> *_entitiesToCreate, Directions _directions, float _delay, int _explosionLenght) : Entity(_position.x, _position.y, 0, 0, _entitiesToCreate) {
+	playerPtr = _playerPtr;
 	directions = _directions;
 
 	delay = _delay;
+	explosionLength = _explosionLenght;
 	first = false;
 
-	id[0] = (int(ptr->xByID(info.id) + 1) < ptr->mapDimensions.x) ?
-			ptr->ID(
-					ptr->xByID(info.id) + 1,
-					ptr->yByID(info.id)
-			) :	-1;
+	nextPosition[0] = position;  nextPosition[0].x += 50;
+	nextPosition[1] = position;  nextPosition[1].x -= 50;
+	nextPosition[2] = position;  nextPosition[2].y -= 50;
+	nextPosition[3] = position;  nextPosition[3].y += 50;
 
-	id[1] = (int(ptr->xByID(info.id) - 1) > -1) ?
-			ptr->ID(
-					ptr->xByID(info.id) - 1,
-					ptr->yByID(info.id)
-			) :	-1;
+	sd = SpriteManager::instance()->getSpriteData("game.explosion");
+	stop = new Animation(SpriteManager::instance()->getSprite("game.explosion"), sd);
 
-	id[2] = (int(ptr->yByID(info.id) + 1) < ptr->mapDimensions.y) ?
-			ptr->ID(
-					ptr->xByID(info.id),
-					ptr->yByID(info.id) + 1
-			) :	-1;
+	stop->setDelay(delay);
+	stop->setAutoStop(true);
+	stop->setAutoDraw(true);
+	stop->setPosition(position);
+	stop->play();
 
-	id[3] = (int(ptr->yByID(info.id) - 1) > -1) ?
-			ptr->ID(
-					ptr->xByID(info.id),
-					ptr->yByID(info.id) - 1
-			) :	-1;
-
-	position[0] = info.position;  position[0].x += ptr->floorData.dimensions.x;
-	position[1] = info.position;  position[1].x -= ptr->floorData.dimensions.x;
-	position[2] = info.position;  position[2].y += ptr->floorData.dimensions.y;
-	position[3] = info.position;  position[3].y -= ptr->floorData.dimensions.y;
-
-	sd = Sprite::instance()->getSpriteData("Explosion");
-	animation = new Animation(Sprite::instance()->getSprite("Explosion"), sd);
-
-	animation->setAutoStop();
-	animation->setAutoDraw(true);
-	animation->setPos(info.position);
-	animation->setDelay(delay);
-	animation->play();
-
-    std::cerr << "Create explosion: " << explosionLength << std::endl;
+    //std::cerr << "Create explosion: " << explosionLength << std::endl;
 }
 
 Explosion::~Explosion() {
-	LOG("Delete explosion");
+	//LOG("Delete explosion");
 }
 
 void Explosion::draw(float dt) {
-	if(animation == nullptr) return;
-
-	animation->process(dt);
+	if(stop != nullptr && isAlive())
+		stop->process(dt);
 	Window::instance()->drawHitbox(getHitbox(),sf::Color::Green);
 }
 
 void Explosion::update(float dt) {
-	if(animation == nullptr) return;
+	if(stop == nullptr || !isAlive())
+		return;
 
-	if(!first && !animation->isDelay()) {
+	if(!first && !stop->isDelay()) {
 		if(explosionLength > 0) {
 
 			switch(directions) {
@@ -107,79 +79,23 @@ void Explosion::update(float dt) {
 		first = true;
 	}
 
-	if(!animation->isPlay())
-		setRemove();
+	if(!stop->isPlay() && isAlive()) {
+		dead();
+		remove();
+	}
 }
 
 void Explosion::setDelay(float delay) {
-	if(animation != nullptr)
-		animation->setDelay(delay);
+	stop->setDelay(delay);
 }
 
 void Explosion::create(int _id) {
-	if(id[_id] == -1) return;
-
 	Explosion *newExplosion = nullptr;
 
-	checkTile(ptr, id[_id], LayerType::LAYER_EXPLOSIONS, &Explosion::explosion);
-
-	if(checkTile(ptr, id[_id], LayerType::LAYER_STONES, &Explosion::stone) || checkTile(ptr, id[_id], LayerType::LAYER_BOMBS, &Explosion::bomb))
-		newExplosion = new Explosion(ptr, id[_id], delay + Constants::Explosion::DELAY, position[_id], explosionLength - 1, Directions::none);
-
-	else if(!checkTile(ptr, id[_id], LayerType::LAYER_BLOCKS, &Explosion::block))
-		newExplosion = new Explosion(ptr, id[_id], delay + Constants::Explosion::DELAY, position[_id], explosionLength - 1, Directions(_id));
-
-	if(newExplosion != nullptr)
-		ptr->world[ id[_id] ].insert( std::make_pair(LayerType::LAYER_EXPLOSIONS, newExplosion) );
+	newExplosion = new Explosion(nextPosition[_id], playerPtr, entitiesToCreate, Directions(_id), delay + Constants::Explosion::DELAY, explosionLength - 1);
+	entitiesToCreate->push(newExplosion);
 }
-
-bool Explosion::checkTile(World *ptr, int id, LayerType layer, bool(Explosion::*ptrFun)(World*, int)) {
-	if(ptr->world.find(id) == ptr->world.end()) return false; /// Brak danego kafla
-	if(ptr->world[id].find(layer) == ptr->world[id].end()) return false; /// Kafel nie posiada danej warstwy
-
-  return (this->*ptrFun)(ptr, id);
-}
-
-bool Explosion::stone(World *ptr, int id) {
-	Entity* entity = ptr->world[id][LayerType::LAYER_STONES];
-
-	entity->remove = true;
-
-  return true;
-}
-
-bool Explosion::block(World *ptr, int id) {
-  return true;
-}
-
-bool Explosion::explosion(World *ptr, int id) {
-	Entity* entity = ptr->world[id][LayerType::LAYER_EXPLOSIONS];
-
-	ptr->world[id].erase(LayerType::LAYER_EXPLOSIONS);
-
-	static_cast<Explosion*>(entity)->setRemove();
-	delete entity;
-
-  return false;
-}
-
-bool Explosion::bomb(World *ptr, int id) {
-	Entity* entity = ptr->world[id][LayerType::LAYER_BOMBS];
-
-	static_cast<Bomb*> (entity)->live = false;
-
-  return true;
-}
-
-void Explosion::setRemove() {
-	if(animation == nullptr) return;
-
-	remove = true;
-
-	delete animation;
-	animation = nullptr;
-}
-
+/*
 Hitbox Explosion::getHitbox() const {
     return Hitbox( info.position + sf::Vector2f(10, -10), info.position + sf::Vector2f(sd.dimensions.x, -sd.dimensions.y) + sf::Vector2f(-10, 10));
-}
+}*/

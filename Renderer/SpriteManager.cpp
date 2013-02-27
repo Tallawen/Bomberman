@@ -1,4 +1,4 @@
-#include "Sprite.h"
+#include "SpriteManager.h"
 
 /***********************************************************************************
  TextureInfo :: methods
@@ -27,11 +27,11 @@ SpriteData::SpriteData(std::string _title, unsigned int _textureId, unsigned int
 /***********************************************************************************
  Sprite :: singleton
  *********************/
-Sprite* Sprite::_instance = 0;
+SpriteManager* SpriteManager::_instance = 0;
 
-Sprite* Sprite::instance() {
+SpriteManager* SpriteManager::instance() {
 	if(_instance == 0) {
-		_instance = new Sprite;
+		_instance = new SpriteManager;
 		LOG("Spirite");
 	}
 
@@ -42,8 +42,16 @@ Sprite* Sprite::instance() {
 /***********************************************************************************
  Sprite :: methods
  *********************/
-bool Sprite::insertTexture(std::string filename, bool animation) {
-	unsigned int id = texture.size();
+SpriteManager::~SpriteManager() {
+	textures.clear();
+	texturesId.clear();
+
+	sprites.clear();
+	spritesId.clear();
+}
+
+bool SpriteManager::insertTexture(std::string filename, bool animation) {
+	unsigned int id = textures.size();
 	unsigned int startTitle = filename.find_last_of('/') + 1;
 	unsigned int stopTitle  = filename.find_last_of('.');
 	std::string title = filename.substr(startTitle, stopTitle-startTitle);
@@ -56,53 +64,53 @@ bool Sprite::insertTexture(std::string filename, bool animation) {
 
 	img.SetSmooth(false);
 
-	if(textureId.find(title) != textureId.end()) {
+	if(texturesId.find(title) != texturesId.end()) {
 		LOG("Textura \"" + title + "\" juz istnieje");
 	  return false;
 	}
 
-	texture.push_back(TextureInfo(img, animation));
-	textureId.insert(std::make_pair(title, id));
+	textures.push_back(TextureInfo(img, animation));
+	texturesId.insert(std::make_pair(title, id));
   return true;
 }
 
-bool Sprite::insertSprite(std::string title, std::string textureTitle, sf::Vector2i dimensions, sf::Vector2i posInTexture, bool animation, unsigned int frame) {
-	unsigned int id = sprite.size();
+bool SpriteManager::insertSprite(std::string title, std::string textureTitle, sf::Vector2i dimensions, sf::Vector2i posInTexture, bool animation, unsigned int frame) {
+	unsigned int id = sprites.size();
 
-	if(textureId.find(textureTitle) == textureId.end()) {
+	if(texturesId.find(textureTitle) == texturesId.end()) {
 		LOG("Textura \"" + textureTitle + "\" nie istnieje");
 	  return false;
 	}
 
-	if(spriteId.find(title) != spriteId.end()) {
+	if(spritesId.find(title) != spritesId.end()) {
 		LOG("Sprite \"" + textureTitle + "\" juz istnieje");
 	  return false;
 	}
 
-	SpriteData info(title, textureId.at(textureTitle), sprite.size(), dimensions, posInTexture, animation, frame);
+	SpriteData info(title, texturesId.at(textureTitle), sprites.size(), dimensions, posInTexture, animation, frame);
 
-	sprite.push_back(info);
-	spriteId.insert(std::make_pair(title, id));
+	sprites.push_back(info);
+	spritesId.insert(std::make_pair(title, id));
   return true;
 }
 
-bool Sprite::insertSprite(std::string title, std::string textureTitle, unsigned int width, unsigned int height, unsigned int x, unsigned int y, bool animation, unsigned int frame) {
+bool SpriteManager::insertSprite(std::string title, std::string textureTitle, unsigned int width, unsigned int height, unsigned int x, unsigned int y, bool animation, unsigned int frame) {
   return insertSprite(title, textureTitle, sf::Vector2i(width, height), sf::Vector2i(x, y), animation, frame);
 }
 
-sf::Sprite Sprite::getSprite(const unsigned int &id) {
-	if(id >= sprite.size()) {
+sf::Sprite SpriteManager::getSprite(const unsigned int &id) {
+	if(id >= sprites.size()) {
 		LOG("ID niepoprawne");
 	  // TODO: Dodaæ wyj¹tki
 	}
 
-	unsigned int textureId = sprite.at(id).textureId;
-	sf::Vector2i dimensions = sprite.at(id).dimensions;
-	sf::Vector2i posInTexture = sprite.at(id).posInTexture;
+	unsigned int textureId = sprites.at(id).textureId;
+	sf::Vector2i dimensions = sprites.at(id).dimensions;
+	sf::Vector2i posInTexture = sprites.at(id).posInTexture;
 
 	sf::Sprite newSprite;
-	newSprite.SetImage(texture.at(textureId).img);
-	if(!sprite.at(id).animation)
+	newSprite.SetImage(textures.at(textureId).img);
+	if(!sprites.at(id).animation)
 		newSprite.SetSubRect(sf::IntRect(posInTexture.x, posInTexture.y, posInTexture.x + dimensions.x, posInTexture.y + dimensions.y));
 
 	newSprite.SetCenter(0, dimensions.y);
@@ -110,41 +118,41 @@ sf::Sprite Sprite::getSprite(const unsigned int &id) {
   return newSprite;
 }
 
-sf::Sprite Sprite::getSprite(std::string name) {
-	if(spriteId.find(name) == spriteId.end()) {
+sf::Sprite SpriteManager::getSprite(std::string name) {
+	if(spritesId.find(name) == spritesId.end()) {
 		LOG("Name: " + name + " niepoprawna");
 	 // TODO: Dodaæ wyj¹tki
 	}
 
-  return getSprite(spriteId.at(name));
+  return getSprite(spritesId.at(name));
 }
 
-SpriteData Sprite::getSpriteData(const unsigned int &id) {
-	if(id >= sprite.size()) {
+SpriteData SpriteManager::getSpriteData(const unsigned int &id) {
+	if(id >= sprites.size()) {
 		LOG("ID niepoprawne");
-	  return SpriteData();
+		// TODO: Dodaæ wyj¹tki
 	}
 
-  return sprite.at(id);
+  return sprites.at(id);
 }
 
-SpriteData Sprite::getSpriteData(std::string name) {
-	if(spriteId.find(name) == spriteId.end()) {
+SpriteData SpriteManager::getSpriteData(std::string name) {
+	if(spritesId.find(name) == spritesId.end()) {
 		LOG("Name: " + name + " niepoprawna");
-	  return SpriteData();
+		// TODO: Dodaæ wyj¹tki
 	}
 
-  return getSpriteData(spriteId.at(name));
+  return getSpriteData(spritesId.at(name));
 }
 
-void Sprite::showTextureList() {
+void SpriteManager::showTextureList() {
 	std::cout << "Texture list: " << std::endl;
-	FOREACH(textureId, it)
+	FOREACH(texturesId, it)
 		std::cout << "  Title: " << it->first << ", id: " << it->second << std::endl;
 }
 
-void Sprite::showSpriteList() {
+void SpriteManager::showSpriteList() {
 	std::cout << "Sprite list: " << std::endl;
-	FOREACH(spriteId, it)
+	FOREACH(spritesId, it)
 	    std::cout << "  Title: " << it->first << ", id: " << it->second << std::endl;
 }

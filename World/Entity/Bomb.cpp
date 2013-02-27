@@ -6,72 +6,63 @@
 
 #include "Explosion.h"
 
-Bomb::Bomb(World *_ptr, int &_bombAmount, int _explosionLength, int _id, sf::Vector2f _position) : bombAmount(_bombAmount) {
-	ptr = _ptr;
+Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 0, 0, _entitiesToCreate) {
+	playerPtr = _playerPtr;
 
-	info.id  = _id;
-	info.position = _position;
-
-	bombAmount -= 1;
+	playerPtr->setBombAmount( playerPtr->getBombAmount() - 1 );
 
 	lifeTime = Constants::Bomb::LIFE_TIME;
-	live = true;
 
-	explosionLength = _explosionLength;
+	sprite = SpriteManager::instance()->getSprite("game.bomb");
+	sd     = SpriteManager::instance()->getSpriteData("game.bomb");
 
-	sprite = Sprite::instance()->getSprite("Bomb");
-	sd     = Sprite::instance()->getSpriteData("Bomb");
+	sprite.SetPosition(position);
 
-	sprite.SetPosition(info.position);
-
-	LOG("Create bomb");
+	//LOG("Create bomb");
 }
 
 Bomb::~Bomb() {
-	bombAmount += 1;
+	playerPtr->setBombAmount( playerPtr->getBombAmount() + 1 );
 
-	LOG("Delete bomb");
+	SoundManager::getQueue().push(sf::Sound());
+	SoundManager::getQueue().back().SetBuffer( SoundManager::instance().getSoundBuffer("bomb.explode"));
+	SoundManager::getQueue().back().SetVolume(30.0f);
+	SoundManager::getQueue().back().Play();
 }
 
 void Bomb::draw(float dt) {
-	if(lifeTime > 0) {
-		Window::instance()->getRW()->Draw(sprite);
-		Window::instance()->drawHitbox(getHitbox(), sf::Color::Yellow);
-	}
+	Window::instance()->getRW()->Draw(sprite);
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Yellow);
 }
 
 void Bomb::update(float dt) {
-	if(lifeTime < 0 || !live) {
-		if(!remove) {
-			explosion();
+	if(lifeTime < 0 && isAlive()) {
+		explosion();
+		/*SoundManager::getQueue().push(sf::Sound());
+		SoundManager::getQueue().back().SetBuffer(SoundManager::instance().getSoundBuffer("bomb.explode"));
+		SoundManager::getQueue().back().Play();*/
 
-			SoundManager::getQueue().push(sf::Sound());
-			SoundManager::getQueue().back().SetBuffer(SoundManager::instance().getSoundBuffer("bomb.explode"));
-		 	SoundManager::getQueue().back().Play();
-		}
-		remove = true;
+		dead();
 	  return;
 	}
 
 	lifeTime -= dt;
 }
-
-Hitbox Bomb::getHitbox() const {
+/*Hitbox Bomb::getHitbox() const {
    return Hitbox(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y));
-}
+}*/
 
 void Bomb::explosion() {
-	if(ptr->world[info.id].find(LayerType::LAYER_EXPLOSIONS) != ptr->world[info.id].end()) {
-		Entity* entity = ptr->world[info.id][LayerType::LAYER_EXPLOSIONS];
-
-		ptr->world[info.id].erase(LayerType::LAYER_EXPLOSIONS);
-
-		static_cast<Explosion*>(entity)->setRemove();
-		delete entity;
-	}
-
-
 	/// Eksplozja w miejscu bomby
-	Explosion *newExplosion = new Explosion(ptr, info.id, Constants::Explosion::DELAY, info.position, explosionLength, Explosion::Directions::allSite);
-	ptr->world[info.id].insert(std::make_pair(LayerType::LAYER_EXPLOSIONS, newExplosion));
+	Explosion *newExplosion      = new Explosion(position + sf::Vector2f( -5,  10), playerPtr, entitiesToCreate, Explosion::Directions::none,  1 * Constants::Explosion::DELAY, 3);
+	Explosion *newExplosionLeft  = new Explosion(position + sf::Vector2f(-55,  10), playerPtr, entitiesToCreate, Explosion::Directions::left,  2 * Constants::Explosion::DELAY, 2);
+	Explosion *newExplosionRight = new Explosion(position + sf::Vector2f( 45,  10), playerPtr, entitiesToCreate, Explosion::Directions::right, 2 * Constants::Explosion::DELAY, 2);
+	Explosion *newExplosionTop   = new Explosion(position + sf::Vector2f( -5, -40), playerPtr, entitiesToCreate, Explosion::Directions::top,   2 * Constants::Explosion::DELAY, 2);
+	Explosion *newExplosionDown  = new Explosion(position + sf::Vector2f( -5,  60), playerPtr, entitiesToCreate, Explosion::Directions::down,  2 * Constants::Explosion::DELAY, 2);
+
+	entitiesToCreate->push(newExplosion);
+	entitiesToCreate->push(newExplosionLeft);
+	entitiesToCreate->push(newExplosionRight);
+	entitiesToCreate->push(newExplosionTop);
+	entitiesToCreate->push(newExplosionDown);
 }

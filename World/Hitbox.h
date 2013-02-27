@@ -47,7 +47,7 @@ public:
 
     bool isOver(const Hitbox &box) const;
 
-    bool isUpper(const Hitbox &box) const;
+    bool isUnder(const Hitbox &box) const;
 
     bool isOnLeft(const Hitbox &box) const;
 

@@ -5,30 +5,39 @@
 #include "Renderer/Window.h"
 
 
-UI::UI() {
+UI::UI(bool secondPlayer) {
+	health = -1;
+	newLenght = 0;
 	healthBar = nullptr;
 	fps = nullptr;
+	scoresPtr = nullptr;
 
-	healthBarPos = sf::Vector2f(Constants::UI::HealthBar::X, Constants::UI::HealthBar::Y);
-	bombBarPos   = sf::Vector2f(Constants::UI::BombBar::X, Constants::UI::BombBar::Y);
+	float xHealthBar = Constants::UI::HealthBar::X;
+
+	float xBombBarPos = Constants::UI::BombBar::X;
+
+	if(secondPlayer) {
+		xHealthBar  = Window::instance()->getWidth() - Constants::UI::HealthBar::LENGHT - Constants::UI::HealthBar::X;
+		xBombBarPos = Window::instance()->getWidth() - Constants::UI::HealthBar::LENGHT - Constants::UI::BombBar::X;
+	}
+
+	healthBarPos = sf::Vector2f(xHealthBar, Constants::UI::HealthBar::Y);
+	bombBarPos   = sf::Vector2f(xBombBarPos, Constants::UI::BombBar::Y);
 }
 
 void UI::drawHealthBar(int newHealth) {
-	static int health = -1;
-	static int newLenght = 0;
-
 	uint lenght = Constants::UI::HealthBar::LENGHT;
-	SpriteData sd = Sprite::instance()->getSpriteData("UI_HealtBar");
+	SpriteData sd = SpriteManager::instance()->getSpriteData("gui.health_bar");
 
 	if(healthBar == nullptr) {
 		/** ryzowanie lewej czesci belki **/
-		sprite = Sprite::instance()->getSprite("UI_HealtBarLeft");
+		sprite = SpriteManager::instance()->getSprite("gui.health_bar_left");
 
 		sprite.SetPosition(healthBarPos.x, healthBarPos.y);
 		Window::instance()->getRW()->Draw(sprite);
 
 		/** rysowanie srodkowej czesci belki **/
-		sprite = Sprite::instance()->getSprite("UI_HealtBar");
+		sprite = SpriteManager::instance()->getSprite("gui.health_bar");
 
 		for(uint i = 0; i < lenght; ++i) {
 			sprite.SetPosition(healthBarPos.x + i + 2, healthBarPos.y);
@@ -36,7 +45,7 @@ void UI::drawHealthBar(int newHealth) {
 		}
 
 		/** rysowanie prawej czesci belki **/
-		sprite = Sprite::instance()->getSprite("UI_HealtBarRight");
+		sprite = SpriteManager::instance()->getSprite("gui.health_bar_right");
 
 		sprite.SetPosition(healthBarPos.x + lenght + 2, healthBarPos.y);
 		Window::instance()->getRW()->Draw(sprite);
@@ -83,7 +92,7 @@ void UI::drawHealthBar(int newHealth) {
 	Window::instance()->getRW()->Draw(*healthBar);
 
 	/** rysowanie prawej czesci belki **/
-	sprite = Sprite::instance()->getSprite("UI_HealtBarRight");
+	sprite = SpriteManager::instance()->getSprite("gui.health_bar_right");
 
 	sprite.SetPosition(healthBarPos.x + newLenght + 2, healthBarPos.y);
 	Window::instance()->getRW()->Draw(sprite);
@@ -95,9 +104,9 @@ void UI::drawBombBar(int bombAmount) {
 
 	int i = 0, xTmp;
 
-	SpriteData sd = Sprite::instance()->getSpriteData("Bomb");
+	SpriteData sd = SpriteManager::instance()->getSpriteData("game.bomb");
 
-	sprite = Sprite::instance()->getSprite("Bomb");
+	sprite = SpriteManager::instance()->getSprite("game.bomb");
 
 	while(i < bombAmount) {
 		xTmp = bombBarPos.x + i * sd.dimensions.x + i * Constants::UI::BombBar::OFFSET();
@@ -173,4 +182,24 @@ void UI::drawBoard() {
 		Window::instance()->getRW()->Draw(board);
 
 
+}
+
+void UI::drawScores(int scores) {
+	if(scoresPtr == nullptr) {
+		scoresPtr = new sf::String;
+
+		scoresPtr->SetPosition(30, 100);
+		scoresPtr->SetColor(sf::Color::White);
+		scoresPtr->SetSize(Constants::UI::FPS::SIZE);
+
+		scoresPtr->SetText("scores");
+	}
+
+
+	std::ostringstream ss;
+	ss << scores;
+
+	scoresPtr->SetText(ss.str());
+
+	Window::instance()->getRW()->Draw(*scoresPtr);
 }

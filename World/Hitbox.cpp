@@ -56,31 +56,33 @@ bool Hitbox::collidesWith(const Hitbox &box) const {
 }
 
 bool Hitbox::isOver(const Hitbox &box) const {
-	std::cerr << "upper " << std::endl;
-	std::cerr << "min.x = " << min.x << ", min.y = " << min.y << ", max.x = " << max.x << ", max.y = " << max.y << std::endl;
-	std::cerr << "box.min.x = " << box.min.x << ", box.min.y = " << box.min.y << ", box.max.x = " << box.max.x << ", box.max.y = " << box.max.y << std::endl;
-	std::cerr << "min.y < box.max.y = " << (min.y < box.max.y) << ", box.max.y < max.y = " << (box.max.y < max.y) << std::endl;
+	//std::cerr << "upper " << std::endl;
+//	std::cerr << "min.x = " << min.x << ", min.y = " << min.y << ", max.x = " << max.x << ", max.y = " << max.y << std::endl;
+//	std::cerr << "box.min.x = " << box.min.x << ", box.min.y = " << box.min.y << ", box.max.x = " << box.max.x << ", box.max.y = " << box.max.y << std::endl;
+	//std::cerr << "min.y < box.max.y = " << (min.y < box.max.y) << ", box.max.y < max.y = " << (box.max.y < max.y) << std::endl;
 
-    return collidesWith(box) && (min.y < box.max.y) && (box.max.y < max.y);
+	//if(collidesWith(box) && (box.min.y < max.y) && (min.y < box.min.y)) std::cerr << "over" << std::endl;
+    return collidesWith(box) && (box.min.y < max.y) && (min.y < box.min.y);
 }
 
-bool Hitbox::isUpper(const Hitbox &box) const {
-	std::cerr << "over" << std::endl;
+bool Hitbox::isUnder(const Hitbox &box) const {
+//	std::cerr << "over" << std::endl;
     return box.isOver(*this);
 }
 
 bool Hitbox::isOnLeft(const Hitbox &box) const {
-	std::cerr << "right" << std::endl;
-    return box.isOnRight(*this);
+//	std::cerr << "right" << std::endl;
+	return collidesWith(box) && (min.x < box.min.x) && (box.min.x < max.x);
 }
 
 bool Hitbox::isOnRight(const Hitbox &box) const {
-	std::cerr << "left " << std::endl;
-	std::cerr << "min.x = " << min.x << ", min.y = " << min.y << ", max.x = " << max.x << ", max.y = " << max.y << std::endl;
-	std::cerr << "box.min.x = " << box.min.x << ", box.min.y = " << box.min.y << ", box.max.x = " << box.max.x << ", box.max.y = " << box.max.y << std::endl;
-	std::cerr << "box.min.x < max.x = " << (box.min.x < max.x) << ", min.x < box.min.x = " << (min.x < box.min.x) << std::endl;
 
-	return collidesWith(box) && (box.min.x < max.x) && (min.x < box.min.x);
+//	std::cerr << "left " << std::endl;
+//	std::cerr << "min.x = " << min.x << ", min.y = " << min.y << ", max.x = " << max.x << ", max.y = " << max.y << std::endl;
+//	std::cerr << "box.min.x = " << box.min.x << ", box.min.y = " << box.min.y << ", box.max.x = " << box.max.x << ", box.max.y = " << box.max.y << std::endl;
+//	std::cerr << "box.min.x < max.x = " << (box.min.x < max.x) << ", min.x < box.min.x = " << (min.x < box.min.x) << std::endl;
+
+	return box.isOnLeft(*this);
 }
 
 

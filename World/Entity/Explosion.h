@@ -20,12 +20,10 @@ public:
 	};
 
 private:
-	World *ptr;
-	Animation *animation;
+	Player *playerPtr;
 
 	/** Indeksy odpowiadaj¹ wartoscia enuma Directions (od zera) **/
-	int id[4];
-	sf::Vector2f position[4];
+	sf::Vector2f nextPosition[4];
 
 	int explosionLength;
 
@@ -39,14 +37,18 @@ private:
 	bool first;
 
 public:
-	Explosion(World *_ptr, int _id, float delay, sf::Vector2f _position, int _explosionLength, Directions _directions);
+	Explosion(sf::Vector2f _position, Player *_playerPtr, std::queue<Entity*> *_entitiesToCreate, Directions _directions, float _delay, int _explosionLenght);
 	~Explosion();
+
+	EntityType getType() const { return EntityType::explosion; }
 
 	void draw(float dt);
 	void update(float dt);
 
+	Player* getPlayerPtr() const { return playerPtr; }
+
 	/** Tworzy eksplozje na polu o danym id **/
-	inline void create(int _id);
+	void create(int _id);
 
 	/**
 	 * Sprawdza czy na danym kaflu istnieje dana warstwa.
@@ -62,23 +64,48 @@ public:
 	 * @retval false jesli warstwa nie istnieje
 	 *
 	 **/
-	bool checkTile(World *ptr, int id, LayerType layer, bool(Explosion::*ptrFun)(World*, int));
+//	bool checkTile(World *ptr, int id, LayerType layer, bool(Explosion::*ptrFun)(World*, int));
 
 	/** Metody przekazywana do checkTitle **
 	 ** @see checkTile                    **/
-	bool stone(World *ptr, int id);
-	bool block(World *ptr, int id);
-	bool explosion(World *ptr, int id);
-	bool bomb(World *ptr, int id);
+//	//bool stone(World *ptr, int id);
+//	bool block(World *ptr, int id);
+//	bool explosion(World *ptr, int id);
+//	bool bomb(World *ptr, int id);
 	/** Koniec **/
 
-	Hitbox getHitbox() const;
+//	Hitbox getHitbox() const;
 
 	void setDelay(float delay);
-	void setRemove();
+//	void setRemove();
+
+
+	Hitbox getHitbox() const {
+		      return Hitbox(
+		    		    sf::Vector2f(position.x + 5, position.y - 5),
+		    		    sf::Vector2f(position.x + 35, position.y - 40));
+	}
+
+	Hitbox getNextHitbox(float dt) const {
+		      return Hitbox(
+		    		    sf::Vector2f(getNextXPosition(dt) + 5, getNextYPosition(dt) - 5),
+		    		    sf::Vector2f(getNextXPosition(dt) + 35, getNextYPosition(dt) - 40));
+	}
+
+	Hitbox getNextHorizontalHitbox(float dt) const {
+		      return Hitbox(
+		    		    sf::Vector2f(getNextXPosition(dt) + 5, position.y - 5),
+		    		    sf::Vector2f(getNextXPosition(dt) + 35, position.y - 40));
+	}
+
+	Hitbox getNextVerticalHitbox(float dt) const {
+		      return Hitbox(
+		    		    sf::Vector2f(position.x + 5, getNextXPosition(dt) - 5),
+		    		    sf::Vector2f(position.x + 35, getNextYPosition(dt) - 40));
+	}
+
 
 private:
 
 };
-
 #endif /*__EXPLOSION_H__*/

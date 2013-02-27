@@ -4,8 +4,6 @@
 #include "../StdAfx.h"
 
 class ConfigFile {
-public:
-
 private:
 	lua_State *luaState;
 

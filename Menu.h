@@ -3,20 +3,18 @@
 
 #include "StdAfx.h"
 
-class Menu {
-public:
+#include "Game.h"
 
+class Menu {
 private:
 	/**
 	 * 0 - StartGame
 	 * 1 - StartGameActive
 	 * 2 - About
 	 * 3 - AboutActive
-	 * 4 - Exit
-	 * 5 - ExitActive
 	 *
 	 */
-	sf::Sprite text[6];
+	sf::Sprite text[4];
 	sf::Sprite background;
 
 	/**
@@ -24,13 +22,14 @@ private:
 	 */
 	const int maxOptions;
 
+public:
 	/**
 	 * Kolejnosc wedlug id*2 z tablicy text[]
 	 */
 	enum class OptionsType {
-		StartGame, // 0
-		About,     // 1
-		Exit       // 2
+		play, // 0
+		about, // 1
+		exit
 	};
 
 public:
@@ -39,18 +38,10 @@ public:
 	/**
 	 * Uruchamia glowne menu
 	 *
-	 * @param id id opcji ktora ma byc wybrana na poczatku
-	 * @return 1 jesli uruchomilismy gre
-	 * @return 0 jesli wyszlismy
+	 * @param type typ opcji ktort ma byc wybrana na poczatku
 	 *
 	 */
-	int main(int id);
-
-	/**
-	 * Wyswietla subwindow z opcjami
-	 *
-	 */
-	void options();
+	Game::PlayType show(OptionsType type);
 
 	/**
 	 * Wyswietla subwindow z informacjami
@@ -58,10 +49,7 @@ public:
 	 */
 	void about();
 
-	void createTest();
-
-private:
-
+	Game::PlayType play();
 };
 
 #endif /*__MENU_H__*/

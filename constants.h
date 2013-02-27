@@ -26,6 +26,8 @@ namespace Constants {
         extern ConstInt SPEED;
         extern ConstInt HEALTH;
         extern ConstInt MAX_HEALTH;
+        extern ConstNum BLINK_TIME;
+        extern ConstNum IMMORTAL_TIME;
 
     }
 

@@ -12,8 +12,8 @@ namespace Constants {
 
     namespace Menu {
 
-        ConstInt SCREEN_WIDTH(570);
-        ConstInt SCREEN_HEIGHT(570);
+        ConstInt SCREEN_WIDTH(456);
+        ConstInt SCREEN_HEIGHT(456);
         ConstStr SCREEN_TITLE("Bomberman | menu");
 
     }
@@ -21,8 +21,10 @@ namespace Constants {
     namespace Player {
 
         ConstInt SPEED("player.speed", 100);
-        ConstInt HEALTH("player.health", 2);
+        ConstInt HEALTH("player.health", 5);
         ConstInt MAX_HEALTH("player.max_health", 5);
+        ConstNum BLINK_TIME("player.blink_time", 1.0);
+        ConstNum IMMORTAL_TIME("player.immortal_time", 6.0);
 
     }
 

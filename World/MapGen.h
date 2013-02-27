@@ -16,8 +16,8 @@ public:
 private:
 	ElementType *map;
 
-	uint width;
-	uint height;
+	int width;
+	int height;
 
 public:
 	MapGen();
@@ -27,7 +27,9 @@ public:
 
 	void setSize(int _width, int _height);
 
-	bool generate();
+	bool generate(int amount);
+	void reset();
+
 	ElementType* getMap();
 
 private:

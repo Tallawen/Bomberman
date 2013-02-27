@@ -3,33 +3,23 @@
 
 #include "../../StdAfx.h"
 
-#include "../World.h"
-
 #include "../Entity.h"
+#include "Player.h"
 
 class Bomb : public Entity {
-public:
-	bool live;
-
 private:
-	World *ptr;
-	sf::Sprite sprite;
-
-	int &bombAmount;
-	int explosionLength;
+	Player *playerPtr;
 
 	float lifeTime;
 
 public:
-	Bomb(World *_ptr, int &_bombAmount, int _explosionLength, int _id, sf::Vector2f _position);
+	Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_entitiesToCreate);
 	~Bomb();
+
+	EntityType getType() const { return EntityType::bomb; }
 
 	void draw(float dt);
 	void update(float dt);
-
-	Hitbox getHitbox() const;
-
-	bool isLive() const { return live; }
 
 private:
 	void explosion();

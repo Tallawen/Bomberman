@@ -1,19 +1,16 @@
-#ifndef __STONE_H__
-#define __STONE_H__
+#ifndef __BOX_H__
+#define __BOX_H__
 
 #include "../../StdAfx.h"
 
 #include "../Entity.h"
 
-class Stone : public Entity {
+class Box : public Entity {
 public:
-	Stone(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate);
+	Box(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate);
+	~Box() { }
 
-	~Stone() { }
-
-	EntityType getType() const { return EntityType::stone; }
-
-	int getScoresWhenKilled() const { return 10; }
+	EntityType getType() const { return EntityType::box; }
 
 	void draw(float dt);
 
@@ -43,4 +40,4 @@ public:
 
 };
 
-#endif /*__STONE_H__*/
+#endif /*__BRACKET_H__*/

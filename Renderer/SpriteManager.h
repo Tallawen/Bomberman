@@ -1,5 +1,5 @@
-#ifndef __SPRITE_H__
-#define __SPRITE_H__
+#ifndef __SPRITEMANAGER_H__
+#define __SPRITEMANAGER_H__
 
 #include "../StdAfx.h"
 
@@ -7,8 +7,8 @@ class TextureInfo {
 public:
 	TextureInfo(sf::Image _img, bool _animation = false);
 
-	unsigned int width;
-	unsigned int height;
+	int width;
+	int height;
 
 	bool animation;
 
@@ -26,27 +26,25 @@ struct SpriteData {
 	bool animation;
 	unsigned int frame;
 
-	SpriteData() { }
+	SpriteData() = default;
 	SpriteData(std::string _title, unsigned int _textureId, unsigned int _spriteId, sf::Vector2i dimensions, sf::Vector2i _posInTexture, bool _animation = false, unsigned int _frame = 0);
 };
 
-class Sprite { /* Half singleton */
-public:
-
+class SpriteManager { /** Half singleton **/
 private:
-	static Sprite *_instance;
+	static SpriteManager *_instance;
 
-	std::vector<TextureInfo> texture;
-	std::map<std::string, unsigned int> textureId;
+	std::vector<TextureInfo> textures;
+	std::map<std::string, unsigned int> texturesId;
 
-	std::vector<SpriteData> sprite;
-	std::map<std::string, unsigned int> spriteId;
+	std::vector<SpriteData> sprites;
+	std::map<std::string, unsigned int> spritesId;
 
 public:
-	static Sprite* instance();
+	static SpriteManager* instance();
 
-	Sprite() { }
-	~Sprite() { }
+	SpriteManager() { }
+	~SpriteManager();
 
 	bool insertTexture(std::string filename, bool animation = false);
 	bool insertSprite(std::string title, std::string textureTitle, sf::Vector2i dimensions, sf::Vector2i posInTexture, bool animation = false, unsigned int frame = 0);
@@ -67,10 +65,7 @@ public:
 	void showTextureList();
 	void showSpriteList();
 
-	int getSpriteSize() { return sprite.size(); }
-
-private:
-
+	int getSpriteSize() { return sprites.size(); }
 };
 
-#endif /*__SPRITE_H__*/
+#endif /*__SPRITEMANAGER_H__*/

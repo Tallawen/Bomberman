@@ -17,7 +17,7 @@ MapGen::MapGen(int _width, int _height) {
 
 MapGen::~MapGen() {
 	if(map != nullptr)
-		delete map;
+		delete [] map;
 
 	LOG("Delete MapGen");
 }
@@ -27,7 +27,7 @@ void MapGen::setSize(int _width, int _height) {
 	height = _height;
 }
 
-bool MapGen::generate() {
+bool MapGen::generate(int amount) {
 	if(width == 0 || height == 0) {
 		LOG("Zly rozmiar mapy");
 
@@ -37,9 +37,7 @@ bool MapGen::generate() {
 	if(map == nullptr)
 		map = new ElementType[width * height];
 
-	std::cerr << width << ", " << height << std::endl;
-
-	uint x, y;
+	int x, y;
 
 	for(y = 0; y < height; ++y) {
 		for(x = 0; x < width; ++x) {
@@ -50,50 +48,38 @@ bool MapGen::generate() {
 		}
 	}
 
-	LOG(1);
-
-	uint boxAmount = sf::Randomizer::Random(int(width * height / 10), int(width * height / 5));
-
-	LOG(2);
+	int boxAmount = sf::Randomizer::Random(int(width * height / 10), int(width * height / 5));
 
 	while(boxAmount--) {
-		x = sf::Randomizer::Random(0, width);
-		y = sf::Randomizer::Random(0, height);
+		x = sf::Randomizer::Random(0, width - 1);
+		y = sf::Randomizer::Random(0, height - 1);
 
 		map[y * width + x] = ElementType::box;
 	}
 
+	int opponentsAmount = sf::Randomizer::Random(2, 10);
 
-	boxAmount = 6;
+	while(opponentsAmount--) {
+		x = sf::Randomizer::Random(1, width - 1);
+		y = sf::Randomizer::Random(1, height - 1);
 
-		LOG(2);
+		map[y * width + x] = ElementType::exit;
+	}
 
-		while(boxAmount--) {
-			x = sf::Randomizer::Random(1, width);
-			y = sf::Randomizer::Random(1, height);
+	while(amount--) {
+		x = sf::Randomizer::Random(0, width - 1);
+		y = sf::Randomizer::Random(0, height - 1);
 
-			map[y * width + x] = ElementType::exit;
-		}
-
-
-		LOG(3);
-
-			x = sf::Randomizer::Random(0, width);
-			y = sf::Randomizer::Random(0, height);
-			map[y * width + x] = ElementType::characters;
-
-
-	LOG(4);
-
-	map[5 * width + 15] = ElementType::exit;
-	map[5 * width + 16] = ElementType::empty;
-	map[5 * width + 14] = ElementType::empty;
-	map[5 * width + 13] = ElementType::empty;
-	map[4 * width + 15] = ElementType::empty;
-	map[6 * width + 15] = ElementType::empty;
-
+		map[y * width + x] = ElementType::characters;
+	}
 
   return true;
+}
+
+void MapGen::reset() {
+	delete [] map;
+
+	map = nullptr;
 }
 
 MapGen::ElementType* MapGen::getMap() {

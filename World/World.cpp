@@ -1,15 +1,10 @@
 #include "World.h"
 
 #include "../Renderer/Window.h"
-#include "../Renderer/Sprite.h"
 
-#include "Entity/RampDown.h"
-#include "Entity/RampLeft.h"
-#include "Entity/RampRight.h"
-#include "Entity/RampTop.h"
 #include "Entity/Stone.h"
-#include "Entity/Bracket.h"
-#include "Entity/Glimmer.h"
+#include "Entity/Box.h"
+#include "Entity/Bat.h"
 
 /***********************************************************************************
  World :: methods
@@ -17,7 +12,7 @@
 World::World() {
 	setWindowDimensions();
 
-	floorData = Sprite::instance()->getSpriteData("FloorDark");
+	floorData = SpriteManager::instance()->getSpriteData("game.floor_dark");
 	floorSprite = nullptr;
 
 	mapDimensions = sf::Vector2i(windowDimensions.x / floorData.dimensions.x,
@@ -29,8 +24,8 @@ World::World() {
 
 void World::drawFloor() {
 	if(floorSprite == nullptr) {
-		sf::Sprite darkTile   = Sprite::instance()->getSprite("FloorDark");
-		sf::Sprite brightTile = Sprite::instance()->getSprite("FloorBright");
+		sf::Sprite darkTile   = SpriteManager::instance()->getSprite("game.floor_dark");
+		sf::Sprite brightTile = SpriteManager::instance()->getSprite("game.floor_bright");
 
 		uint wNum = mapDimensions.x;
 		uint hNum = mapDimensions.y + 2;
@@ -40,7 +35,7 @@ void World::drawFloor() {
 		sf::Vector2f darkTilePosition   = sf::Vector2f(0, -offset.y);
 		sf::Vector2f brightTilePosition = sf::Vector2f(0, -offset.y);
 
-		for(int i = 0; i < hNum + 1; ++i) {
+		for(uint i = 0; i < hNum + 1; ++i) {
 			darkTilePosition.x  = -3 * offset.x;
 			darkTilePosition.y += offset.y;
 
@@ -52,7 +47,7 @@ void World::drawFloor() {
 				brightTilePosition.x += offset.x;
 			}
 
-			for(int j = 0; j < wNum / 2 + 2; ++j) {
+			for(uint j = 0; j < wNum / 2 + 2; ++j) {
 				darkTilePosition.x += 2 * offset.x;
 				brightTilePosition.x += 2 * offset.x;
 
@@ -64,16 +59,16 @@ void World::drawFloor() {
 			}
 		}
 
-		sf::Sprite spots = Sprite::instance()->getSprite("FloorStop");
-		int x = sf::Randomizer::Random(0, Sprite::instance()->getSpriteData("FloorStop").dimensions.x - Window::instance()->getWidth());
-		int y = sf::Randomizer::Random(0, Sprite::instance()->getSpriteData("FloorStop").dimensions.y - Window::instance()->getHeight());
+		sf::Sprite spots = SpriteManager::instance()->getSprite("game.floor_spots");
+		int x = sf::Randomizer::Random(0, SpriteManager::instance()->getSpriteData("game.floor_spots").dimensions.x - Window::instance()->getWidth());
+		int y = sf::Randomizer::Random(0, SpriteManager::instance()->getSpriteData("game.floor_spots").dimensions.y - Window::instance()->getHeight());
 
 		spots.SetPosition(-x, y + Window::instance()->getHeight());
 		Window::instance()->getRW()->Draw(spots);
 
 		uint n = sf::Randomizer::Random(0, wNum);
 
-		sf::Sprite shadow = Sprite::instance()->getSprite("FloorShadow");
+		sf::Sprite shadow = SpriteManager::instance()->getSprite("game.floor_shadow");
 
 		for(uint i = 0, x, y; i < n; ++i) {
 			x = sf::Randomizer::Random(0, wNum);
@@ -94,7 +89,7 @@ void World::drawFloor() {
 }
 
 void World::drawWall() {
-	sf::Sprite sprite = Sprite::instance()->getSprite("Wall");
+	sf::Sprite sprite = SpriteManager::instance()->getSprite("game.wall");
 	sprite.SetCenter(0, 0);
 	sprite.SetBlendMode(sf::Blend::Alpha);
 
@@ -104,87 +99,85 @@ void World::drawWall() {
 		Window::instance()->getRW()->Draw(sprite);
 	}
 
-	 sprite = Sprite::instance()->getSprite("Ledder");
+	 sprite = SpriteManager::instance()->getSprite("game.ledder");
 	 sprite.SetCenter(0, 0);
 	 sprite.SetPosition(sf::Randomizer::Random(600.0f, windowDimensions.x - 100.0f), 0);
 
 	 Window::instance()->getRW()->Draw(sprite);
 }
 
-void World::loadWorld(unsigned int id) {
-	map.generate();
+void World::loadWorld(Game *gamePtr, unsigned int id) {
+	static int playerId = 0;
 
-	/* floorData.dimensions -- Vector2i(width,height) of one tile */
+	for(auto it = entities.begin(); it != entities.end(); ) {
+		if((*it)->getType() != Entity::EntityType::player)
+			delete *it;
+		else it++;
+
+		it = entities.erase(it);
+	}
+
+	if(id == 1) map.generate(1);
+	else map.generate(2);
 
 	floorStartPos.x = 0;
 	floorStartPos.y = 150;
 
-	LOG("map2");
-
 	MapGen::ElementType *board = map.getMap();
-
-	LOG("map1");
 
 	for(int y = 0; y < mapDimensions.y; ++y) {
 		for(int x = 0; x < mapDimensions.x; ++x) {
-			if(board[ID(x, y)] == MapGen::ElementType::stone) {
-				LOG("STONE");
-				LOG(ID(x, y));
-				world[ID(x, y)].insert(std::make_pair(LayerType::LAYER_STONES, new Stone(ID(x, y),
-						sf::Vector2f(
-								x * floorData.dimensions.x + floorStartPos.x,
-								y * floorData.dimensions.y + floorStartPos.y
-						)
-			    )));
-				LOG("STONE_END");
+
+			switch(board[y * mapDimensions.x + x]) {
+			   case MapGen::ElementType::stone:
+				   entities.push_back( new Stone(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
+				 break;
+
+			   case MapGen::ElementType::box:
+				   entities.push_back( new Box(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
+				 break;
+
+			   case MapGen::ElementType::characters:
+				   {
+					   gamePtr->players.at(playerId)->setPosition(x*50, y*50 + 150);
+					   gamePtr->players.at(playerId)->setPosition(x*50, y*50 + 150);
+					   entities.push_back(gamePtr->players.at(playerId++));
+				   }
+				 break;
+
+			   case MapGen::ElementType::exit:
+				   entities.push_back( new Bat(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate));
+				 break;
+
+			    default:
+
+			      break;
 			}
 
-			if(board[ID(x, y)] == MapGen::ElementType::box) {
-				LOG("BOX");
-				LOG(ID(x, y));
-				world[ID(x, y)].insert(std::make_pair(LayerType::LAYER_BLOCKS, new Bracket(ID(x, y),
-						sf::Vector2f(
-								x * floorData.dimensions.x + floorStartPos.x,
-								y * floorData.dimensions.y + floorStartPos.y
-						)
-			    )));
-				LOG("BOX_END");
-			}
-
-			if(board[ID(x, y)] == MapGen::ElementType::characters) { // Player
-				LOG("PLAYER_END");
-				LOG(ID(x, y));
-				// Player is placed in the middle of tile (j, i)
-				player.push_back(new Player(ID(x, y),
-					sf::Vector2f(
-							x * floorData.dimensions.x + floorStartPos.x + 30,
-							y * floorData.dimensions.y + floorStartPos.y - 30
-							//floorStartPos.x	+ (x * floorData.dimensions.x - x) - floorData.dimensions.x / 2,
-						//floorStartPos.y	+ (y * floorData.dimensions.y - y) - floorData.dimensions.y / 2
-					)
-				));
-				/* floorStartPos -- bottom-left corner of Tile(0,0)
-				 * floorData.dimensions -- width,height of one tile
-				 * `- j` is used to counter one-pixel offset */
-				LOG("PLAYER_END");
-
-				playerPos.push_back(sf::Vector2i(x, y));
-
-				world[ID(x, y)].insert(std::make_pair(LayerType::LAYER_CHARACTERS, player.back()));
-			}
-
-			if(board[ID(x, y)] == MapGen::ElementType::exit) { // Player
-				world[ID(x, y)].insert(std::make_pair(LayerType::LAYER_OPPONENTS, new Glimmer(this, ID(x, y),
-										sf::Vector2f(
-												x * floorData.dimensions.x + floorStartPos.x,
-												y * floorData.dimensions.y + floorStartPos.y
-										)
-							    )));
-			}
 		}
 	}
 
-	LOG("load");
+	playerId = 0;
+	map.reset();
+}
+
+void World::removeAndAddEntities() {
+	for(auto it = entities.begin(); it != entities.end(); ) {
+		if( !(*it)->isAlive() && ((*it)->getType() != Entity::EntityType::player) ) {
+			(*it)->remove();
+
+			delete (*it);
+
+			it = entities.erase(it);
+		} else
+			++it;
+	}
+
+	while(!entitiesToCreate.empty()) {
+		entities.push_back(entitiesToCreate.front());
+
+		entitiesToCreate.pop();
+	}
 }
 
 void World::setWindowDimensions() {
@@ -195,61 +188,10 @@ void World::setWindowDimensions() {
 void World::draw(float dt) {
 	drawFloor();
 
-	worldIterator worldIt = world.begin();
-	entityIterator entityIt;
+	std::sort(entities.begin(), entities.end(),[](Entity* a, Entity* b)->bool { return a->getY() < b->getY(); });
 
-	while(worldIt != world.end()) {
-		entityIt = worldIt->second.begin();
-
-		while(entityIt != worldIt->second.end()) {
-			if(entityIt->second->remove) {
-				delete entityIt->second;
-				entityIt->second = nullptr;
-			}
-
-			// Wywolanie metody wylaczone z if'a znajdujacego sie wyzej na wypadek gdyby entity zostal usuniety z listy gdzies indziej
-			if(entityIt->second == nullptr)
-				entityIt = worldIt->second.erase(entityIt);
-
-			else {
-				entityIt->second->draw(dt);
-				entityIt->second->update(dt);
-
-				++entityIt;
-			}
-		}
-		++worldIt;
+	for(auto it = entities.begin(); it != entities.end(); ++it) {
+		(*it)->update(dt);
+		(*it)->draw(dt);
 	}
-}
-
-/// Return field containing this vector
-sf::Vector2i World::getNField(sf::Vector2f pos) {
-	float x = pos.x - floorStartPos.x;
-	float y = pos.y - floorStartPos.y + 50;
-
-	x /= floorData.dimensions.x;
-	y /= floorData.dimensions.y;
-
-  return sf::Vector2i(int(x), int(y));
-}
-
-sf::Vector2i World::getNField(float x, float y) {
-  return getNField(sf::Vector2f(x, y));
-}
-
-sf::Vector2f World::getPixelPosition(sf::Vector2f pos) {
-	pos.y *= floorData.dimensions.y;
-	pos.x *= floorData.dimensions.x;
-
-	pos.x += floorStartPos.x;
-	pos.y += floorStartPos.y;
-  return pos;
-}
-
-sf::Vector2f World::getPixelPosition(float x, float y) {
-  return getPixelPosition(sf::Vector2f(x, y));
-}
-
-sf::Vector2f World::getPixelPosition(int id) {
-  return getPixelPosition(sf::Vector2f(xByID(id), yByID(id)));
 }

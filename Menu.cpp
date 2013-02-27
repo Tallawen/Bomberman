@@ -4,60 +4,85 @@
 
 #include "Renderer/Window.h"
 #include "Renderer/SubWindow.h"
-#include "Renderer/Sprite.h"
+#include "Renderer/SpriteManager.h"
+#include "Renderer/SoundManager.h"
 
 /***********************************************************************************
- Game :: methods
+ Menu :: methods
  *********************/
-Menu::Menu() : maxOptions(3) {
-	background = Sprite::instance()->getSprite("Menu_Background");
+Menu::Menu() : maxOptions(2) {
+	background = SpriteManager::instance()->getSprite("main_menu.background");
 
-	text[0] = Sprite::instance()->getSprite("Menu_TextStart");
-	text[1] = Sprite::instance()->getSprite("Menu_TextStartActive");
-	text[2] = Sprite::instance()->getSprite("Menu_TextAbout");
-	text[3] = Sprite::instance()->getSprite("Menu_TextAboutActive");
-	text[4] = Sprite::instance()->getSprite("Menu_TextExit");
-	text[5] = Sprite::instance()->getSprite("Menu_TextExitActive");
+	text[0] = SpriteManager::instance()->getSprite("main_menu.play");
+	text[1] = SpriteManager::instance()->getSprite("main_menu.play_active");
+	text[2] = SpriteManager::instance()->getSprite("main_menu.about");
+	text[3] = SpriteManager::instance()->getSprite("main_menu.about_active");
 
 	background.SetCenter(0, 0);
 	background.SetPosition(0, 0);
 
-	text[0].SetPosition(73, 266);
-	text[1].SetPosition(73, 266);
-	text[2].SetPosition(73, 298);
-	text[3].SetPosition(73, 298);
-	text[4].SetPosition(73, 337);
-	text[5].SetPosition(73, 337);
+	text[0].SetPosition(29, 316);
+	text[1].SetPosition(29, 316);
+	text[2].SetPosition(76, 327);
+	text[3].SetPosition(76, 327);
 }
 
-int Menu::main(int id) {
+Game::PlayType Menu::show(OptionsType type) {
 	Window::instance()->init(Constants::Menu::SCREEN_WIDTH,
 			                 Constants::Menu::SCREEN_HEIGHT,
 			                 Constants::Menu::SCREEN_TITLE,
                              sf::Style::None);
 
 	bool done = false;
+	int id = int(type);
+
+	Game::PlayType playType = Game::PlayType::none;
+
 	sf::Event event;
+
+	sf::Music* menuTheme  = SoundManager::instance().getMusic("menu.aurora");
+	menuTheme->SetLoop(true);
+	menuTheme->SetVolume(50.0f);
+	menuTheme->Play();
 
 	while(!done) {
 		while(Window::instance()->getRW()->GetEvent(event)) {
-			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Down)
+			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
+				type = OptionsType::exit;
+				playType = Game::PlayType::none;
+				Window::instance()->close();
+				done = true;
+
+			} else if(event.Type == sf::Event::KeyPressed && (event.Key.Code == sf::Key::Down || event.Key.Code == sf::Key::Right)) {
 				if(id < maxOptions-1) id++;
 
-			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Up)
+			} else if(event.Type == sf::Event::KeyPressed && (event.Key.Code == sf::Key::Up || event.Key.Code == sf::Key::Left)) {
 				if(id > 0) id--;
 
-			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Return) {
-				if(id == (int)OptionsType::About)
-					about();
-				else
-					done = true;
+			} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Return) {
+				type = OptionsType(id);
+
+				switch(type) {
+				    case OptionsType::about:
+				    	about();
+				      break;
+
+				    case OptionsType::play:
+				    	playType = play();
+				      break;
+
+				    default:
+
+				      break;
+				}
+
+				if(playType != Game::PlayType::none) done = true;
 			}
 
 			Window::instance()->process(event);
 		}
 
-		Window::instance()->getRW()->Clear(sf::Color(255,255,255, 0));
+		Window::instance()->getRW()->Clear();
 		Window::instance()->getRW()->Draw(background);
 
 		for(int i=0; i<maxOptions; ++i) {
@@ -70,25 +95,93 @@ int Menu::main(int id) {
 		Window::instance()->getRW()->Display();
 	}
 
-	switch(id) {
-	    case (int)OptionsType::StartGame:
-	    	LOG("Start");
-	       return 1;
-	      break;
+	Window::instance()->close();
 
-	    case (int)OptionsType::Exit:
-	    	Window::instance()->close();
-	      break;
-	}
+	menuTheme->Stop();
 
-   return 0;
+  return playType;
 }
 
 void Menu::about() {
-	SubWindow sb;
+	//SubWindow sW;
 
-	sb.init(sf::Vector2i(446, 446), sf::Vector2i(62, 62));
-	sb.add(Sprite::instance()->getSprite("About_Info"), sf::Vector2i(0, 446));
+	//sW.init(sf::Vector2f(100, 100), sf::Vector2f(62, 62));
+	//sW.add(Sprite::instance()->getSprite("About_Info"), sf::Vector2i(0, 50));
 
-	sb.show();
+	//sW.show();
+}
+
+Game::PlayType Menu::play() {
+	sf::Sprite player = SpriteManager::instance()->getSprite("player.white_down");
+	sf::Sprite bat = SpriteManager::instance()->getSprite("enemy.bat_down");
+
+	SpriteData sdPlayer = SpriteManager::instance()->getSpriteData("player.white_down");
+	SpriteData sdBat = SpriteManager::instance()->getSpriteData("enemy.bat_down");
+
+	player.SetSubRect(sf::IntRect(0, 0, sdPlayer.dimensions.x, sdPlayer.dimensions.y));
+	bat.SetSubRect(sf::IntRect(0, 0, sdBat.dimensions.x, sdBat.dimensions.y));
+
+	SubWindow sW;
+
+	int sWXPosition = (Constants::Menu::SCREEN_WIDTH - 307) / 2;
+	int sWYPosition = (Constants::Menu::SCREEN_HEIGHT - 307) / 2;
+
+	sW.init(sf::Vector2f(307, 307), sf::Vector2f(sWXPosition, sWYPosition));
+
+	sW.add(SpriteManager::instance()->getSprite("button.1"), sf::Vector2i(45,  92));
+	sW.add(SpriteManager::instance()->getSprite("button.2"), sf::Vector2i(45, 172));
+	sW.add(SpriteManager::instance()->getSprite("button.3"), sf::Vector2i(45, 252));
+
+	sW.add(player, sf::Vector2i(110, 92));
+	sW.add(player, sf::Vector2i(110, 172));
+	sW.add(player, sf::Vector2i(140, 172));
+	sW.add(player, sf::Vector2i(110, 252));
+	sW.add(player, sf::Vector2i(230, 252));
+
+	sW.add(bat, sf::Vector2i(230, 92));
+	sW.add(bat, sf::Vector2i(230, 172));
+
+	sW.add(SpriteManager::instance()->getSprite("text.vs"), sf::Vector2i(188, 79));
+	sW.add(SpriteManager::instance()->getSprite("text.vs"), sf::Vector2i(188, 159));
+	sW.add(SpriteManager::instance()->getSprite("text.vs"), sf::Vector2i(188, 239));
+
+	sW.setTransitionEffect(1);
+
+	sf::Key::Code value = sW.show([](sf::Event &event, sf::Key::Code &result, bool &done)->void {
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num1) {
+			result = sf::Key::Num1;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num2) {
+			result = sf::Key::Num2;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num3) {
+			result = sf::Key::Num3;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
+			result = sf::Key::Escape;
+			done = true;
+		}
+	});
+
+	switch(value) {
+	    case sf::Key::Num1:
+	    	return Game::PlayType::oneVsBot;
+	      break;
+
+	    case sf::Key::Num2:
+	    	return Game::PlayType::twoVsBot;
+	      break;
+
+	    case sf::Key::Num3:
+	    	return Game::PlayType::oneVsOne;
+	      break;
+
+	    default:
+	      break;
+	}
+
+  return Game::PlayType::none;
 }

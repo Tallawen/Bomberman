@@ -14,9 +14,17 @@ private:
 	std::vector<sf::SoundBuffer> buffers;
 
 	/// mapping names to indexes of buffers vector
-	std::map<std::string, uint> nameIndex;
+	std::map<std::string, uint> bufferIndex;
 
 	std::queue<sf::Sound> soundQueue;
+
+	///Music
+	std::vector<sf::Music*> tracks; /* Use pointers,
+	as - sadly sf::Music and std::vector don't like each other.
+	sf::Music has a private copy constructor. memleaks aren't an issue,
+	resources are loaded on startup anyway */
+
+	std::map<std::string, uint> trackIndex;
 
 /*
  * Methods:
@@ -43,6 +51,32 @@ public:
 
 	/// Return sound associated with index
 	sf::SoundBuffer& getSoundBuffer(uint id);
+
+	/* Music handling is a little different, as music objects are non-copy-able
+	 * Usage:
+	 * 1. Register:
+	 * SoundManager::instance().registerMusic("file.ogg", "example");
+	 *
+	 * 2. Later, get the pointer:
+	 * sf::Music* example_theme = SoundManager::instance().getMusic("example");
+	 *
+	 * 3. Use freely:
+	 * example_theme->Play();
+	 * example_theme->Pause();
+	 * example_theme->Stop();
+	 **/
+
+	/// Loads a track from file, registers as file's basename.
+	bool registerMusic(std::string path);
+
+	/// Loads a track from file, registers as name.
+	bool registerMusic(std::string path, std::string name);
+
+	/// Return pointer associated with name
+	sf::Music* getMusic(std::string name);
+
+	/// Return pointer associated with index
+	sf::Music* getMusic(uint id);
 
 private:
 	SoundManager();
