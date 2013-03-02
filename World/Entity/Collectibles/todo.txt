@@ -1,0 +1,14 @@
+* +1 HP
+* -1 HP
+
+* +1 bomba
+* +3 bomby
+* -1 bomba
+
+* +szybkosc ruchu
+* -szybkosc ruchu
+
+* +zasieg 
+* -zasieg
+
+* klucz - otwiera drzwi

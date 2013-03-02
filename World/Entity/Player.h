@@ -55,10 +55,10 @@ public:
 	void putBomb();
 
 	int getBombAmount() const { return bombAmount; }
-	void setBombAmount(int newBombAmount) { bombAmount = newBombAmount > 0 ? newBombAmount : 0; }
+	void setBombAmount(int targetValue);
 
 	int getHealthAmount() const { return healthAmount; }
-	void setHealthAmount(int newHealthAmount) { healthAmount = newHealthAmount > 0 ? newHealthAmount : 0; }
+	void setHealthAmount(int targetValue);
 
 	void looseLife();
     bool isImmortal() const { return immortal; }

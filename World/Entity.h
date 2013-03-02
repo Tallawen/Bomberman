@@ -22,6 +22,7 @@ public:
 		door,
 		bomb,
 		explosion,
+		collectible,
 	};
 
 	enum class EntityState {
