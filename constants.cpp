@@ -45,6 +45,20 @@ namespace Constants {
 
     namespace UI {
 
+        namespace Avatar {
+
+            ConstInt X("ui.avatar_x", 100);
+            ConstInt Y("ui.avatar_y", 20);
+
+        }
+
+        namespace Scores {
+
+            ConstInt X("ui.scores_x", 100);
+            ConstInt Y("ui.scores_y", 20);
+
+        }
+
         namespace HealthBar {
 
             ConstInt X("ui.healthBar_x", 100);

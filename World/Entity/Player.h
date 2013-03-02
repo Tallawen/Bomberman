@@ -3,121 +3,105 @@
 
 #include "../../StdAfx.h"
 
-#include "../World.h"
+#include "../../constants.h"
 
 #include "../Entity.h"
 
 class Player : public Entity {
 public:
-	enum class Dire {
-		none,
-		down,
-		top,
-		left,
-		right
-	};
-	/// if true, currently moving in certain direction
-	bool goDown, goUp, goLeft, goRight;
-
-	/// if true, the player is moving
-	bool lockChangeDirection;
-
-	Dire lastMove;
+	bool lockKey; /** Informuje nas ¿e klawisz ruchu jest wcisniety **/
+	bool lockMovement; /** Iformuje nas czy klawisze akcji sa zablokowane **/
 
 private:
-	/* 0 - sprite go down
-	 * 1 - sprite go top
-	 * 2 - sprite go right
-	 * 3 - sprite go left
-	 */
-	std::vector<sf::Sprite> sprite;
-	std::vector<SpriteData> spriteData;
+	/** Do autometycznego poruszania siê **/
+	std::queue<sf::Vector2f> distanceToGoQueue;
+	bool isGoing;
+	bool goingDone;
+	float distanceToGo;
 
-	Animation *animation;
-
-	/// Sprite placement in relation to `position`
-	sf::Vector2f animation_offset;
-
-	sf::Vector2f velocity;
-	sf::Vector2f position;
-
-	/// przesuniecie hitboxa dla ruchu w prawo
-	// TODO: Sprawdzic czy blad przesuniecia nie wynika z zle podpietej tekstury
-	sf::Vector2f hitboxOffset;
-
-	/// Liczba bomb ktore posiada aktualne gracz
 	int bombAmount;
-
 	int maxBombAmount;
+
 	int explosionLength;
 
-	uint healthAmount;
-	uint maxHealthAmount;
+	int healthAmount;
+	int maxHealthAmount;
 
-	sf::Color hitboxColor;
+	int totalScores;
+
+	bool immortal;
+	float immortalTime;
+
+	/** Do mrugania gracza po stracie ¿ycia **/
+	float blinkingTime;
+	float blinkingValue;
+	float blinkingSign;
+
+	sf::Vector2f hitboxOffset; /** Przesuniecie hitbox'a odnosnie ruchu w prawo **/
 
 public:
-	Player(int _id, sf::Vector2f _position);
+	Player(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate);
+	~Player();
 
-	void update(float dt);
+	EntityType getType() const { return EntityType::player; }
+
+    void addScores(int scores) { totalScores += scores; }
+    void setScores(int scores) { totalScores = scores; }
+    int getScores() const { return totalScores; }
+
+    void update(float dt);
 	void draw(float dt);
 
-	Hitbox getHitbox() const;
-
-	void setVelocity(float x, float y) { velocity = sf::Vector2f(x, y); }
-	void setVelocity(sf::Vector2f _velocity) { velocity = _velocity; }
-
-	/// Initialize movement in a direction
-	void down() {
-		goDown = lockChangeDirection = true;
-		animation->setSprite(sprite.at(0), spriteData.at(0));
-		animation->setPos(position + animation_offset);
-
-		hitboxOffset = sf::Vector2f(0, 0);
-		lastMove = Dire::down;
-	}
-	void top() {
-		goUp = lockChangeDirection = true;
-		animation->setSprite(sprite.at(1), spriteData.at(1));
-		animation->setPos(position + animation_offset);
-
-		hitboxOffset = sf::Vector2f(0, 0);
-
-		lastMove = Dire::top;
-	}
-	void right() {
-		goRight = lockChangeDirection = true;
-		animation->setSprite(sprite.at(2), spriteData.at(2));
-		animation->setPos(position + animation_offset);
-
-		hitboxOffset = sf::Vector2f(10, 0);
-
-		lastMove = Dire::right;
-	}
-	void left() {
-		goLeft = lockChangeDirection = true;
-		animation->setSprite(sprite.at(3), spriteData.at(3));
-		animation->setPos(position + animation_offset);
-
-		hitboxOffset = sf::Vector2f(0, 0);
-		lastMove = Dire::left;
-	}
-
-	sf::Vector2f* getPosition() { return &position; }
-
-	void detectTileCollisions(World *ptr);
-
-	void setBomb(World *ptr);
-
-	bool isLock() const { return lockChangeDirection; }
+	void putBomb();
 
 	int getBombAmount() const { return bombAmount; }
+	void setBombAmount(int newBombAmount) { bombAmount = newBombAmount > 0 ? newBombAmount : 0; }
+
 	int getHealthAmount() const { return healthAmount; }
+	void setHealthAmount(int newHealthAmount) { healthAmount = newHealthAmount > 0 ? newHealthAmount : 0; }
 
-private:
-	//used in detectTileCollisions
-	void collideWithTile(World *ptr, int id);
+	void looseLife();
+    bool isImmortal() const { return immortal; }
 
+    void goLeft()  { setXVelocity( -getDefaultXVelocity() ); state = EntityState::goLeft;  left->play(); hitboxOffset = sf::Vector2f(0, 0); }
+   	void goRight() { setXVelocity(  getDefaultXVelocity() ); state = EntityState::goRight; right->play(); hitboxOffset = sf::Vector2f(8, 0); }
+   	void goTop()   { setYVelocity( -getDefaultYVelocity() ); state = EntityState::goTop;   top->play();   hitboxOffset = sf::Vector2f(0, 0);}
+   	void goDown()  { setYVelocity(  getDefaultYVelocity() ); state = EntityState::goDown;  down->play();  hitboxOffset = sf::Vector2f(0, 0);}
+
+   	void stopLeft()  { setXVelocity(0); state = EntityState::stand; left->stop();  sprite = left->getSprite(); }
+   	void stopRight() { setXVelocity(0); state = EntityState::stand; right->stop(); sprite = right->getSprite(); }
+   	void stopTop()   { setYVelocity(0); state = EntityState::stand; top->stop();   sprite = top->getSprite(); }
+   	void stopDown()  { setYVelocity(0); state = EntityState::stand; down->stop();  sprite = down->getSprite(); }
+
+   	void stopMovement() { setVelocity(0, 0); state = EntityState::stand; left->stop(); right->stop(); top->stop(); down->stop(); }
+
+   	void going(float dt);
+   	void goingToCenter();
+
+   	Hitbox getHitbox() const {
+   		return Hitbox(
+   				sf::Vector2f(position.x, position.y) + hitboxOffset,
+   				sf::Vector2f(position.x + sd.dimensions.x, position.y - sd.dimensions.y / 2) + hitboxOffset);
+   	}
+
+	Hitbox getNextHitbox(float dt) const {
+		return Hitbox(
+				sf::Vector2f(getNextXPosition(dt), getNextYPosition(dt)) + hitboxOffset,
+				sf::Vector2f(getNextXPosition(dt) + sd.dimensions.x, getNextYPosition(dt) - sd.dimensions.y / 2) + hitboxOffset);
+	}
+
+
+   	Hitbox getNextHorizontalHitbox(float dt) const {
+   		return Hitbox(
+   				sf::Vector2f(getNextXPosition(dt), position.y) + hitboxOffset,
+   				sf::Vector2f(getNextXPosition(dt) + sd.dimensions.x, position.y - sd.dimensions.y / 2) + hitboxOffset);
+	}
+
+	Hitbox getNextVerticalHitbox(float dt) const {
+		return Hitbox(
+				sf::Vector2f(position.x, getNextYPosition(dt)) + hitboxOffset,
+				sf::Vector2f(position.x, getNextYPosition(dt) - sd.dimensions.y / 2) + hitboxOffset);
+	}
 };
 
 #endif /*__PLAYER_H__*/

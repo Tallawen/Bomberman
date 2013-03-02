@@ -19,6 +19,9 @@ private:
 	int width;
 	int height;
 
+	int emptyAmount;
+	int stoneAmount;
+	int boxAmount;
 public:
 	MapGen();
 	MapGen(int _width, int _height);

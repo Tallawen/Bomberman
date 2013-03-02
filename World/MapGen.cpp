@@ -16,8 +16,11 @@ MapGen::MapGen(int _width, int _height) {
 }
 
 MapGen::~MapGen() {
-	if(map != nullptr)
+	if(map != nullptr) {
 		delete [] map;
+
+		map = nullptr;
+	}
 
 	LOG("Delete MapGen");
 }
@@ -38,6 +41,100 @@ bool MapGen::generate(int amount) {
 		map = new ElementType[width * height];
 
 	int x, y;
+
+/*	ElementType tab[height + 2][width + 2];
+	for(y = 0; y < height + 2; ++y) {
+		for(x = 0; x < width + 2; ++x) {
+			tab[y][x] = ElementType::empty;
+
+			if(sf::Randomizer::Random(0, 1)) {
+				tab[y][x] = ElementType::stone;
+				++stoneAmount;
+			} else
+				++emptyAmount;
+		}
+	}
+
+	const int MAX_BOX = height * width * 0.3;
+	const int MIN_BOX = height * width * 0.1;
+
+	int boxAmount = this->boxAmount = sf::Randomizer::Random(MIN_BOX, MAX_BOX);
+
+	while (boxAmount--) {
+		y = sf::Randomizer::Random(1, height);
+		x = sf::Randomizer::Random(1, width);
+
+		tab[y][x] = ElementType::box;
+	}*/
+
+	/** obramowanie, zeby w bfs nie wyjsc poza tablice **/
+	/*for(x = 0; x < width + 2; ++x) {
+		tab[0][x] = INT_MAX;
+		tab[height + 1][x] = INT_MAX;
+	}
+
+	for(y = 0; y < height + 2; ++y) {
+		tab[y][0] = INT_MAX;
+		tab[y][width + 1] = INT_MAX;
+	}*/
+
+	/** sprawdzamy, czy mapa jest w porzadku **/
+	/*bool visited[height+2][width+2];
+	std::queue <int> q;
+
+	while(!q.empty())
+		q.pop();
+
+	int availableStone = 0; /// ile kamieni jest osiagalnych - do liczenia prawdopodobienstwa wypadniecia klucza
+
+	for(y = 0; y < height + 2; ++y)
+		for(x = 0; x < width + 2; ++x)
+			visited[y][x] = false;
+
+	q.push(pl_x); q.push(pl_y);
+	visited[pl_x][pl_y] = true;
+
+	int available_move = 0;
+	int radius = 5;
+	while (!q.empty()) {
+		++available_move;
+		int a = q.front(); q.pop();
+		int b = q.front(); q.pop();
+		if (available_move >= radius && tab[a][b] == 0) {
+			temp_enemy.push_back(a * width + b); //dodaje pola na ktorych potem moga byc wylosowani przeciwnicy
+			}
+		f (tab[a][b] == 7) ++available_stone;
+		if (tab[a-1][b] != 8 && visited[a-1][b] == false) {
+			visited[a-1][b] = true;
+			q.push(a-1); q.push(b);
+		}
+		if (tab[a+1][b] != 8 && visited[a+1][b] == false) {
+			visited[a+1][b] = true;
+			q.push(a+1); q.push(b);
+		}
+		if (tab[a][b-1] != 8 && visited[a][b-1] == false) {
+			visited[a][b-1] = true;
+			q.push(a); q.push(b-1);
+		}
+		if (tab[a][b+1] != 8 && visited[a][b+1] == false) {
+			visited[a][b+1] = true;
+
+			q.push(a); q.push(b+1);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+*/
 
 	for(y = 0; y < height; ++y) {
 		for(x = 0; x < width; ++x) {

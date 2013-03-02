@@ -1,12 +1,9 @@
 #include "Player.h"
 
-#include "../../constants.h"
-
 #include "Bomb.h"
 
-Player::Player(int _id, sf::Vector2f _position) {
-	info.id = _id;
-	info.position = _position;
+Player::Player(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 100.0f, 100.0f, _entitiesToCreate) {
+	hitboxOffset = sf::Vector2f(0, 0);
 
 	maxBombAmount = Constants::Bomb::MAX_AMOUNT;
 	bombAmount  = Constants::Bomb::START_AMOUNT;
@@ -16,228 +13,259 @@ Player::Player(int _id, sf::Vector2f _position) {
 
 	explosionLength = Constants::Explosion::LENGTH;
 
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Down"));
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Top"));
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Right"));
-	sprite.push_back(Sprite::instance()->getSprite("Player_White_Left"));
+	totalScores = 0;
 
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Down"));
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Top"));
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Right"));
-	spriteData.push_back(Sprite::instance()->getSpriteData("Player_White_Left"));
+	immortal = false;
 
-	animation = new Animation(sprite.at(0), spriteData.at(0));
+	goingDone = true;
+	isGoing = false;
 
-	goDown = goUp = goLeft = goRight = false;
-	lockChangeDirection = false;
-	//lockMoving = true;
+	lockMovement = false;
+	lockKey = false;
 
-	// See World::loadWorld()
-	position = _position;
+	state = EntityState::stand;
 
-	/// Offset of animation sprite from
-	animation_offset = sf::Vector2f(-12,10);
+	sprite = SpriteManager::instance()->getSprite("player.white_down");
+	sd = SpriteManager::instance()->getSpriteData("player.white_down");
 
-	animation->setPos(position);
+	left = new Animation(
+			SpriteManager::instance()->getSprite("player.white_left"),
+			SpriteManager::instance()->getSpriteData("player.white_left"));
 
-	hitboxColor = sf::Color::Red;
+	right = new Animation(
+			SpriteManager::instance()->getSprite("player.white_right"),
+			SpriteManager::instance()->getSpriteData("player.white_right"));
+
+	top = new Animation(
+			SpriteManager::instance()->getSprite("player.white_top"),
+			SpriteManager::instance()->getSpriteData("player.white_top"));
+
+	down = new Animation(
+			SpriteManager::instance()->getSprite("player.white_down"),
+			SpriteManager::instance()->getSpriteData("player.white_down"));
+
+	stopDown();
 }
+
+Player::~Player() { }
 
 void Player::update(float dt) {
-	if(!goDown && !goRight && !goLeft && !goUp) {
-		animation->stop();
-	} else {
-		animation->play();
-		position += velocity * dt;
-		animation->setPos(position);
+	if(healthAmount <= 0)
+		isDead = true;
 
-	//	goTo(velocity * dt);
+	going(dt);
 
+	if(immortal) {
+		if(blinkingTime > Constants::Player::BLINK_TIME && blinkingSign == -1.0f) {
+			blinkingSign = 1.0f;
+			blinkingValue = 0.0f;
+		}
+
+		if(blinkingTime > Constants::Player::BLINK_TIME * 2 && blinkingSign == 1.0f) {
+			blinkingTime = 0.0f;
+			blinkingValue = 255.0f;
+			blinkingSign = -1.0f;
+		}
+
+		blinkingValue += blinkingSign * 255 / Constants::Player::BLINK_TIME * dt;
+
+		if(immortalTime <= 0) {
+			immortal = false;
+
+			blinkingValue = 255.0f;
+		}
+
+		left->getSpritePtr()->SetColor(sf::Color(255, 255, 255, blinkingValue));
+		right->getSpritePtr()->SetColor(sf::Color(255, 255, 255, blinkingValue));
+		top->getSpritePtr()->SetColor(sf::Color(255, 255, 255, blinkingValue));
+		down->getSpritePtr()->SetColor(sf::Color(255, 255, 255, blinkingValue));
+		sprite.SetColor(sf::Color(255, 255, 255, blinkingValue));
+
+		immortalTime -= dt;
+		blinkingTime += dt;
 	}
-}
 
-// Choose which tiles to check based on movement
-void Player::detectTileCollisions(World *ptr) {
-	sf::Vector2i currField = ptr->getNField(position);
-	int width = ptr->mapDimensions.x;
+	if(state != EntityState::stand)
+		position = getNextPosition(dt);
 
-	/* Fig.1: Tile checking pattern.
-	 *
-	 *   % % %   . . %   . . .   % . .
-	 *   . ^ .   . > %   . v .   % < .
-	 *   . . .   . . %   % % %   % . .
-	 *
-	 * */
+	sprite.SetPosition(position);
 
-	//if(goDown) {
-	//	collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
-		collideWithTile(ptr, (currField.y + 1) * width + (currField.x    ) );
-		//collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
-	//}
-	//if(goUp) {
-		//collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
-		collideWithTile(ptr, (currField.y - 1) * width + (currField.x    ) );
-		//collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
-	//}
-	//if(goRight){
-		collideWithTile(ptr, (currField.y + 1) * width + (currField.x + 1) );
-		collideWithTile(ptr, (currField.y    ) * width + (currField.x + 1) );
-		collideWithTile(ptr, (currField.y - 1) * width + (currField.x + 1) );
-	//}
-	//if(goLeft) {
-		collideWithTile(ptr, (currField.y + 1) * width + (currField.x - 1) );
-		collideWithTile(ptr, (currField.y    ) * width + (currField.x - 1) );
-		collideWithTile(ptr, (currField.y - 1) * width + (currField.x - 1) );
-	//b}
-}
+	left->setPosition(position);
+	right->setPosition(position);
+	top->setPosition(position);
+	down->setPosition(position);
 
-// Check for collision, correct position if necessary
-// Colliding will stop the player and push them back.
-void Player::collideWithTile(World *ptr, int id){
-	if(ptr->world.find(id) == ptr->world.end()) return; //No such field on map
+	switch(state) {
+	    case EntityState::stand:
+	      break;
 
-	Entity *entity = nullptr;
-	LayerType lt;
+	    case EntityState::goLeft:
+	    	left->process(dt);
+	      break;
 
-	if(ptr->world[id].find(LayerType::LAYER_STONES) != ptr->world[id].end()) {
-		entity = ptr->world[id][LayerType::LAYER_STONES];
-		lt = LayerType::LAYER_STONES;
+	    case EntityState::goRight:
+	    	right->process(dt);
+	      break;
 
-	} else if(ptr->world[id].find(LayerType::LAYER_BLOCKS) != ptr->world[id].end()) {
-		entity = ptr->world[id][LayerType::LAYER_BLOCKS];
-		lt = LayerType::LAYER_BLOCKS;
+	    case EntityState::goTop:
+	    	top->process(dt);
+	      break;
 
-	} else if(ptr->world[id].find(LayerType::LAYER_OPPONENTS) != ptr->world[id].end()) {
-		entity = ptr->world[id][LayerType::LAYER_OPPONENTS];
-		lt = LayerType::LAYER_OPPONENTS;
-
-	} else
-		return; //Field has no blocks and stones
-
-	Hitbox self = getHitbox();
-	Hitbox block = entity->getHitbox();
-
-	if(Hitbox::collide(self, block)) {
-		if(lt == LayerType::LAYER_OPPONENTS) {
-			entity->remove = true;
-
-		}
-
-		sf::Vector2f offset(0, 0);
-
-		// calculate where to push the player
-		if(goDown || (!goDown && lastMove == Dire::down)) {
-			offset.y =  block.getMinY() - self.getMaxY() - 4.0f; // Negative value -- push up and a little more
-			LOG("OVER");
-			lastMove = Dire::none;
-		}
-		if(goUp || (!goUp && lastMove == Dire::top)) {
-			offset.y =  block.getMaxY() - self.getMinY() + 4.0f; // Positive value -- push down
-			LOG("UPPER");
-		}
-		if(goLeft || (!goLeft && lastMove == Dire::left)) {
-			offset.x =  block.getMaxX() - self.getMinX() + 4.0f; // push right
-			LOG("RIGHT");
-		}
-		if(goRight || (!goRight && lastMove == Dire::right)) {
-			offset.x =  block.getMinX() - self.getMaxX() - 4.0f; // push left
-
-			LOG("LEFT");
-		}
-
-		// Correct position and update player
-		position += offset;
-		animation->setPos(position);
-		//update(1); // instant correction, no velocity
-
-		// TODO: Going towards a wall causes player's sprite to derp out -- find out why
-
-		// Lock further movement
-		if(goDown)  goDown  = lockChangeDirection = false;
-		if(goUp)    goUp    = lockChangeDirection = false;
-		if(goRight) goRight = lockChangeDirection = false;
-		if(goLeft)  goLeft  = lockChangeDirection = false;
+	    case EntityState::goDown:
+	    	down->process(dt);
+	      break;
 	}
-}
-
-void Player::setBomb(World *ptr) {
-	if(bombAmount == 0) return;
-
-	sf::Vector2i tileCoord = ptr->getNField(position);
-	int id = ptr->ID(tileCoord.x, tileCoord.y);
-
-	sf::Vector2f position = ptr->getPixelPosition(id);
-	position.x += ptr->floorData.dimensions.x / 2;
-	position.y -= ptr->floorData.dimensions.y / 2;
-
-	Bomb *bomb = new Bomb(ptr, bombAmount, explosionLength, id, position);
-
-	if(ptr->world[id].find(LayerType::LAYER_BOMBS) == ptr->world[id].end())
-		ptr->world[id].insert(std::make_pair(LayerType::LAYER_BOMBS, bomb));
 }
 
 void Player::draw(float dt) {
-	animation->process(dt);
-	animation->draw();
+	switch(state) {
+	    case EntityState::stand:
+	    	Window::instance()->getRW()->Draw(sprite);
+	      break;
 
-	std::ostringstream ss;
-				ss << info.id;
+	    case EntityState::goLeft:
+	    	left->draw();
+	      break;
 
-		sf::String id(ss.str());
-		id.SetPosition(position);
-		//sf::Shape shape = sf::Shape::Rectangle(position.x, position.y, position.x + 1, position.y + 1, sf::Color::White);
-		Window::instance()->getRW()->Draw(id);
+	    case EntityState::goRight:
+	    	right->draw();
+	      break;
 
+	    case EntityState::goTop:
+	    	top->draw();
+	      break;
 
-	Window::instance()->drawHitbox(getHitbox(), hitboxColor);
-}
-/*
-void Player::goTo(sf::Vector2f offset) {
-	if(!lockMoving) return;
-
-	if(distanceToGo.x != 0) {
-		if(distanceToGo.x > 0 && !goRight)
-			right();
-		else if(distanceToGo.x > 0 && goRight) {
-			distanceToGo += offset;
-
-			if(distanceToGo.x <= 0)
-				distanceToGo.x = 0;
-
-		} else if(distanceToGo.x < 0 && !goLeft)
-			left();
-		else if(distanceToGo.x < 0 && goLeft) {
-			distanceToGo += offset;
-
-			if(distanceToGo.x >= 0)
-				distanceToGo.x = 0;
-		}
-
-	} else if(distanceToGo.y != 0) {
-		if(distanceToGo.y > 0 && !goDown)
-			down();
-		else if(distanceToGo.y > 0 && goDown) {
-			distanceToGo += offset;
-
-			if(distanceToGo.y <= 0)
-				distanceToGo.y = 0;
-
-		} else if(distanceToGo.y < 0 && !goUp)
-			top();
-		else if(distanceToGo.y < 0 && goUp) {
-			distanceToGo += offset;
-
-			if(distanceToGo.y >= 0)
-				distanceToGo.y = 0;
-		}
+	    case EntityState::goDown:
+	    	down->draw();
+	      break;
 	}
 
-	if(distanceToGo.x == 0 && distanceToGo.y == 0)
-		m
+	Window::instance()->drawHitbox(getHitbox(), sf::Color::Red);
 }
-*/
-// TODO: Usunac blad wysrodkowywania hitboxa => usunax hitboxOffset
-Hitbox Player::getHitbox() const {
-	// square 22*22 centered on player -- to be placed somewhere else.
-	return Hitbox(position + sf::Vector2f(-11,-11) + hitboxOffset, position + sf::Vector2f(11,11) + hitboxOffset);
+
+void Player::looseLife() {
+	--healthAmount;
+	immortal = true;
+	immortalTime = Constants::Player::IMMORTAL_TIME;
+
+	blinkingTime = 0.0f;
+	blinkingValue = 255.0f;
+	blinkingSign = -1.0f;
 }
+
+void Player::putBomb() {
+	entitiesToCreate->push( new Bomb(position, this, entitiesToCreate));
+}
+
+void Player::going(float dt) {
+	if(goingDone) return;
+
+	if(distanceToGoQueue.front().x > 0) {
+		if(!isGoing)
+			goRight();
+
+	} else if(distanceToGoQueue.front().x < 0) {
+		if(!isGoing)
+			goLeft();
+
+	} if(distanceToGoQueue.front().y > 0) {
+		if(!isGoing)
+			goDown();
+
+	} else if(distanceToGoQueue.front().y < 0) {
+		if(!isGoing)
+			goTop();
+	}
+
+	isGoing = true;
+
+	switch(state) {
+	    case EntityState::goLeft:
+	    	distanceToGo += getXVelocity() * dt;
+	      break;
+
+	    case EntityState::goRight:
+	    	distanceToGo -= getXVelocity() * dt;
+	      break;
+
+	    case EntityState::goTop:
+	    	distanceToGo += getYVelocity() * dt;
+	      break;
+
+	    case EntityState::goDown:
+	    	distanceToGo -= getYVelocity() * dt;
+	      break;
+
+	    default:
+
+	      break;
+	}
+
+	if(distanceToGo < 0) {
+		switch(state) {
+		    case EntityState::goLeft:
+		    	stopLeft();
+		      break;
+
+		    case EntityState::goRight:
+		    	stopRight();
+		      break;
+
+		    case EntityState::goTop:
+		    	stopTop();
+		      break;
+
+		    case EntityState::goDown:
+		    	stopDown();
+		      break;
+
+		    default:
+
+		      break;
+		}
+
+		isGoing = false;
+
+		distanceToGoQueue.pop();
+
+		if(!distanceToGoQueue.empty()) {
+			if(distanceToGoQueue.front().x != 0.0f)
+				distanceToGo = fabsf(distanceToGoQueue.front().x);
+			else
+				distanceToGo = fabsf(distanceToGoQueue.front().y);
+
+		} else distanceToGo = 0.0f;
+	}
+
+	if(distanceToGo == 0.0f) {
+		LOG("a");
+
+		isGoing = false;
+		goingDone = true;
+		lockMovement = false;
+		lockKey = false;
+
+		putBomb();
+	}
+}
+
+void Player::goingToCenter() {
+	int x = position.x / 50;
+	float toX = x * 50 + 12 - position.x;
+
+	int y = position.y / 50;
+	float toY = y * 50 + 35 - position.y;
+
+	distanceToGoQueue.push(sf::Vector2f(0, toY));
+	distanceToGoQueue.push(sf::Vector2f(toX, 0));
+
+	distanceToGo = fabsf(distanceToGoQueue.front().y);
+
+	goingDone = false;
+	isGoing = false;
+	lockMovement = true;
+	lockKey = true;
+
+   	stopMovement();
+}
+

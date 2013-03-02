@@ -1,11 +1,11 @@
-#ifndef __UI_H__
-#define __UI_H__
+#ifndef __UIC_H__
+#define __UIC_H__
 
 #include "StdAfx.h"
 
 #include "Renderer/SpriteManager.h"
 
-class UI {
+class UIc {
 public:
 
 private:
@@ -29,8 +29,8 @@ private:
 	int newLenght;
 
 public:
-	UI(bool secondPlayer = false);
-	~UI() { };
+	UIc(bool secondPlayer = false);
+	~UIc() { };
 
 	void drawHealthBar(int _health);
 	void drawBombBar(int _health);

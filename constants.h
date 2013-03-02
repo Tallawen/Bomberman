@@ -48,6 +48,20 @@ namespace Constants {
 
     namespace UI {
 
+        namespace Avatar {
+
+            extern ConstInt X;
+            extern ConstInt Y;
+
+        }
+
+        namespace Scores {
+
+        	extern ConstInt X;
+        	extern ConstInt Y;
+
+        }
+
         namespace HealthBar {
 
             extern ConstInt X;

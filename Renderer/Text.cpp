@@ -12,6 +12,7 @@ Text::Text(std::string filename) {
 	text.SetSize(size);
 	text.SetStyle(style);
 	text.SetColor(color);
+	text.SetCenter(0, 0);
 }
 
 void Text::setColor(sf::Color newColor) {
@@ -30,5 +31,10 @@ void Text::setStyle(unsigned int newStyle) {
 	style = newStyle;
 
 	text.SetStyle(style);
+}
 
+void Text::setPosition(float x, float y) {
+	position = sf::Vector2f(x, y);
+
+	text.SetPosition(position);
 }

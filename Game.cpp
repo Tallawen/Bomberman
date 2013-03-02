@@ -1,13 +1,18 @@
 #include "Game.h"
 
 #include "Constants.h"
-#include "UI.h"
+#include "UI/UI.h"
 
 #include "Renderer/Window.h"
 #include "Renderer/SubWindow.h"
 #include "Renderer/SoundManager.h"
 
 #include "World/Entity/Explosion.h"
+
+#include "UI/HealthBar.h"
+#include "UI/Avatar.h"
+#include "UI/BombBar.h"
+#include "UI/Score.h"
 
 /***********************************************************************************
  Game :: methods
@@ -78,8 +83,24 @@ void Game::game(int id) {
 		sf::Clock clock;
 		sf::Event event;
 
-		UI *uiFirstPlayer = new UI;
-		UI *uiFirstSecond = new UI(true);
+		UI ui;
+		ui.add(new HealthBar(players.at(0), sf::Vector2f(Constants::UI::HealthBar::X, Constants::UI::HealthBar::Y)));
+		ui.add(new Avatar(sf::Vector2f(Constants::UI::Avatar::X, Constants::UI::Avatar::Y)));
+		ui.add(new BombBar(players.at(0), sf::Vector2f(Constants::UI::BombBar::X, Constants::UI::BombBar::Y)));
+		ui.add(new Scores(players.at(0), sf::Vector2f(Constants::UI::Scores::X, Constants::UI::Scores::Y +10)));
+
+		sf::Shape board = sf::Shape::Rectangle(
+				2,
+				2,
+				Window::instance()->getWidth()-2,
+				Window::instance()->getHeight()-2,
+				sf::Color(255, 255, 255, 0),
+				4,
+				sf::Color::Black);
+
+
+		//UI *uiFirstPlayer = new UI;
+		//UI *uiFirstSecond = new UI(true);
 
 		world->loadWorld(this, id);
 
@@ -126,16 +147,20 @@ void Game::game(int id) {
 
 			world->draw(dt);
 
-			uiFirstSecond->drawHealthBar(players.at(1)->getHealthAmount());
+			ui.show(dt);
+
+			Window::instance()->getRW()->Draw(board);
+
+		/*	uiFirstSecond->drawHealthBar(players.at(1)->getHealthAmount());
 			uiFirstSecond->drawBombBar(players.at(1)->getBombAmount());
-			uiFirstSecond->drawFPS(dt);
+		//	uiFirstSecond->drawFPS(dt);
 			uiFirstSecond->drawBoard();
 
 			uiFirstPlayer->drawHealthBar(players.at(0)->getHealthAmount());
 			uiFirstPlayer->drawBombBar(players.at(0)->getBombAmount());
-			uiFirstPlayer->drawScores(players.at(0)->getScores());
+		//	uiFirstPlayer->drawScores(players.at(0)->getScores());
 			//uiFirstPlayer->drawFPS(dt);
-			uiFirstPlayer->drawBoard();
+			uiFirstPlayer->drawBoard();*/
 
 			playerControlRealtime();
 
@@ -276,7 +301,7 @@ void Game::checkCollisionOfOnePair(
 		if(!entityFirst->getNextHitbox(dt).collidesWith(entitySecond->getNextHitbox(dt)))
 			return;
 
-	// makro SWAP_IF pozwala zamieniæ znaczenie argumentów fst_* z snd_*
+	// makro SWAP_IF pozwala zamieniæ znaczenie argumentów fst* z snd*
     // w ten sposób, ¿e sprawdzaj¹c kolizjê otrzymujemy wska¿niki zawsze
     // w dobrej kolejnoœci, tzn. tak, aby ka¿d¹ parê obs³ugiwaæ jeden raz
 
@@ -295,9 +320,6 @@ void Game::checkCollisionOfOnePair(
     SWAP_IF(Entity::EntityType::box, Entity::EntityType::explosion);
     SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::player);
     SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::enemy);
-
-    // w tym miejscu wiemy, ¿e je¿eli nast¹pi³a kolizja Mush z PlayerBullet,
-    // to jednostka Mush bêdzie pod fst_entity a PlayerBullet pod snd_entity
 
     if(firstType == Entity::EntityType::enemy && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
     	if(entityFirst->getState() == Entity::EntityState::goDown) {

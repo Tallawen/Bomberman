@@ -43,6 +43,7 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_ledder.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/gui_health_bar.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/ui_white_avatar.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/elements/button.png");
 
@@ -51,6 +52,9 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_restart.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_resume.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_vs.png");
+
+	SpriteManager::instance()->insertTexture("Data/gfx/text/text_hp.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/text/text_score.png");
 
 	/* Load Sprite */
 	SpriteManager::instance()->insertSprite("main_menu.background", "main_menu_background", 456, 456, 0,  0);
@@ -85,9 +89,14 @@ int main() {
 	SpriteManager::instance()->insertSprite("game.wall",   "game_wall",    1, 108, 0, 0);
 	SpriteManager::instance()->insertSprite("game.ledder", "game_ledder", 18,  99, 0, 0);
 
+	SpriteManager::instance()->insertSprite("text.hp", "text_hp", 19, 12, 0, 0);
+	SpriteManager::instance()->insertSprite("text.score", "text_score", 37, 10, 0, 0);
+
 	SpriteManager::instance()->insertSprite("gui.health_bar",       "gui_health_bar", 1, 16, 0, 0);
 	SpriteManager::instance()->insertSprite("gui.health_bar_left",  "gui_health_bar", 2, 16, 1, 0);
 	SpriteManager::instance()->insertSprite("gui.health_bar_right", "gui_health_bar", 2, 16, 3, 0);
+
+	SpriteManager::instance()->insertSprite("ui.white_avatar", "ui_white_avatar", 63, 63, 0, 0);
 
 	SpriteManager::instance()->insertSprite("game.bomb", "game_bomb", 23, 25, 0, 0);
 

@@ -1,11 +1,11 @@
-#include "UI.h"
+#include "UIc.h"
 
 #include "constants.h"
 
 #include "Renderer/Window.h"
 
 
-UI::UI(bool secondPlayer) {
+UIc::UIc(bool secondPlayer) {
 	health = -1;
 	newLenght = 0;
 	healthBar = nullptr;
@@ -25,7 +25,7 @@ UI::UI(bool secondPlayer) {
 	bombBarPos   = sf::Vector2f(xBombBarPos, Constants::UI::BombBar::Y);
 }
 
-void UI::drawHealthBar(int newHealth) {
+void UIc::drawHealthBar(int newHealth) {
 	uint lenght = Constants::UI::HealthBar::LENGHT;
 	SpriteData sd = SpriteManager::instance()->getSpriteData("gui.health_bar");
 
@@ -98,7 +98,7 @@ void UI::drawHealthBar(int newHealth) {
 	Window::instance()->getRW()->Draw(sprite);
 }
 
-void UI::drawBombBar(int bombAmount) {
+void UIc::drawBombBar(int bombAmount) {
 	if(bombAmount < -1) bombAmount = 0;
 	else if(bombAmount > Constants::Bomb::MAX_AMOUNT + 1) bombAmount = Constants::Bomb::MAX_AMOUNT;
 
@@ -129,7 +129,7 @@ void UI::drawBombBar(int bombAmount) {
 	}
 }
 
-void UI::drawFPS(float dt) {
+void UIc::drawFPS(float dt) {
 	static float time = 0;
 	static float frames = 0;
 	static float nFPS = 0;
@@ -162,7 +162,7 @@ void UI::drawFPS(float dt) {
 	Window::instance()->getRW()->Draw(*fps);
 }
 
-void UI::drawBoard() {
+void UIc::drawBoard() {
 	static bool create = false;
 
 	if(!create) {
@@ -184,7 +184,7 @@ void UI::drawBoard() {
 
 }
 
-void UI::drawScores(int scores) {
+void UIc::drawScores(int scores) {
 	if(scoresPtr == nullptr) {
 		scoresPtr = new sf::String;
 

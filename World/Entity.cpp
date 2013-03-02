@@ -21,49 +21,7 @@ Entity::Entity(float x, float y, float defVelocityX, float defVelocityY, std::qu
 }
 
 void Entity::update(float dt) {
-	setDefaultMovement();
-	//CheckCollisionsWithLevel(dt, level);
 
-	sf::Vector2f nextPosition = getNextPosition(dt);
-
-	if(nextPosition.x < position.x && canGoLeft)
-		position.x = nextPosition.x;
-
-	else if(nextPosition.x > position.x && canGoRight)
-		position.x = nextPosition.x;
-
-	if(position.x < 1)
-		position.x = 1;
-
-	// ustal stan ruchu gracza na podstawie prędkości
-	if(fabsf(velocity.x) < 0.001) {
-		state = EntityState::stand;
-		velocity.x = 0;
-
-	} else if (velocity.x > 0.0)
-		state = EntityState::goRight;
-
-	else
-		state = EntityState::goLeft;
-
-	// uaktualnij animację
-	switch (state) {
-	    case EntityState::stand:
-
-	        break;
-
-	    case EntityState::goLeft:
-	    	left->process(dt);
-	      break;
-
-	    case EntityState::goRight:
-	        right->process(dt);
-	      break;
-
-	    default:
-
-	      break;
-	}
 }
 
 void Entity::draw(float dt) { }
