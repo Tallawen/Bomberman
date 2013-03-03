@@ -22,6 +22,10 @@ Entity::Entity(float x, float y, float defVelocityX, float defVelocityY, std::qu
 
 void Entity::update(float dt) {
 
+
 }
 
-void Entity::draw(float dt) { }
+void Entity::draw(float dt) {
+
+
+}

@@ -8,6 +8,8 @@
 #include "Renderer/SoundManager.h"
 
 #include "World/Entity/Explosion.h"
+#include "World/Entity/Smoke.h"
+#include "World/Entity/Collectible.h"
 
 #include "UI/HealthBar.h"
 #include "UI/Avatar.h"
@@ -311,15 +313,20 @@ void Game::checkCollisionOfOnePair(
                     std::swap(firstType, secondType);   \
 	            }
 
-    SWAP_IF(Entity::EntityType::stone, Entity::EntityType::enemy);
-    SWAP_IF(Entity::EntityType::box, Entity::EntityType::enemy);
-    SWAP_IF(Entity::EntityType::stone, Entity::EntityType::player);
-    SWAP_IF(Entity::EntityType::box, Entity::EntityType::player);
-    SWAP_IF(Entity::EntityType::enemy, Entity::EntityType::player);
-    SWAP_IF(Entity::EntityType::stone, Entity::EntityType::explosion);
-    SWAP_IF(Entity::EntityType::box, Entity::EntityType::explosion);
-    SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::player);
-    SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::enemy);
+		SWAP_IF(Entity::EntityType::stone, Entity::EntityType::player);
+		SWAP_IF(Entity::EntityType::box, Entity::EntityType::player);
+	    SWAP_IF(Entity::EntityType::enemy, Entity::EntityType::player);
+	    SWAP_IF(Entity::EntityType::collectible, Entity::EntityType::player);
+		SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::player);
+
+		SWAP_IF(Entity::EntityType::stone, Entity::EntityType::enemy);
+        SWAP_IF(Entity::EntityType::box, Entity::EntityType::enemy);
+        SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::enemy);
+
+        SWAP_IF(Entity::EntityType::stone, Entity::EntityType::explosion);
+        SWAP_IF(Entity::EntityType::box, Entity::EntityType::explosion);
+
+
 
     if(firstType == Entity::EntityType::enemy && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
     	if(entityFirst->getState() == Entity::EntityState::goDown) {
@@ -372,31 +379,39 @@ void Game::checkCollisionOfOnePair(
 
     }
 
+    if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::collectible) {
+    	Player *player = static_cast<Player*> (entityFirst);
+    	Collectible *collectible = static_cast<Collectible*> (entitySecond);
+
+    	collectible->collect(player);
+    	collectible->remove();
+    }
+
     if(firstType == Entity::EntityType::player && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
     	if(entityFirst->getState() == Entity::EntityState::goDown) {
     		float newY = entitySecond->getY() - 50.0f - 0.5f;
 
-    		entityFirst->setPosition(entityFirst->getX(), newY);
+    		//entityFirst->setPosition(entityFirst->getX(), newY);
     		entityFirst->stopDown();
 
     	} else if(entityFirst->getState() == Entity::EntityState::goTop) {
-    		float newY = entitySecond->getY() + entityFirst->getSpriteDate().dimensions.y + 0.5f;
+    		float newY = entitySecond->getY() + entityFirst->getHitbox().getMaxY() - entityFirst->getHitbox().getMinY();
 
-    		entityFirst->setPosition(entityFirst->getX(), newY);
+    		//entityFirst->setPosition(entityFirst->getX(), newY);
 
     		entityFirst->stopTop();
 
     	} else if(entityFirst->getState() == Entity::EntityState::goLeft) {
-    		float newX = entitySecond->getX() + 50 + 0.5f;
+    		float newX = entitySecond->getX() + (entityFirst->getHitbox().getMaxX() - entityFirst->getHitbox().getMinX()) + 0.5f;
 
-    		entityFirst->setPosition(newX, entityFirst->getY());
+    	//	entityFirst->setPosition(newX, entityFirst->getY());
 
     		entityFirst->stopLeft();
 
     	} else if(entityFirst->getState() == Entity::EntityState::goRight) {
-    		float newX = entitySecond->getX() - entityFirst->getSpriteDate().dimensions.x - 0.5f;
+    		float newX = entitySecond->getX() - (entityFirst->getHitbox().getMaxX() - entityFirst->getHitbox().getMinX()) - 0.5f;
 
-    		entityFirst->setPosition(newX, entityFirst->getY());
+//    		entityFirst->setPosition(newX, entityFirst->getY());
 
     		entityFirst->stopRight();
     	}
@@ -432,6 +447,8 @@ void Game::checkCollisionOfOnePair(
 
     if(firstType == Entity::EntityType::explosion && secondType == Entity::EntityType::stone) {
     	Player *player = static_cast<Explosion*>(entityFirst)->getPlayerPtr();
+
+    	world->entitiesToCreate.push(new Smoke(entityFirst->getPosition() + sf::Vector2f(-7, 0), &world->entitiesToCreate));
 
     	player->addScores( entitySecond->getScoresWhenKilled() );
     	entitySecond->remove();

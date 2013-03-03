@@ -85,6 +85,18 @@ void Player::update(float dt) {
 		blinkingTime += dt;
 	}
 
+	if(getNextHitbox(dt).getMinX() <= 0)
+		stopLeft();
+
+	else if(getNextHitbox(dt).getMinY() <= 100)
+		stopTop();
+
+	else if(getNextHitbox(dt).getMaxX() >= Window::instance()->getWidth() - 40)
+		stopRight();
+
+	else if(getNextHitbox(dt).getMaxY() >= Window::instance()->getHeight())
+		stopDown();
+
 	if(state != EntityState::stand)
 		position = getNextPosition(dt);
 
@@ -267,5 +279,25 @@ void Player::goingToCenter() {
 	lockKey = true;
 
    	stopMovement();
+}
+
+void Player::setBombAmount(int targetValue) {
+	if (targetValue < 0)
+		bombAmount = 0;
+	else if (targetValue > Constants::Bomb::MAX_AMOUNT) {
+		bombAmount = Constants::Bomb::MAX_AMOUNT;
+	  return;
+	} else
+		bombAmount = targetValue;
+}
+
+void Player::setHealthAmount(int targetValue) {
+	if (targetValue < 0)
+		healthAmount = 0;
+	else if (targetValue > Constants::Bomb::MAX_AMOUNT) {
+		healthAmount = Constants::Bomb::MAX_AMOUNT;
+	  return;
+	} else
+		healthAmount = targetValue;
 }
 

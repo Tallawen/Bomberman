@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 
-#include "Constants.h"
+#include "constants.h"
 
 #include "Renderer/Window.h"
 #include "Renderer/SpriteManager.h"
@@ -23,6 +23,9 @@ int main() {
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_bomb.png", true);
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_explosion.png", true);
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_smoke.png", true);
+
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/col_plus.png", true);
 
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_white_down.png",  true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_white_top.png",   true);
@@ -33,6 +36,13 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_bat_right.png", true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_bat_top.png",   true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_bat_down.png",  true);
+
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death_left.png",  true);
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death_right.png", true);
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death_top.png",   true);
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death_down.png",  true);
+
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_zombie_down.png",  true);
 
 
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_black.png", true);
@@ -101,6 +111,9 @@ int main() {
 	SpriteManager::instance()->insertSprite("game.bomb", "game_bomb", 23, 25, 0, 0);
 
 	SpriteManager::instance()->insertSprite("game.explosion", "game_explosion", 50, 50, 0, 0, true, 60);
+	SpriteManager::instance()->insertSprite("game.smoke", "game_smoke", 50, 50, 0, 0, true, 60);
+
+	SpriteManager::instance()->insertSprite("collectible.hp.one", "col_plus", 47, 47, 0, 0);
 
 	SpriteManager::instance()->insertSprite("player.white_down",  "character_player_white_down",  27, 42, 0, 0, true, 15);
 	SpriteManager::instance()->insertSprite("player.white_top",   "character_player_white_top",   27, 41, 0, 0, true, 15);
@@ -116,6 +129,16 @@ int main() {
 	SpriteManager::instance()->insertSprite("enemy.bat_down",  "character_bat_down",  32, 43, 0, 0, true, 4);
 	SpriteManager::instance()->insertSprite("enemy.bat_left",  "character_bat_left",  32, 43, 0, 0, true, 4);
 	SpriteManager::instance()->insertSprite("enemy.bat_right", "character_bat_right", 32, 43, 0, 0, true, 4);
+
+	SpriteManager::instance()->insertSprite("enemy.death_top",   "character_death_top",   48, 46, 0, 0, true, 4);
+	SpriteManager::instance()->insertSprite("enemy.death_down",  "character_death_down",  48, 46, 0, 0, true, 4);
+	SpriteManager::instance()->insertSprite("enemy.death_left",  "character_death_left",  48, 46, 0, 0, true, 4);
+	SpriteManager::instance()->insertSprite("enemy.death_right", "character_death_right", 48, 46, 0, 0, true, 4);
+
+	SpriteManager::instance()->insertSprite("enemy.zombie_top",   "character_death_top",   48, 46, 0, 0, true, 4);
+	SpriteManager::instance()->insertSprite("enemy.zombie_down",  "character_zombie_down", 40, 54, 0, 0, true, 3);
+	SpriteManager::instance()->insertSprite("enemy.zombie_left",  "character_death_left",  48, 46, 0, 0, true, 4);
+	SpriteManager::instance()->insertSprite("enemy.zombie_right", "character_death_right", 48, 46, 0, 0, true, 4);
 
 	/*Sprite::instance()->insertSprite("Death_top",  "Death_Top", 47, 46, 0, 0,  true, 4);
 	Sprite::instance()->insertSprite("Death_down", "Death_Down", 47, 46, 0, 0, true, 4);

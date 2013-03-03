@@ -5,6 +5,9 @@
 #include "Entity/Stone.h"
 #include "Entity/Box.h"
 #include "Entity/Bat.h"
+#include "Entity/Death.h"
+
+#include "Entity/Collectibles/HealthBonus.h"
 
 /***********************************************************************************
  World :: methods
@@ -130,11 +133,11 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 
 			switch(board[y * mapDimensions.x + x]) {
 			   case MapGen::ElementType::stone:
-				   entities.push_back( new Stone(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
+				   //entities.push_back( new Stone(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
 				 break;
 
 			   case MapGen::ElementType::box:
-				   entities.push_back( new Box(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
+				   //entities.push_back( new Box(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
 				 break;
 
 			   case MapGen::ElementType::characters:
@@ -146,7 +149,7 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 				 break;
 
 			   case MapGen::ElementType::exit:
-				   entities.push_back( new Bat(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate));
+				   //entities.push_back( new Death(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate));
 				 break;
 
 			    default:
@@ -156,6 +159,8 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 
 		}
 	}
+
+	entities.push_back( new HealthBonus(sf::Vector2f(100, 200), &entitiesToCreate, HealthBonus::Amount::one));
 
 	playerId = 0;
 	map.reset();

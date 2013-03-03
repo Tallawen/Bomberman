@@ -55,10 +55,10 @@ public:
 	void putBomb();
 
 	int getBombAmount() const { return bombAmount; }
-	void setBombAmount(int newBombAmount) { bombAmount = newBombAmount > 0 ? newBombAmount : 0; }
+	void setBombAmount(int targetValue);
 
 	int getHealthAmount() const { return healthAmount; }
-	void setHealthAmount(int newHealthAmount) { healthAmount = newHealthAmount > 0 ? newHealthAmount : 0; }
+	void setHealthAmount(int targetValue);
 
 	void looseLife();
     bool isImmortal() const { return immortal; }
@@ -68,10 +68,10 @@ public:
    	void goTop()   { setYVelocity( -getDefaultYVelocity() ); state = EntityState::goTop;   top->play();   hitboxOffset = sf::Vector2f(0, 0);}
    	void goDown()  { setYVelocity(  getDefaultYVelocity() ); state = EntityState::goDown;  down->play();  hitboxOffset = sf::Vector2f(0, 0);}
 
-   	void stopLeft()  { setXVelocity(0); state = EntityState::stand; left->stop();  sprite = left->getSprite(); }
-   	void stopRight() { setXVelocity(0); state = EntityState::stand; right->stop(); sprite = right->getSprite(); }
-   	void stopTop()   { setYVelocity(0); state = EntityState::stand; top->stop();   sprite = top->getSprite(); }
-   	void stopDown()  { setYVelocity(0); state = EntityState::stand; down->stop();  sprite = down->getSprite(); }
+   	void stopLeft()  { setXVelocity(0); state = EntityState::stand; left->stop();  sprite = left->getSprite(); lockKey = false;}
+   	void stopRight() { setXVelocity(0); state = EntityState::stand; right->stop(); sprite = right->getSprite(); lockKey = false; }
+   	void stopTop()   { setYVelocity(0); state = EntityState::stand; top->stop();   sprite = top->getSprite(); lockKey = false;}
+   	void stopDown()  { setYVelocity(0); state = EntityState::stand; down->stop();  sprite = down->getSprite(); lockKey = false;}
 
    	void stopMovement() { setVelocity(0, 0); state = EntityState::stand; left->stop(); right->stop(); top->stop(); down->stop(); }
 

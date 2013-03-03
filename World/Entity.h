@@ -15,6 +15,7 @@ class Entity {
 public:
 
 	enum class EntityType {
+		none,
 		stone,
 		player,
 		box,
@@ -22,6 +23,7 @@ public:
 		door,
 		bomb,
 		explosion,
+		collectible
 	};
 
 	enum class EntityState {

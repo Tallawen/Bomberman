@@ -41,8 +41,8 @@ bool MapGen::generate(int amount) {
 		map = new ElementType[width * height];
 
 	int x, y;
-
-/*	ElementType tab[height + 2][width + 2];
+/*
+	ElementType tab[height + 2][width + 2];
 	for(y = 0; y < height + 2; ++y) {
 		for(x = 0; x < width + 2; ++x) {
 			tab[y][x] = ElementType::empty;
@@ -65,7 +65,33 @@ bool MapGen::generate(int amount) {
 		x = sf::Randomizer::Random(1, width);
 
 		tab[y][x] = ElementType::box;
-	}*/
+	}
+
+	///gracz
+	std::vector< std::pair<int, int> > players;
+	players.clear();
+
+	while(amount--) {
+		x = sf::Randomizer::Random(1,height);
+		y = sf::Randomizer::Random(1,width);
+
+		tab[x][y] = 9;
+	    tab[x - 1][y] = 0;
+	    tab[x][y - 1] = 0;
+	    tab[x + 1][y] = 0;
+	    tab[x][y + 1] = 0;
+
+	    if(players.size() == 0)
+	    	players.push_back(std::make_pair(x,y));
+
+	    else if (x == players[0].first && y == players[0].second) {
+	    	++amount;
+	    	continue;
+	    } else {
+	    	tab[players[0].first][players[0].second] = 9;
+	    	players.push_back(std::make_pair(x, y));
+	    }
+	}
 
 	/** obramowanie, zeby w bfs nie wyjsc poza tablice **/
 	/*for(x = 0; x < width + 2; ++x) {
@@ -76,10 +102,10 @@ bool MapGen::generate(int amount) {
 	for(y = 0; y < height + 2; ++y) {
 		tab[y][0] = INT_MAX;
 		tab[y][width + 1] = INT_MAX;
-	}*/
+	}
 
 	/** sprawdzamy, czy mapa jest w porzadku **/
-	/*bool visited[height+2][width+2];
+/*	bool visited[height+2][width+2];
 	std::queue <int> q;
 
 	while(!q.empty())
@@ -91,8 +117,8 @@ bool MapGen::generate(int amount) {
 		for(x = 0; x < width + 2; ++x)
 			visited[y][x] = false;
 
-	q.push(pl_x); q.push(pl_y);
-	visited[pl_x][pl_y] = true;
+	q.push(x); q.push(y);
+	visited[x][y] = true;
 
 	int available_move = 0;
 	int radius = 5;
