@@ -25,7 +25,15 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_explosion.png", true);
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_smoke.png", true);
 
-	SpriteManager::instance()->insertTexture("Data/gfx/elements/col_plus.png", true);
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_hp_minuone.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_hp_one.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_hp_three.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_hp_five.png");
+
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_bomb_minuone.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_bomb_one.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_bomb_three.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/collectible_bomb_five.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_white_down.png",  true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_white_top.png",   true);
@@ -113,7 +121,15 @@ int main() {
 	SpriteManager::instance()->insertSprite("game.explosion", "game_explosion", 50, 50, 0, 0, true, 60);
 	SpriteManager::instance()->insertSprite("game.smoke", "game_smoke", 50, 50, 0, 0, true, 60);
 
-	SpriteManager::instance()->insertSprite("collectible.hp.one", "col_plus", 47, 47, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.hp.minusone", "collectible_hp_minuone", 25, 28, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.hp.one",      "collectible_hp_one",     25, 28, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.hp.many",     "collectible_hp_three",   37, 31, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.hp.max",      "collectible_hp_five",    41, 39, 0, 0);
+
+	SpriteManager::instance()->insertSprite("collectible.bomb.minusone", "collectible_bomb_minuone", 26, 36, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.bomb.one",      "collectible_bomb_one",     26, 36, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.bomb.many",     "collectible_bomb_three",   36, 36, 0, 0);
+	SpriteManager::instance()->insertSprite("collectible.bomb.max",      "collectible_bomb_five",    42, 46, 0, 0);
 
 	SpriteManager::instance()->insertSprite("player.white_down",  "character_player_white_down",  27, 42, 0, 0, true, 15);
 	SpriteManager::instance()->insertSprite("player.white_top",   "character_player_white_top",   27, 41, 0, 0, true, 15);

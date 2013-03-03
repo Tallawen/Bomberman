@@ -39,6 +39,14 @@ namespace Constants {
 
     }
 
+    namespace Collectible {
+
+        extern ConstNum MOVE_TIME;
+        extern ConstNum MOVE_DISTANCE;
+        extern ConstNum BLINK_TIME;
+
+    }
+
     namespace Explosion {
 
         extern ConstInt LENGTH;

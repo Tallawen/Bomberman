@@ -43,6 +43,14 @@ namespace Constants {
 
     }
 
+    namespace Collectible {
+
+        ConstNum MOVE_TIME("collectible.move_time", 1);
+        ConstNum MOVE_DISTANCE("collectible.move_distance", 20);
+        ConstNum BLINK_TIME("collectible.blink_time", 1);
+
+    }
+
     namespace UI {
 
         namespace Avatar {

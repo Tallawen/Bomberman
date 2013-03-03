@@ -8,6 +8,7 @@
 #include "Entity/Death.h"
 
 #include "Entity/Collectibles/HealthBonus.h"
+#include "Entity/Collectibles/BombBonus.h"
 
 /***********************************************************************************
  World :: methods
@@ -160,7 +161,10 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 		}
 	}
 
-	entities.push_back( new HealthBonus(sf::Vector2f(100, 200), &entitiesToCreate, HealthBonus::Amount::one));
+	entities.push_back( new BombBonus(sf::Vector2f(115, 200), &entitiesToCreate, BombBonus::Amount::minusone));
+	entities.push_back( new BombBonus(sf::Vector2f(215, 200), &entitiesToCreate, BombBonus::Amount::one));
+	entities.push_back( new BombBonus(sf::Vector2f(306, 200), &entitiesToCreate, BombBonus::Amount::many));
+	entities.push_back( new BombBonus(sf::Vector2f(405, 200), &entitiesToCreate, BombBonus::Amount::max));
 
 	playerId = 0;
 	map.reset();

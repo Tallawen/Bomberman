@@ -22,12 +22,7 @@ Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_ent
 }
 
 Bomb::~Bomb() {
-	playerPtr->setBombAmount( playerPtr->getBombAmount() + 1 );
-
-	SoundManager::getQueue().push(sf::Sound());
-	SoundManager::getQueue().back().SetBuffer( SoundManager::instance().getSoundBuffer("bomb.explode"));
-	SoundManager::getQueue().back().SetVolume(30.0f);
-	SoundManager::getQueue().back().Play();
+	//playerPtr->setBombAmount( playerPtr->getBombAmount() + 1 );
 }
 
 void Bomb::draw(float dt) {
@@ -38,11 +33,8 @@ void Bomb::draw(float dt) {
 void Bomb::update(float dt) {
 	if(lifeTime < 0 && isAlive()) {
 		explosion();
-		/*SoundManager::getQueue().push(sf::Sound());
-		SoundManager::getQueue().back().SetBuffer(SoundManager::instance().getSoundBuffer("bomb.explode"));
-		SoundManager::getQueue().back().Play();*/
-
 		dead();
+
 	  return;
 	}
 
@@ -53,6 +45,12 @@ void Bomb::update(float dt) {
 }*/
 
 void Bomb::explosion() {
+	// Play sound
+	SoundManager::getQueue().push(sf::Sound());
+	SoundManager::getQueue().back().SetBuffer( SoundManager::instance().getSoundBuffer("bomb.explode"));
+	SoundManager::getQueue().back().SetVolume(30.0f);
+	SoundManager::getQueue().back().Play();
+
 	/// Eksplozja w miejscu bomby
 	Explosion *newExplosion      = new Explosion(position + sf::Vector2f( -5,  10), playerPtr, entitiesToCreate, Explosion::Directions::none,  1 * Constants::Explosion::DELAY, 3);
 	Explosion *newExplosionLeft  = new Explosion(position + sf::Vector2f(-55,  10), playerPtr, entitiesToCreate, Explosion::Directions::left,  2 * Constants::Explosion::DELAY, 2);

@@ -18,7 +18,7 @@ HealthBonus::HealthBonus(sf::Vector2f _position, std::queue<Entity*> *_entitiesT
 	sprite.SetPosition(position);
 }
 
-void HealthBonus::	(Player* player) {
+void HealthBonus::collect(Player* player) {
 	int currHealth = player->getHealthAmount();
 	int newHealth = currHealth + int(amount);
 	int points = (newHealth > Constants::Player::MAX_HEALTH) ? newHealth - Constants::Player::MAX_HEALTH : 0 ;
