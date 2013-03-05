@@ -50,10 +50,7 @@ void Bomb::update(float dt) {
 
 void Bomb::explosion() {
 	// Play sound
-	SoundManager::getQueue().push(sf::Sound());
-	SoundManager::getQueue().back().SetBuffer( SoundManager::instance().getSoundBuffer("bomb.explode"));
-	SoundManager::getQueue().back().SetVolume(30.0f);
-	SoundManager::getQueue().back().Play();
+	SoundManager::playSound("bomb.explode", 30.0f);
 
 	/// Eksplozja w miejscu bomby
 	Explosion *newExplosion      = new Explosion(position + sf::Vector2f( -5,  10), playerPtr, entitiesToCreate, Explosion::Directions::none,  1 * Constants::Explosion::DELAY, 3);

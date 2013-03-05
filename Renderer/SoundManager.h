@@ -5,9 +5,31 @@
 
 /** Singleton. Handles loading sounds from files
  *  stores sound buffers for use in sf::Sound instances
+ *  stores music for playback
  * */
 class SoundManager {
+private:
+	SoundManager();
+
+	// Prevents accidental creating of more instances:
+	SoundManager(SoundManager const&) = delete;
+	void operator=(SoundManager const&) = delete;
+
 public:
+	/// Return reference to instance
+	static SoundManager& instance() {
+		static SoundManager inst; //Initialized on first call
+		return inst;
+	}
+
+/*
+ * Sound API
+ *     register sounds from files, play them, clean up regularly
+ *
+ *     registered sound files are stored as buffers, mapped to their names
+ *     playable objects are created by the playSound() method and pushed into a sound queue
+ *     sounds that have finished playing are removed in the cleanQueue() method
+ */
 
 private:
 	/// Sound buffers hold sound file in memory
@@ -16,74 +38,54 @@ private:
 	/// mapping names to indexes of buffers vector
 	std::map<std::string, uint> bufferIndex;
 
+	/// used for sound playback
 	std::queue<sf::Sound> soundQueue;
 
-	///Music
-	std::vector<sf::Music*> tracks; /* Use pointers,
+public:
+	/// Return sound queue used for playback
+	static std::queue<sf::Sound>& getQueue() {
+		return instance().soundQueue;
+	}
+
+	/// Loads a sound from file, registers as name.
+	static bool registerSound(std::string path, std::string name);
+
+//	/// Loads a sound from file, registers as file's basename.
+//	static bool registerSound(std::string path);
+
+	/// Play sound associated with name
+	static void playSound(std::string name, float volume=100.0f);
+
+	/// Cleans the soundQueue from Stopped (useless) elements
+	static void cleanQueue();
+
+private:
+	/// Return sound associated with name
+	sf::SoundBuffer& getBuffer(std::string name);
+
+	/// Return sound associated with index
+	sf::SoundBuffer& getBuffer(uint id);
+
+/*
+ * Music API
+ *	   music objects are stored as already playable objects, which can be accesses via getMusic()
+ */
+private:
+	/// Music
+	std::vector<sf::Music*> tracks; /* Uses pointers,
 	as - sadly sf::Music and std::vector don't like each other.
 	sf::Music has a private copy constructor. memleaks aren't an issue,
 	resources are loaded on startup anyway */
 
 	std::map<std::string, uint> trackIndex;
 
-/*
- * Methods:
- */
 public:
-	/// Return reference to instance
-	static SoundManager& instance() {
-		static SoundManager inst; //Initialized on first call
-		return inst;
-	}
-
-	static std::queue<sf::Sound>& getQueue() {
-		return instance().soundQueue;
-	}
-
-	/// Loads a sound from file, registers as file's basename.
-	bool registerSound(std::string path);
-
-	/// Loads a sound from file, registers as name.
-	bool registerSound(std::string path, std::string name);
-
-	/// Return sound associated with name
-	sf::SoundBuffer& getSoundBuffer(std::string name);
-
-	/// Return sound associated with index
-	sf::SoundBuffer& getSoundBuffer(uint id);
-
-	/* Music handling is a little different, as music objects are non-copy-able
-	 * Usage:
-	 * 1. Register:
-	 * SoundManager::instance().registerMusic("file.ogg", "example");
-	 *
-	 * 2. Later, get the pointer:
-	 * sf::Music* example_theme = SoundManager::instance().getMusic("example");
-	 *
-	 * 3. Use freely:
-	 * example_theme->Play();
-	 * example_theme->Pause();
-	 * example_theme->Stop();
-	 **/
-
-	/// Loads a track from file, registers as file's basename.
-	bool registerMusic(std::string path);
 
 	/// Loads a track from file, registers as name.
-	bool registerMusic(std::string path, std::string name);
+	static bool registerMusic(std::string path, std::string name);
 
 	/// Return pointer associated with name
-	sf::Music* getMusic(std::string name);
-
-	/// Return pointer associated with index
-	sf::Music* getMusic(uint id);
-
-private:
-	SoundManager();
-
-	// Prevents accidental creating of more instances:
-	SoundManager(SoundManager const&) = delete;
-	void operator=(SoundManager const&) = delete;
+	static sf::Music* getMusic(std::string name);
 
 };
 
