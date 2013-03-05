@@ -1,8 +1,11 @@
 #include "Avatar.h"
 
-Avatar::Avatar(sf::Vector2f _position) {
-	sprite = SpriteManager::instance()->getSprite("ui.white_avatar");
-	sd = SpriteManager::instance()->getSpriteData("ui.white_avatar");
+Avatar::Avatar(sf::Vector2f _position, bool black) {
+	 std::string filename = "ui.white_avatar";
+	if(black) filename = "ui.black_avatar";
+
+	sprite = SpriteManager::instance()->getSprite(filename);
+	sd = SpriteManager::instance()->getSpriteData(filename);
 
 	position = _position;
 

@@ -20,7 +20,8 @@ public:
 		player,
 		box,
 		enemy,
-		door,
+		door_open,
+		door_colse,
 		bomb,
 		explosion,
 		collectible
@@ -34,8 +35,19 @@ public:
 		goTop
 	};
 
+	enum class EntityLayer {
+		layer_background1 = 0,
+		layer_background2,
+		layer_background3,
+		layer_background4,
+		layer_background5,
+		layer_background6
+	};
+
 protected:
 	std::queue<Entity*> *entitiesToCreate;
+
+	EntityLayer layer;
 
 	sf::Vector2f position;
 	sf::Vector2f velocity;
@@ -69,6 +81,8 @@ public:
 	virtual EntityType getType() const = 0;
 	virtual EntityState getState() const { return state; }
 	virtual int getScoresWhenKilled() const { return 0; }
+
+	EntityLayer getLayer() const { return layer; }
 
 	virtual void update(float dt);
 	virtual void draw(float dt);

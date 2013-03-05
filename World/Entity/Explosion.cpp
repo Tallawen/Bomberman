@@ -5,6 +5,8 @@
 #include "Bomb.h"
 
 Explosion::Explosion(sf::Vector2f _position, Player *_playerPtr, std::queue<Entity*> *_entitiesToCreate, Directions _directions, float _delay, int _explosionLenght) : Entity(_position.x, _position.y, 0, 0, _entitiesToCreate) {
+	layer = EntityLayer::layer_background4;
+
 	playerPtr = _playerPtr;
 	directions = _directions;
 

@@ -5,6 +5,8 @@ Stone::Stone(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : E
 	sd = SpriteManager::instance()->getSpriteData("game.stone");
 
 	sprite.SetPosition(position);
+
+	layer = EntityLayer::layer_background4;
 }
 
 void Stone::draw(float dt) {

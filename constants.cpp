@@ -7,6 +7,7 @@ namespace Constants {
         ConstInt SCREEN_WIDTH("video.screen_width", 800);
         ConstInt SCREEN_HEIGHT("video.screen_height", 600);
         ConstStr SCREEN_TITLE("Bomberman");
+        ConstInt SCREEN_BORDER("video.board", 4);
 
     }
 

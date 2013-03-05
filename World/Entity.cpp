@@ -2,6 +2,8 @@
 Entity::Entity(float x, float y, float defVelocityX, float defVelocityY, std::queue<Entity*> *_entitiesToCreate) {
 	entitiesToCreate = _entitiesToCreate;
 
+	layer = EntityLayer::layer_background6;
+
 	setPosition(x, y);
 	setVelocity(0, 0);
 

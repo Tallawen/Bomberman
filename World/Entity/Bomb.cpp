@@ -7,7 +7,11 @@
 #include "Explosion.h"
 
 Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 0, 0, _entitiesToCreate) {
+	layer = EntityLayer::layer_background3;
+
 	playerPtr = _playerPtr;
+
+	LOG(playerPtr);
 
 	playerPtr->setBombAmount( playerPtr->getBombAmount() - 1 );
 

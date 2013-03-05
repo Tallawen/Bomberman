@@ -3,6 +3,8 @@
 #include "Bomb.h"
 
 Player::Player(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 100.0f, 100.0f, _entitiesToCreate) {
+	layer = EntityLayer::layer_background4;
+
 	hitboxOffset = sf::Vector2f(0, 0);
 
 	maxBombAmount = Constants::Bomb::MAX_AMOUNT;
@@ -91,7 +93,7 @@ void Player::update(float dt) {
 	else if(getNextHitbox(dt).getMinY() <= 100)
 		stopTop();
 
-	else if(getNextHitbox(dt).getMaxX() >= Window::instance()->getWidth() - 40)
+	else if(getNextHitbox(dt).getMaxX() >= Window::instance()->getWidth())
 		stopRight();
 
 	else if(getNextHitbox(dt).getMaxY() >= Window::instance()->getHeight())
@@ -166,6 +168,8 @@ void Player::looseLife() {
 }
 
 void Player::putBomb() {
+	if(bombAmount - 1 < 0) return;
+
 	entitiesToCreate->push( new Bomb(position, this, entitiesToCreate));
 }
 

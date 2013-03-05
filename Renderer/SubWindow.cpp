@@ -105,6 +105,8 @@ sf::Key::Code SubWindow::show(std::function<void(sf::Event&, sf::Key::Code&, boo
 
 	float dt = 0.0f;
 
+	LOG(background);
+
 	while(!done) {
 		while(Window::instance()->getRW()->GetEvent(event)) {
 			keypress(event, result, done);

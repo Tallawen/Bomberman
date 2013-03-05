@@ -41,7 +41,7 @@ public:
 	 * @param type typ opcji ktort ma byc wybrana na poczatku
 	 *
 	 */
-	Game::PlayType show(OptionsType type);
+	Game::GameType show(OptionsType type);
 
 	/**
 	 * Wyswietla subwindow z informacjami
@@ -49,7 +49,7 @@ public:
 	 */
 	void about();
 
-	Game::PlayType play();
+	Game::GameType play();
 };
 
 #endif /*__MENU_H__*/

@@ -10,6 +10,7 @@ namespace Constants {
         extern ConstInt SCREEN_WIDTH;
         extern ConstInt SCREEN_HEIGHT;
         extern ConstStr SCREEN_TITLE;
+        extern ConstInt SCREEN_BORDER;
 
     }
 

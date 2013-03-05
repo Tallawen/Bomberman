@@ -59,11 +59,14 @@ int main() {
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_wall.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_ledder.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_door_close.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/gui_health_bar.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/ui_white_avatar.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/ui_black_avatar.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/elements/button.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/menu/elements/ps3_button.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_exit_to_main_menu.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_help.png");
@@ -71,8 +74,18 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_resume.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/text_vs.png");
 
+	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/keyboard.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/move.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/ps3_pad.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/put_bomb.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/menu/text/you_can_use.png");
+
 	SpriteManager::instance()->insertTexture("Data/gfx/text/text_hp.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/text/text_score.png");
+
+	SpriteManager::instance()->insertTexture("Data/gfx/text/text_win_white.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/text/text_win_black.png");
+
 
 	/* Load Sprite */
 	SpriteManager::instance()->insertSprite("main_menu.background", "main_menu_background", 456, 456, 0,  0);
@@ -82,19 +95,33 @@ int main() {
 	SpriteManager::instance()->insertSprite("main_menu.about_active", "main_menu_about", 67, 20,  0,  0);
 	SpriteManager::instance()->insertSprite("main_menu.about",        "main_menu_about", 67, 20, 67,  0);
 
-	SpriteManager::instance()->insertSprite("button.esc", "button", 37, 28,   0, 9);
-	SpriteManager::instance()->insertSprite("button.q",   "button", 37, 37,  37, 0);
-	SpriteManager::instance()->insertSprite("button.r",   "button", 37, 37,  74, 0);
-	SpriteManager::instance()->insertSprite("button.h",   "button", 37, 37, 111, 0);
-	SpriteManager::instance()->insertSprite("button.1",   "button", 37, 37, 148, 0);
-	SpriteManager::instance()->insertSprite("button.2",   "button", 37, 37, 185, 0);
-	SpriteManager::instance()->insertSprite("button.3",   "button", 37, 37, 222, 0);
+	SpriteManager::instance()->insertSprite("button.esc",   "button",  37, 28,   0, 9);
+	SpriteManager::instance()->insertSprite("button.q",     "button",  37, 37,  37, 0);
+	SpriteManager::instance()->insertSprite("button.r",     "button",  37, 37,  74, 0);
+	SpriteManager::instance()->insertSprite("button.h",     "button",  37, 37, 111, 0);
+	SpriteManager::instance()->insertSprite("button.1",     "button",  37, 37, 148, 0);
+	SpriteManager::instance()->insertSprite("button.2",     "button",  37, 37, 185, 0);
+	SpriteManager::instance()->insertSprite("button.3",     "button",  37, 37, 222, 0);
+	SpriteManager::instance()->insertSprite("button.top",   "button",  37, 37, 259, 0);
+	SpriteManager::instance()->insertSprite("button.left",  "button",  37, 37, 296, 0);
+	SpriteManager::instance()->insertSprite("button.down",  "button",  37, 37, 333, 0);
+	SpriteManager::instance()->insertSprite("button.right", "button",  37, 37, 370, 0);
+	SpriteManager::instance()->insertSprite("button.space", "button", 152, 37, 406, 0);
+
+	SpriteManager::instance()->insertSprite("ps3_button.move", "ps3_button", 84, 84,  0,  0);
+	SpriteManager::instance()->insertSprite("ps3_button.x",    "ps3_button", 35, 35, 84, 49);
 
 	SpriteManager::instance()->insertSprite("text.exit_to_main_menu", "text_exit_to_main_menu", 125, 13, 0, 0);
 	SpriteManager::instance()->insertSprite("text.help",              "text_help",               33, 16, 0, 0);
 	SpriteManager::instance()->insertSprite("text.restart",           "text_restart",            53, 13, 0, 0);
 	SpriteManager::instance()->insertSprite("text.resume",            "text_resume",             56, 13, 0, 0);
 	SpriteManager::instance()->insertSprite("text.vs",                "text_vs",                 17, 10, 0, 0);
+
+	SpriteManager::instance()->insertSprite("text.keyboard",    "keyboard",     69, 16, 0, 0);
+	SpriteManager::instance()->insertSprite("text.move",        "move",         39, 10, 0, 0);
+	SpriteManager::instance()->insertSprite("text.ps3_pad",     "ps3_pad",      55, 13, 0, 0);
+	SpriteManager::instance()->insertSprite("text.put_bomb",    "put_bomb",     69, 16, 0, 0);
+	SpriteManager::instance()->insertSprite("text.you_can_use", "you_can_use", 256, 13, 0, 0);
 
 	SpriteManager::instance()->insertSprite("game.floor_dark",   "game_background",   50,   50,   0, 0);
 	SpriteManager::instance()->insertSprite("game.floor_bright", "game_background",   50,   50,  50, 0);
@@ -104,17 +131,23 @@ int main() {
 	SpriteManager::instance()->insertSprite("game.box",   "game_background_block", 50, 70, 50, 0);
 	SpriteManager::instance()->insertSprite("game.stone", "game_background_block", 50, 70,  0, 0);
 
+	SpriteManager::instance()->insertSprite("game.door_close", "game_door_close", 45, 47,  0, 0);
+
 	SpriteManager::instance()->insertSprite("game.wall",   "game_wall",    1, 108, 0, 0);
 	SpriteManager::instance()->insertSprite("game.ledder", "game_ledder", 18,  99, 0, 0);
 
 	SpriteManager::instance()->insertSprite("text.hp", "text_hp", 19, 12, 0, 0);
 	SpriteManager::instance()->insertSprite("text.score", "text_score", 37, 10, 0, 0);
 
+	SpriteManager::instance()->insertSprite("text.white_player_win", "text_win_white", 192, 14, 0, 0);
+	SpriteManager::instance()->insertSprite("text.black_player_win", "text_win_black", 194, 14, 0, 0);
+
 	SpriteManager::instance()->insertSprite("gui.health_bar",       "gui_health_bar", 1, 16, 0, 0);
 	SpriteManager::instance()->insertSprite("gui.health_bar_left",  "gui_health_bar", 2, 16, 1, 0);
 	SpriteManager::instance()->insertSprite("gui.health_bar_right", "gui_health_bar", 2, 16, 3, 0);
 
 	SpriteManager::instance()->insertSprite("ui.white_avatar", "ui_white_avatar", 63, 63, 0, 0);
+	SpriteManager::instance()->insertSprite("ui.black_avatar", "ui_black_avatar", 63, 63, 0, 0);
 
 	SpriteManager::instance()->insertSprite("game.bomb", "game_bomb", 23, 25, 0, 0);
 
@@ -175,18 +208,18 @@ int main() {
 
 	bool done = false;
 	while(!done) {
-		Game::PlayType type = menu.show(Menu::OptionsType::play);
+		Game::GameType type = menu.show(Menu::OptionsType::play);
 
 		uint sceen_width = (Window::instance()->desktopWidth - 100) / 50;
 		uint sceen_height = (Window::instance()->desktopHeight - 100) / 50;
 
-		if(type == Game::PlayType::oneVsBot || type == Game::PlayType::twoVsBot || type == Game::PlayType::oneVsOne) {
+		if(type == Game::GameType::oneVsBot || type == Game::GameType::twoVsBot || type == Game::GameType::oneVsOne) {
 			Window::instance()->init(sceen_width * 50, sceen_height * 50, Constants::Video::SCREEN_TITLE, sf::Style::None);
 
 			Game game;
-			game.init(2);
+			game.init(type);
 
-		} else if(type == Game::PlayType::none)
+		} else if(type == Game::GameType::none)
 			done = true;
 	}
 

@@ -77,7 +77,7 @@ public:
 	 */
 	void add(sf::Sprite sprite, sf::Vector2i pos);
 
-private:
+public:
 	/** odtwarze efekt przenikania **/
 	void transitionEffect(float dt);
 

@@ -6,6 +6,7 @@
 #include "Entity/Box.h"
 #include "Entity/Bat.h"
 #include "Entity/Death.h"
+#include "Entity/Manhole.h"
 
 #include "Entity/Collectibles/HealthBonus.h"
 #include "Entity/Collectibles/BombBonus.h"
@@ -134,23 +135,23 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 
 			switch(board[y * mapDimensions.x + x]) {
 			   case MapGen::ElementType::stone:
-				   //entities.push_back( new Stone(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
+				   entities.push_back( new Stone(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
 				 break;
 
 			   case MapGen::ElementType::box:
-				   //entities.push_back( new Box(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
+				   entities.push_back( new Box(sf::Vector2f(x*50 + 0, y*50 + 150), &entitiesToCreate));
 				 break;
 
 			   case MapGen::ElementType::characters:
 				   {
-					   gamePtr->players.at(playerId)->setPosition(x*50, y*50 + 150);
-					   gamePtr->players.at(playerId)->setPosition(x*50, y*50 + 150);
+					   gamePtr->players.at(playerId)->setPosition(x*50+2, y*50-2 + 150);
+					   gamePtr->players.at(playerId)->setPosition(x*50+2, y*50-2 + 150);
 					   entities.push_back(gamePtr->players.at(playerId++));
 				   }
 				 break;
 
-			   case MapGen::ElementType::exit:
-				   //entities.push_back( new Death(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate));
+			   case MapGen::ElementType::door:
+				   entities.push_back( new Manhole(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate));
 				 break;
 
 			    default:
@@ -161,10 +162,10 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 		}
 	}
 
-	entities.push_back( new BombBonus(sf::Vector2f(115, 200), &entitiesToCreate, BombBonus::Amount::minusone));
-	entities.push_back( new BombBonus(sf::Vector2f(215, 200), &entitiesToCreate, BombBonus::Amount::one));
-	entities.push_back( new BombBonus(sf::Vector2f(306, 200), &entitiesToCreate, BombBonus::Amount::many));
-	entities.push_back( new BombBonus(sf::Vector2f(405, 200), &entitiesToCreate, BombBonus::Amount::max));
+//	entities.push_back( new BombBonus(sf::Vector2f(115, 200), &entitiesToCreate, BombBonus::Amount::minusone));
+//	entities.push_back( new BombBonus(sf::Vector2f(215, 200), &entitiesToCreate, BombBonus::Amount::one));
+//	entities.push_back( new BombBonus(sf::Vector2f(306, 200), &entitiesToCreate, BombBonus::Amount::many));
+//	entities.push_back( new BombBonus(sf::Vector2f(405, 200), &entitiesToCreate, BombBonus::Amount::max));
 
 	playerId = 0;
 	map.reset();
@@ -197,7 +198,19 @@ void World::setWindowDimensions() {
 void World::draw(float dt) {
 	drawFloor();
 
-	std::sort(entities.begin(), entities.end(),[](Entity* a, Entity* b)->bool { return a->getY() < b->getY(); });
+	std::sort(entities.begin(), entities.end(), [](Entity* a, Entity* b)->bool { return a->getLayer() < b->getLayer(); });
+
+	 int i = 6;
+	while(i--) {
+		std::vector<Entity::EntityLayer> tmp;
+		tmp.push_back(Entity::EntityLayer(i));
+
+		auto itF = std::find_first_of(entities.begin(), entities.end(), tmp.begin(), tmp.end(), [](Entity* a, Entity::EntityLayer b)->bool { return a->getLayer() == b; });
+		auto itE = std::find_end(entities.begin(), entities.end(), tmp.begin(), tmp.end(), [](Entity* a, Entity::EntityLayer b)->bool { return a->getLayer() == b; });
+
+		++itE;
+		std::sort(itF, itE, [](Entity* a, Entity* b)->bool { return a->getHitbox().getMaxY() < b->getHitbox().getMaxY(); });
+	}
 
 	for(auto it = entities.begin(); it != entities.end(); ++it) {
 		(*it)->update(dt);

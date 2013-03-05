@@ -1,6 +1,6 @@
 #include "Game.h"
 
-#include "Constants.h"
+#include "constants.h"
 #include "UI/UI.h"
 
 #include "Renderer/Window.h"
@@ -9,7 +9,10 @@
 
 #include "World/Entity/Explosion.h"
 #include "World/Entity/Smoke.h"
+#include "World/Entity/Bomb.h"
 #include "World/Entity/Collectible.h"
+#include "World/Entity/Collectibles/BombBonus.h"
+#include "World/Entity/Collectibles/HealthBonus.h"
 
 #include "UI/HealthBar.h"
 #include "UI/Avatar.h"
@@ -21,13 +24,17 @@
  *********************/
 Game::Game() : input(Window::instance()->getRW()->GetInput()) {
 	world = nullptr;
-
 	players.clear();
 
 	play = true;
 	end = false;
 
 	level = 0;
+
+	movePtr[0] = &Entity::goLeft;
+	movePtr[1] = &Entity::goRight;
+	movePtr[2] = &Entity::goTop;
+	movePtr[3] = &Entity::goDown;
 }
 
 Game::~Game() {
@@ -38,106 +45,111 @@ Game::~Game() {
 	}
 }
 
-void Game::init(int id) {
+void Game::init(GameType _type) {
+	type = _type;
+
 	if(world == nullptr)
 		world = new World;
 
 	Window::instance()->showHitbox = false;
 
-	if(id == 1) {
-		players.push_back( new Player(sf::Vector2f(0, 0), &world->entitiesToCreate));// 1 vs kom
-	}
+	if(type == GameType::oneVsBot)
+		players.push_back( new Player(sf::Vector2f(0, 0), &world->entitiesToCreate));
 
-	if(id > 1) {
+	else if(type == GameType::oneVsOne || type == GameType::twoVsBot) {
 		players.push_back( new Player(sf::Vector2f(0, 0), &world->entitiesToCreate));
 		players.push_back( new Player(sf::Vector2f(1, 1), &world->entitiesToCreate));
 	}
 
-	musics[0] = SoundManager::instance().getMusic("game.ff");
-	musics[0]->Stop();
-	musics[0]->SetLoop(false);
-	musics[0]->SetVolume(20.0f);
-	musics[1] = SoundManager::instance().getMusic("game.ffs");
-	musics[1]->Stop();
-	musics[1]->SetLoop(false);
-	musics[1]->SetVolume(30.0f);
-	musics[2] = SoundManager::instance().getMusic("game.ffd");
-//	musics[2]->Stop();
-//	musics[2]->SetLoop(false);
-//	musics[2]->SetVolume(30.0f);
+	/** Music **/
+	music[0] = SoundManager::instance().getMusic("game.ff");
+	music[0]->Stop();
+	music[0]->SetLoop(false);
+	music[0]->SetVolume(20.0f);
 
-	musicId = sf::Randomizer::Random(0, 1);
-	musics[musicId]->Play();
+	music[1] = SoundManager::instance().getMusic("game.ffs");
+	music[1]->Stop();
+	music[1]->SetLoop(false);
+	music[1]->SetVolume(30.0f);
 
-	game(id);
+	music[2] = SoundManager::instance().getMusic("game.ffd");
+	music[2]->Stop();
+	music[2]->SetLoop(false);
+	music[2]->SetVolume(30.0f);
 
-	musics[musicId]->Stop();
+	musicId = sf::Randomizer::Random(0, 2);
+	music[musicId]->Play();
+
+	game();
+
+	music[musicId]->Stop();
 }
 
-void Game::game(int id) {
+void Game::game() {
 	end = false;
 
 	while(!end) {
-		++level;
-
 		play = true;
 
+		++level;
+
 		sf::Clock clock;
+		sf::Clock playTime;
+
 		sf::Event event;
 
 		UI ui;
-		ui.add(new HealthBar(players.at(0), sf::Vector2f(Constants::UI::HealthBar::X, Constants::UI::HealthBar::Y)));
-		ui.add(new Avatar(sf::Vector2f(Constants::UI::Avatar::X, Constants::UI::Avatar::Y)));
-		ui.add(new BombBar(players.at(0), sf::Vector2f(Constants::UI::BombBar::X, Constants::UI::BombBar::Y)));
-		ui.add(new Scores(players.at(0), sf::Vector2f(Constants::UI::Scores::X, Constants::UI::Scores::Y +10)));
+		addUI(ui);
 
-		sf::Shape board = sf::Shape::Rectangle(
-				2,
-				2,
-				Window::instance()->getWidth()-2,
-				Window::instance()->getHeight()-2,
-				sf::Color(255, 255, 255, 0),
-				4,
-				sf::Color::Black);
+		sf::Shape border = this->border();
 
-
-		//UI *uiFirstPlayer = new UI;
-		//UI *uiFirstSecond = new UI(true);
-
-		world->loadWorld(this, id);
+		if(type == GameType::oneVsBot)
+			world->loadWorld(this, 1);
+		else
+			world->loadWorld(this, 2);
 
 		while(play) {
-			if(musics[musicId]->GetStatus() == sf::Music::Status::Stopped) {
-				int mTmp = musicId;
-
-				while(mTmp == musicId)
-					musicId = sf::Randomizer::Random(0, 1);
-
-				musics[musicId]->Play();
-			}
+			changeMusic();
 
 			while(Window::instance()->getRW()->GetEvent(event)) {
 				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
-					switch(pauseMenu()) {
-					    case sf::Key::Q:
-					       	end = !(play = false);
-					      break;
+					music[musicId]->Pause();
 
-					    case sf::Key::R:
-					    	play = false;
-					      break;
+					bool done = false;
 
-					    default:
-					      break;
+					while(!done) {
+						sf::Key::Code code = pauseMenu();
+
+						if(code == sf::Key::Q)
+							done = end = !(play = false);
+
+						else if(code == sf::Key::R)
+							done = !(play = false);
+
+						else if(code == sf::Key::H) {
+							Window::instance()->getRW()->Clear();
+							world->draw(0);
+							ui.show(0);
+
+							Window::instance()->getRW()->Draw(border);
+							Window::instance()->getRW()->Display();
+							Window::instance()->getRW()->Display(); // 2nd is required, due to witchcraft
+
+							helpWindow();
+
+						} else if(code == sf::Key::Escape)
+							done = true;
 					}
 
+					music[musicId]->Play();
 					clock.Reset();
 				}
 
 				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
 					Window::instance()->showHitbox = !Window::instance()->showHitbox;
 
-				playerControl(event);
+				playerKeyboardControl(event);
+				//playerJoyControl(event);
 
 				Window::instance()->process(event);
 			}
@@ -148,76 +160,103 @@ void Game::game(int id) {
 			clock.Reset();
 
 			world->draw(dt);
-
 			ui.show(dt);
 
-			Window::instance()->getRW()->Draw(board);
-
-		/*	uiFirstSecond->drawHealthBar(players.at(1)->getHealthAmount());
-			uiFirstSecond->drawBombBar(players.at(1)->getBombAmount());
-		//	uiFirstSecond->drawFPS(dt);
-			uiFirstSecond->drawBoard();
-
-			uiFirstPlayer->drawHealthBar(players.at(0)->getHealthAmount());
-			uiFirstPlayer->drawBombBar(players.at(0)->getBombAmount());
-		//	uiFirstPlayer->drawScores(players.at(0)->getScores());
-			//uiFirstPlayer->drawFPS(dt);
-			uiFirstPlayer->drawBoard();*/
+			Window::instance()->getRW()->Draw(border);
 
 			playerControlRealtime();
-
 			checkEntityEntityCollisions(dt);
-			//checkPlayerEntitiesCollisions(0, dt);
 
 			Window::instance()->getRW()->Display();
 
 			world->removeAndAddEntities();
 
-			if(!players.at(0)->isAlive() || !players.at(1)->isAlive()) end = !(play = false);
+			if(type == GameType::oneVsBot && !players.at(0)->isAlive()) {
+				end = !(play = false);
+
+			} else if(type == GameType::twoVsBot || type == GameType::oneVsOne) {
+				if(!players.at(0)->isAlive() || !players.at(1)->isAlive()) {
+					end = !(play = false);
+
+					if(type == GameType::oneVsOne)
+						end = winWindow(!players.at(0)->isAlive() ? 1 : 0);
+				}
+			}
 		}
 	}
 }
 
-sf::Key::Code Game::pauseMenu() {
-	SubWindow sW;
+//TODO: WTF?
+void Game::throwCollectible(sf::Vector2f position) {
+	if(sf::Randomizer::Random(0, 1) == 1) {
+		int i = sf::Randomizer::Random(0, 3);
 
-	sW.init(300, 300, (Window::instance()->getWidth() - 300) / 2, (Window::instance()->getHeight() - 300) / 2);
+		if(i == 0)
+			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, BombBonus::Amount::minusone));
 
-	sW.setAplha(255);
+		if(i == 1)
+			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, BombBonus::Amount::one));
 
-	sW.add(SpriteManager::instance()->getSprite("button.esc"), sf::Vector2i(45,  71));
-	sW.add(SpriteManager::instance()->getSprite("button.r"),   sf::Vector2i(45, 133));
-	sW.add(SpriteManager::instance()->getSprite("button.h"),   sf::Vector2i(45, 195));
-	sW.add(SpriteManager::instance()->getSprite("button.q"),   sf::Vector2i(45, 257));
+		if(i == 2)
+			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 6, position.y - 5),  &world->entitiesToCreate, BombBonus::Amount::many));
 
-	sW.add(SpriteManager::instance()->getSprite("text.resume"),            sf::Vector2i(120,  64));
-	sW.add(SpriteManager::instance()->getSprite("text.restart"),           sf::Vector2i(120, 121));
-	sW.add(SpriteManager::instance()->getSprite("text.help"),              sf::Vector2i(120, 186));
-	sW.add(SpriteManager::instance()->getSprite("text.exit_to_main_menu"), sf::Vector2i(120, 245));
+		if(i == 3)
+			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 4, position.y - 5),  &world->entitiesToCreate, BombBonus::Amount::max));
 
-	sW.setTransitionEffect(1);
+	} else {
+		int i = sf::Randomizer::Random(0, 3);
 
-	sf::Key::Code result = sW.show([](sf::Event &event, sf::Key::Code &result, bool &done)->void {
-		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
-			result = sf::Key::Escape;
-			done = true;
+		if(i == 0)
+			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, HealthBonus::Amount::minusone));
 
-		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::R) {
-			result = sf::Key::R;
-			done = true;
+		if(i == 1)
+			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, HealthBonus::Amount::one));
 
-		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::H) {
-			result = sf::Key::H;
-			LOG("HELP!!!!..");
-			done = false;
+		if(i == 2)
+			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 7, position.y - 5),  &world->entitiesToCreate, HealthBonus::Amount::many));
 
-		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Q) {
-			result = sf::Key::Q;
-			done = true;
-		}
-	});
+		if(i == 3)
+			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 4, position.y - 5), &world->entitiesToCreate, HealthBonus::Amount::max));
+	}
+}
 
-  return result;
+void inline Game::addUI(UI &ui) {
+	/** Gracz 1 **/
+	ui.add(new Avatar(                  sf::Vector2f(Constants::UI::Avatar::X,    Constants::UI::Avatar::Y)));
+	ui.add(new HealthBar(players.at(0), sf::Vector2f(Constants::UI::HealthBar::X, Constants::UI::HealthBar::Y)));
+	ui.add(new BombBar(  players.at(0), sf::Vector2f(Constants::UI::BombBar::X,   Constants::UI::BombBar::Y)));
+	ui.add(new Scores(   players.at(0), sf::Vector2f(Constants::UI::Scores::X,    Constants::UI::Scores::Y + 10)));
+
+	/** Gracz 2 **/
+	if(type == GameType::oneVsOne || type == GameType::twoVsBot) {
+		ui.add(new Avatar(                  sf::Vector2f(Window::instance()->getWidth() - 280 - Constants::UI::Avatar::X, Constants::UI::Avatar::Y), true));
+		ui.add(new HealthBar(players.at(1), sf::Vector2f(Window::instance()->getWidth() - 210 - Constants::UI::Avatar::X, Constants::UI::HealthBar::Y)));
+		ui.add(new BombBar(  players.at(1), sf::Vector2f(Window::instance()->getWidth() - 210 - Constants::UI::Avatar::X, Constants::UI::BombBar::Y)));
+		ui.add(new Scores(   players.at(1), sf::Vector2f(Window::instance()->getWidth() - 210 - Constants::UI::Avatar::X, Constants::UI::Scores::Y + 10)));
+	}
+}
+
+sf::Shape inline Game::border() {
+	int size = Constants::Video::SCREEN_BORDER();
+
+	int x = size / 2;
+	int y = size / 2;
+
+	int maxX = Window::instance()->getWidth() - size / 2;
+	int maxY = Window::instance()->getHeight() - size / 2;
+
+  return sf::Shape::Rectangle(x, y, maxX, maxY, sf::Color(255, 255, 255, 0), size, sf::Color::Black);
+}
+
+void inline Game::changeMusic() {
+	if(music[musicId]->GetStatus() == sf::Music::Status::Stopped) {
+		int id = musicId;
+
+		while(id == musicId)
+			musicId = sf::Randomizer::Random(0, 2);
+
+		music[musicId]->Play();
+	}
 }
 
 void inline Game::playerControl(sf::Key::Code keyCode, Player* player, Entity::EntityState state) {
@@ -247,7 +286,6 @@ void inline Game::playerControl(sf::Key::Code keyCode, Player* player, Entity::E
 		      break;
 
 		    default:
-
 		      break;
 		}
 
@@ -259,33 +297,91 @@ void inline Game::playerControl(sf::Key::Code keyCode, Player* player, Entity::E
 		} else if(player->getState() == state && player->lockKey) {
 			(player->*ptrNegFun)();
 			player->lockKey = false;
-			LOG("a");
 		}
 	}
 }
 
-void Game::playerControl(sf::Event &event) {
-	if(players.size() > 0) {
-		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Space) {
-			if(!players.at(0)->lockMovement)
-				players.at(0)->goingToCenter();
-		}
-	}
+void inline Game::playerControl(int i, int j, Player* player, Entity::EntityState state) {
+	if(!player->lockMovement) {
+		void (Player::*ptrFun)() = nullptr;
+		void (Player::*ptrNegFun)() = nullptr;
 
-	if(players.size() > 1) {
-		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::LShift) {
-			if(!players.at(1)->lockMovement)
-				players.at(1)->goingToCenter();
+		switch(state) {
+		    case Entity::EntityState::goRight:
+		    	ptrFun = &Player::goRight;
+		    	ptrNegFun = &Player::stopRight;
+		      break;
+
+		    case Entity::EntityState::goLeft:
+		    	ptrFun = &Player::goLeft;
+		    	ptrNegFun = &Player::stopLeft;
+		      break;
+
+		    case Entity::EntityState::goTop:
+		    	ptrFun = &Player::goTop;
+		    	ptrNegFun = &Player::stopTop;
+		      break;
+
+		    case Entity::EntityState::goDown:
+		    	ptrFun = &Player::goDown;
+		    	ptrNegFun = &Player::stopDown;
+		      break;
+
+		    default:
+		      break;
+		}
+
+		if(input.GetJoystickAxis(i , sf::Joy::AxisPOV) == j) {
+			if(!player->lockKey) {
+				(player->*ptrFun)();
+				player->lockKey = true;
+			}
+		} else if(player->getState() == state && player->lockKey) {
+			(player->*ptrNegFun)();
+			player->lockKey = false;
 		}
 	}
 }
+
+void Game::playerKeyboardControl(sf::Event &event) {
+	if(players.size() > 0 && !players.at(0)->lockMovement) {
+
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Space)
+			players.at(0)->goingToCenter();
+
+	}
+
+	if(players.size() > 1 && !players.at(1)->lockMovement) {
+
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::LShift)
+			players.at(1)->goingToCenter();
+
+	}
+}
+
+void Game::playerJoyControl(sf::Event &event) {
+	if(players.size() > 0 && !players.at(0)->lockMovement) {
+
+		if(event.Type == sf::Event::JoyButtonPressed && event.JoyButton.JoystickId == 0 && event.JoyButton.Button == 0)
+			players.at(0)->goingToCenter();
+
+	}
+
+	if(players.size() > 1 && !players.at(1)->lockMovement) {
+
+		if(event.Type == sf::Event::JoyButtonPressed && event.JoyButton.JoystickId == 1 && event.JoyButton.Button == 0)
+			players.at(1)->goingToCenter();
+
+	}
+}
+
 
 void Game::playerControlRealtime() {
 	if(players.size() > 0) {
-		playerControl(sf::Key::Down,  players.at(0), Entity::EntityState::goDown);
-		playerControl(sf::Key::Up,    players.at(0), Entity::EntityState::goTop);
-		playerControl(sf::Key::Right, players.at(0), Entity::EntityState::goRight);
-		playerControl(sf::Key::Left,  players.at(0), Entity::EntityState::goLeft);
+		playerControl(0, 180, players.at(0), Entity::EntityState::goDown);
+		playerControl(0, 0,   players.at(0), Entity::EntityState::goTop);
+		playerControl(0, 90,  players.at(0), Entity::EntityState::goRight);
+		playerControl(0, 270, players.at(0), Entity::EntityState::goLeft);
 
 	}
 	if(players.size() > 1) {
@@ -294,7 +390,12 @@ void Game::playerControlRealtime() {
 		playerControl(sf::Key::D, players.at(1), Entity::EntityState::goRight);
 		playerControl(sf::Key::A, players.at(1), Entity::EntityState::goLeft);
 	}
+
 }
+
+/***********************************************************************************
+ Game :: methods :: collision
+ *********************/
 
 void Game::checkCollisionOfOnePair(
                Entity *entityFirst, Entity::EntityType firstType,
@@ -303,11 +404,11 @@ void Game::checkCollisionOfOnePair(
 		if(!entityFirst->getNextHitbox(dt).collidesWith(entitySecond->getNextHitbox(dt)))
 			return;
 
-	// makro SWAP_IF pozwala zamieniæ znaczenie argumentów fst* z snd*
-    // w ten sposób, ¿e sprawdzaj¹c kolizjê otrzymujemy wska¿niki zawsze
-    // w dobrej kolejnoœci, tzn. tak, aby ka¿d¹ parê obs³ugiwaæ jeden raz
+		/** makro SWAP_IF pozwala zamieniæ znaczenie argumentów fst* z snd*    **
+		 ** w ten sposób, ¿e sprawdzaj¹c kolizjê otrzymujemy wska¿niki zawsze  **
+		 ** w dobrej kolejnoœci, tzn. tak, aby ka¿d¹ parê obs³ugiwaæ jeden raz **/
 
-	#define SWAP_IF(type_a, type_b)  \
+		#define SWAP_IF(type_a, type_b)  \
 	            if(firstType == type_a && secondType == type_b) {  \
     	            std::swap(entityFirst, entitySecond);   \
                     std::swap(firstType, secondType);   \
@@ -316,6 +417,7 @@ void Game::checkCollisionOfOnePair(
 		SWAP_IF(Entity::EntityType::stone, Entity::EntityType::player);
 		SWAP_IF(Entity::EntityType::box, Entity::EntityType::player);
 	    SWAP_IF(Entity::EntityType::enemy, Entity::EntityType::player);
+	    SWAP_IF(Entity::EntityType::bomb, Entity::EntityType::player);
 	    SWAP_IF(Entity::EntityType::collectible, Entity::EntityType::player);
 		SWAP_IF(Entity::EntityType::explosion, Entity::EntityType::player);
 
@@ -326,136 +428,118 @@ void Game::checkCollisionOfOnePair(
         SWAP_IF(Entity::EntityType::stone, Entity::EntityType::explosion);
         SWAP_IF(Entity::EntityType::box, Entity::EntityType::explosion);
 
+        if(firstType == Entity::EntityType::enemy && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
+        	if(entityFirst->getState() == Entity::EntityState::goDown) {
+        		float newY = entitySecond->getY() - 50.0f - 0.5f;
 
+        		entityFirst->setPosition(entityFirst->getX(), newY);
+        		entityFirst->stopDown();
 
-    if(firstType == Entity::EntityType::enemy && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
-    	if(entityFirst->getState() == Entity::EntityState::goDown) {
-    		float newY = entitySecond->getY() - 50.0f - 0.5f;
+        	} else if(entityFirst->getState() == Entity::EntityState::goTop) {
+        		float newY = entitySecond->getY() + entityFirst->getSpriteDate().dimensions.y + 0.5f;
 
-    		entityFirst->setPosition(entityFirst->getX(), newY);
-    		entityFirst->stopDown();
-    	} else if(entityFirst->getState() == Entity::EntityState::goTop) {
-    		float newY = entitySecond->getY() + entityFirst->getSpriteDate().dimensions.y + 0.5f;
+        		entityFirst->setPosition(entityFirst->getX(), newY);
+        		entityFirst->stopTop();
 
-    		entityFirst->setPosition(entityFirst->getX(), newY);
-    		entityFirst->stopTop();
+        	} else if(entityFirst->getState() == Entity::EntityState::goLeft) {
+        		float newX = entitySecond->getX() + 50 + 0.5f;
 
-    	} else if(entityFirst->getState() == Entity::EntityState::goLeft) {
-    		float newX = entitySecond->getX() + 50 + 0.5f;
+        		entityFirst->setPosition(newX, entityFirst->getY());
+        		entityFirst->stopLeft();
 
-    		entityFirst->setPosition(newX, entityFirst->getY());
-    		entityFirst->stopLeft();
+        	} else if(entityFirst->getState() == Entity::EntityState::goRight) {
+        		float newX = entitySecond->getX() - entityFirst->getSpriteDate().dimensions.x - 0.5f;
 
-    	} else if(entityFirst->getState() == Entity::EntityState::goRight) {
-    		float newX = entitySecond->getX() - entityFirst->getSpriteDate().dimensions.x - 0.5f;
+        		entityFirst->setPosition(newX, entityFirst->getY());
+        		entityFirst->stopRight();
+        	}
 
-    		entityFirst->setPosition(newX, entityFirst->getY());
-    		entityFirst->stopRight();
-    	}
+        	entityFirst->stopMovement();
+        	(entityFirst->*movePtr[ sf::Randomizer::Random(0, 3) ])();
+        }
 
-    	entityFirst->stopMovement();
+        if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::bomb) {
+        	Player *player = static_cast<Player*> (entityFirst);
+        	Bomb *bomb = static_cast<Bomb*> (entitySecond);
 
-    	switch(sf::Randomizer::Random(0, 3)) {
-    	    case 0:
-    	    	entityFirst->goLeft();
-    	      break;
+        	if(bomb->getPlayerPtr() != player) {
+        		if(entityFirst->getState() == Entity::EntityState::goDown)
+        			entityFirst->stopDown();
 
-    	    case 1:
-    	    	entityFirst->goRight();
-    	      break;
+        		else if(entityFirst->getState() == Entity::EntityState::goTop)
+        			entityFirst->stopTop();
 
-    	    case 2:
-    	    	entityFirst->goTop();
-    	      break;
+        		else if(entityFirst->getState() == Entity::EntityState::goLeft)
+        			entityFirst->stopLeft();
 
-    	    case 3:
-    	    	entityFirst->goDown();
-    	      break;
+        		else if(entityFirst->getState() == Entity::EntityState::goRight)
+        			entityFirst->stopRight();
 
-    	    default:
+        		player->lockKey = false;
+        	}
+        }
 
-    	      break;
-    	}
+        if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::collectible) {
+        	Player *player = static_cast<Player*> (entityFirst);
+        	Collectible *collectible = static_cast<Collectible*> (entitySecond);
 
-    }
+        	collectible->collect(player);
+        	collectible->remove();
+        }
 
-    if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::collectible) {
-    	Player *player = static_cast<Player*> (entityFirst);
-    	Collectible *collectible = static_cast<Collectible*> (entitySecond);
+        if(firstType == Entity::EntityType::player && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
+        	if(entityFirst->getState() == Entity::EntityState::goDown)
+        		entityFirst->stopDown();
 
-    	collectible->collect(player);
-    	collectible->remove();
-    }
+        	else if(entityFirst->getState() == Entity::EntityState::goTop)
+        		entityFirst->stopTop();
 
-    if(firstType == Entity::EntityType::player && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
-    	if(entityFirst->getState() == Entity::EntityState::goDown) {
-    		float newY = entitySecond->getY() - 50.0f - 0.5f;
+        	else if(entityFirst->getState() == Entity::EntityState::goLeft)
+        		entityFirst->stopLeft();
 
-    		//entityFirst->setPosition(entityFirst->getX(), newY);
-    		entityFirst->stopDown();
+        	else if(entityFirst->getState() == Entity::EntityState::goRight)
+        		entityFirst->stopRight();
 
-    	} else if(entityFirst->getState() == Entity::EntityState::goTop) {
-    		float newY = entitySecond->getY() + entityFirst->getHitbox().getMaxY() - entityFirst->getHitbox().getMinY();
+        	static_cast<Player*>(entityFirst)->lockKey = false;
+        }
 
-    		//entityFirst->setPosition(entityFirst->getX(), newY);
+        if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::enemy) {
+        	Player *player = static_cast<Player*> (entityFirst);
 
-    		entityFirst->stopTop();
+        	if(!player->isImmortal()) {
+        		player->looseLife();
+        		entitySecond->remove();
+        	}
+        }
 
-    	} else if(entityFirst->getState() == Entity::EntityState::goLeft) {
-    		float newX = entitySecond->getX() + (entityFirst->getHitbox().getMaxX() - entityFirst->getHitbox().getMinX()) + 0.5f;
+        if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::explosion) {
+        	Player *player = static_cast<Player*> (entityFirst);
 
-    	//	entityFirst->setPosition(newX, entityFirst->getY());
+        	if(!player->isImmortal())
+        		player->looseLife();
+        }
 
-    		entityFirst->stopLeft();
+        if(firstType == Entity::EntityType::enemy && secondType == Entity::EntityType::explosion) {
+        	static_cast<Explosion*> (entitySecond)->getPlayerPtr()->addScores( entityFirst->getScoresWhenKilled() );
 
-    	} else if(entityFirst->getState() == Entity::EntityState::goRight) {
-    		float newX = entitySecond->getX() - (entityFirst->getHitbox().getMaxX() - entityFirst->getHitbox().getMinX()) - 0.5f;
+        	entityFirst->remove();
+        }
 
-//    		entityFirst->setPosition(newX, entityFirst->getY());
+        if(firstType == Entity::EntityType::explosion && secondType == Entity::EntityType::box)
+        	entityFirst->remove();
 
-    		entityFirst->stopRight();
-    	}
+        if(firstType == Entity::EntityType::explosion && secondType == Entity::EntityType::stone) {
+        	Player *player = static_cast<Explosion*>(entityFirst)->getPlayerPtr();
 
-    	static_cast<Player*>(entityFirst)->lockKey = false;
-    }
+        	world->entitiesToCreate.push(new Smoke(entityFirst->getPosition() + sf::Vector2f(-7, 0), &world->entitiesToCreate));
+        	throwCollectible(entitySecond->getPosition());
 
-    if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::enemy) {
-    	Player *player = static_cast<Player*> (entityFirst);
+        	player->addScores( entitySecond->getScoresWhenKilled() );
+        	entitySecond->remove();
+        	entityFirst->remove();
+        }
 
-    	if(!player->isImmortal()) {
-    		player->looseLife();
-    		entitySecond->remove();
-    	}
-    }
-
-    if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::explosion) {
-    	Player *player = static_cast<Player*> (entityFirst);
-
-    	if(!player->isImmortal())
-    		player->looseLife();
-    }
-
-    if(firstType == Entity::EntityType::enemy && secondType == Entity::EntityType::explosion) {
-      	static_cast<Explosion*> (entitySecond)->getPlayerPtr()->addScores( entityFirst->getScoresWhenKilled() );
-
-      	entityFirst->remove();
-    }
-
-    if(firstType == Entity::EntityType::explosion && secondType == Entity::EntityType::box) {
-    	entityFirst->remove();
-    }
-
-    if(firstType == Entity::EntityType::explosion && secondType == Entity::EntityType::stone) {
-    	Player *player = static_cast<Explosion*>(entityFirst)->getPlayerPtr();
-
-    	world->entitiesToCreate.push(new Smoke(entityFirst->getPosition() + sf::Vector2f(-7, 0), &world->entitiesToCreate));
-
-    	player->addScores( entitySecond->getScoresWhenKilled() );
-    	entitySecond->remove();
-    	entityFirst->remove();
-    }
-
-    #undef SWAP_IF
+        #undef SWAP_IF
 }
 
 void Game::checkEntityEntityCollisions(float dt) { // sprawdzenie ka¿dej pary (ka¿dej jednokrotnie) - O(n^2)
@@ -467,19 +551,126 @@ void Game::checkEntityEntityCollisions(float dt) { // sprawdzenie ka¿dej pary (k
     	entityFirst = *itFirst;
     	fistType = entityFirst->getType();
 
-    	//if(fistType != Entity::EntityType::stone) {
-    		if(entityFirst->isAlive()) {
-    			itSecond = itFirst;
+    	if(entityFirst->isAlive()) {
+    		itSecond = itFirst;
+    		++itSecond;
+
+    		while(itSecond != world->entities.end()) {
+    			entitySecond = *itSecond;
+    			secondType = entitySecond->getType();
+
+    			if(entitySecond->isAlive())
+    				checkCollisionOfOnePair(entityFirst, fistType, entitySecond, secondType, dt);
+
     			++itSecond;
-
-    			for ( ; itSecond != world->entities.end(); ++itSecond) {
-    				entitySecond = *itSecond;
-    				secondType = entitySecond->getType();
-
-    				if(entitySecond->isAlive())
-    					checkCollisionOfOnePair(entityFirst, fistType, entitySecond, secondType, dt);
-    			}
-        	//}
-        }
+    		}
+    	}
     }
+}
+
+
+/***********************************************************************************
+ Game :: methods :: sub-window
+ *********************/
+sf::Key::Code Game::pauseMenu() {
+	SubWindow sW;
+
+	sW.init(300, 300, (Window::instance()->getWidth() - 300) / 2, (Window::instance()->getHeight() - 300) / 2);
+
+	sW.setAplha(255);
+
+	sW.add(SpriteManager::instance()->getSprite("button.esc"), sf::Vector2i(45,  71));
+	sW.add(SpriteManager::instance()->getSprite("button.r"),   sf::Vector2i(45, 133));
+	sW.add(SpriteManager::instance()->getSprite("button.h"),   sf::Vector2i(45, 195));
+	sW.add(SpriteManager::instance()->getSprite("button.q"),   sf::Vector2i(45, 257));
+
+	sW.add(SpriteManager::instance()->getSprite("text.resume"),            sf::Vector2i(120,  64));
+	sW.add(SpriteManager::instance()->getSprite("text.restart"),           sf::Vector2i(120, 121));
+	sW.add(SpriteManager::instance()->getSprite("text.help"),              sf::Vector2i(120, 186));
+	sW.add(SpriteManager::instance()->getSprite("text.exit_to_main_menu"), sf::Vector2i(120, 245));
+
+	sW.setTransitionEffect(0.5f);
+
+	sf::Key::Code result = sW.show([](sf::Event &event, sf::Key::Code &result, bool &done)->void {
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
+			result = sf::Key::Escape;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::R) {
+			result = sf::Key::R;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::H) {
+			result = sf::Key::H;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Q) {
+			result = sf::Key::Q;
+			done = true;
+		}
+	});
+
+  return result;
+}
+
+void Game::helpWindow() {
+	SubWindow sW;
+
+	sW.init(490, 390, (Window::instance()->getWidth() - 490) / 2, (Window::instance()->getHeight() - 390) / 2);
+
+	sW.setAplha(255);
+
+	sW.add(SpriteManager::instance()->getSprite("button.top"),   sf::Vector2i(105, 210));
+	sW.add(SpriteManager::instance()->getSprite("button.left"),  sf::Vector2i( 57, 257));
+	sW.add(SpriteManager::instance()->getSprite("button.down"),  sf::Vector2i(105, 257));
+	sW.add(SpriteManager::instance()->getSprite("button.right"), sf::Vector2i(151, 257));
+	sW.add(SpriteManager::instance()->getSprite("button.space"), sf::Vector2i( 48, 349));
+
+	sW.add(SpriteManager::instance()->getSprite("ps3_button.move"), sf::Vector2i(326, 257));
+	sW.add(SpriteManager::instance()->getSprite("ps3_button.x"),    sf::Vector2i(351, 351));
+
+	sW.add(SpriteManager::instance()->getSprite("text.you_can_use"), sf::Vector2i(118,  52));
+	sW.add(SpriteManager::instance()->getSprite("text.keyboard"),    sf::Vector2i( 89, 130));
+	sW.add(SpriteManager::instance()->getSprite("text.ps3_pad"),     sf::Vector2i(342, 127));
+	sW.add(SpriteManager::instance()->getSprite("text.move"),        sf::Vector2i(244, 220));
+	sW.add(SpriteManager::instance()->getSprite("text.put_bomb"),    sf::Vector2i(231, 338));
+
+	sW.setTransitionEffect(0.5f);
+
+	sW.show([](sf::Event &event, sf::Key::Code &result, bool &done)->void {
+		if(event.Type == sf::Event::KeyPressed) {
+			result = sf::Key::Escape;
+			done = true;
+		}
+	});
+}
+
+bool Game::winWindow(int playerId) {
+	SubWindow sW;
+
+	sW.init(600, 100, (Window::instance()->getWidth() - 600) / 2, (Window::instance()->getHeight() - 200));
+
+	 std::string filename = playerId == 0 ? "text.white_player_win" : "text.black_player_win";
+	sW.add(SpriteManager::instance()->getSprite(filename), sf::Vector2i((600-193)/2, 30));
+
+	sW.add(SpriteManager::instance()->getSprite("button.q"),   sf::Vector2i(100, 90));
+	sW.add(SpriteManager::instance()->getSprite("button.r"),   sf::Vector2i(200, 90));
+
+	sW.add(SpriteManager::instance()->getSprite("text.exit_to_main_menu"), sf::Vector2i(120, 245));
+	sW.add(SpriteManager::instance()->getSprite("text.resume"),            sf::Vector2i(120,  64));
+
+	sW.setTransitionEffect(0.5f);
+
+	sf::Key::Code result = sW.show([](sf::Event &event, sf::Key::Code &result, bool &done)->void {
+		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num1) {
+			result = sf::Key::Num1;
+			done = true;
+
+		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num2) {
+			result = sf::Key::Num2;
+			done = true;
+		}
+	});
+
+  return result == sf::Key::Num1 ? true : false;
 }

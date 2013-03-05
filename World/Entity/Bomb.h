@@ -21,6 +21,8 @@ public:
 	void draw(float dt);
 	void update(float dt);
 
+	Player* getPlayerPtr() { return playerPtr; }
+
 private:
 	void explosion();
 

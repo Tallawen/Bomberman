@@ -16,7 +16,7 @@ private:
 	sf::Vector2f position;
 
 public:
-	Avatar(sf::Vector2f _position);
+	Avatar(sf::Vector2f _position, bool black = false);
 	~Avatar() { }
 
 	void update(float dt) { }

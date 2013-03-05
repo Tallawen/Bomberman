@@ -12,6 +12,8 @@ Smoke::Smoke(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : E
 	stop->setAutoDraw(true);
 	stop->setPosition(position);
 	stop->play();
+
+	layer = EntityLayer::layer_background4;
 }
 
 Smoke::~Smoke() {

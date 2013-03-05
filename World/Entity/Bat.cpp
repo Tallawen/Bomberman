@@ -1,6 +1,8 @@
 #include "Bat.h"
 
 Bat::Bat(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 50, 50, _entitiesToCreate) {
+	layer = EntityLayer::layer_background4;
+
 	sd = SpriteManager::instance()->getSpriteData("enemy.bat_down");
 
 	left = new Animation(

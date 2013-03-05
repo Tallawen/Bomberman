@@ -27,7 +27,7 @@ Menu::Menu() : maxOptions(2) {
 	text[3].SetPosition(76, 327);
 }
 
-Game::PlayType Menu::show(OptionsType type) {
+Game::GameType Menu::show(OptionsType type) {
 	Window::instance()->init(Constants::Menu::SCREEN_WIDTH,
 			                 Constants::Menu::SCREEN_HEIGHT,
 			                 Constants::Menu::SCREEN_TITLE,
@@ -36,7 +36,7 @@ Game::PlayType Menu::show(OptionsType type) {
 	bool done = false;
 	int id = int(type);
 
-	Game::PlayType playType = Game::PlayType::none;
+	Game::GameType playType = Game::GameType::none;
 
 	sf::Event event;
 
@@ -49,7 +49,7 @@ Game::PlayType Menu::show(OptionsType type) {
 		while(Window::instance()->getRW()->GetEvent(event)) {
 			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
 				type = OptionsType::exit;
-				playType = Game::PlayType::none;
+				playType = Game::GameType::none;
 				Window::instance()->close();
 				done = true;
 
@@ -76,7 +76,7 @@ Game::PlayType Menu::show(OptionsType type) {
 				      break;
 				}
 
-				if(playType != Game::PlayType::none) done = true;
+				if(playType != Game::GameType::none) done = true;
 			}
 
 			Window::instance()->process(event);
@@ -111,7 +111,7 @@ void Menu::about() {
 	//sW.show();
 }
 
-Game::PlayType Menu::play() {
+Game::GameType Menu::play() {
 	sf::Sprite player = SpriteManager::instance()->getSprite("player.white_down");
 	sf::Sprite bat = SpriteManager::instance()->getSprite("enemy.bat_down");
 
@@ -168,20 +168,20 @@ Game::PlayType Menu::play() {
 
 	switch(value) {
 	    case sf::Key::Num1:
-	    	return Game::PlayType::oneVsBot;
+	    	return Game::GameType::oneVsBot;
 	      break;
 
 	    case sf::Key::Num2:
-	    	return Game::PlayType::twoVsBot;
+	    	return Game::GameType::twoVsBot;
 	      break;
 
 	    case sf::Key::Num3:
-	    	return Game::PlayType::oneVsOne;
+	    	return Game::GameType::oneVsOne;
 	      break;
 
 	    default:
 	      break;
 	}
 
-  return Game::PlayType::none;
+  return Game::GameType::none;
 }

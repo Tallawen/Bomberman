@@ -10,6 +10,7 @@ public:
 		stone,
 		box,
 		exit,
+		door,
 		characters
 	};
 
@@ -22,6 +23,8 @@ private:
 	int emptyAmount;
 	int stoneAmount;
 	int boxAmount;
+
+	int availableStone;
 public:
 	MapGen();
 	MapGen(int _width, int _height);
