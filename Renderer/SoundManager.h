@@ -63,9 +63,6 @@ private:
 	/// Return sound associated with name
 	sf::SoundBuffer& getBuffer(std::string name);
 
-	/// Return sound associated with index
-	sf::SoundBuffer& getBuffer(uint id);
-
 /*
  * Music API
  *	   music objects are stored as already playable objects, which can be accesses via getMusic()
