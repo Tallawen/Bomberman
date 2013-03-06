@@ -201,14 +201,14 @@ int main() {
 	Sprite::instance()->insertSprite("Death_right",   "Death_Right", 47, 46, 0, 0,   true, 4);*/
 
 	/* Load sounds */
-	SoundManager::instance().registerSound("Data/audio/Bomb_Explode.ogg", "bomb.explode");
+	SoundManager::registerSound("Data/audio/Bomb_Explode.ogg", "bomb.explode");
 
-	/* Load musics */
-	SoundManager::instance().registerMusic("Data/audio/menu_aurora.ogg", "menu.aurora");
+	/* Load music */
+	SoundManager::registerMusic("Data/audio/menu_aurora.ogg", "menu.aurora");
 
-	SoundManager::instance().registerMusic("Data/audio/game_1.ogg", "game.ff");
-	SoundManager::instance().registerMusic("Data/audio/game_2.ogg", "game.ffs");
-	SoundManager::instance().registerMusic("Data/audio/game_3.ogg", "game.ffd");
+	SoundManager::registerMusic("Data/audio/game_1.ogg", "game.ff");
+	SoundManager::registerMusic("Data/audio/game_2.ogg", "game.ffs");
+	SoundManager::registerMusic("Data/audio/game_3.ogg", "game.ffd");
 
 	Menu menu;
 
