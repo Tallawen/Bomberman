@@ -7,7 +7,7 @@
 #include "Explosion.h"
 
 Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 0, 0, _entitiesToCreate) {
-	layer = EntityLayer::layer_background3;
+	layer = EntityLayer::layer_background5;
 
 	playerPtr = _playerPtr;
 
@@ -16,9 +16,12 @@ Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_ent
 	playerPtr->setBombAmount( playerPtr->getBombAmount() - 1 );
 
 	lifeTime = Constants::Bomb::LIFE_TIME;
+	blinkingTime = lifeTime / 5;
 
-	sprite = SpriteManager::instance()->getSprite("game.bomb");
-	sd     = SpriteManager::instance()->getSpriteData("game.bomb");
+	filename = "game.bomb_black";
+
+	sprite = SpriteManager::instance()->getSprite(filename);
+	sd     = SpriteManager::instance()->getSpriteData(filename);
 
 	sprite.SetPosition(position);
 
@@ -35,6 +38,10 @@ void Bomb::draw(float dt) {
 }
 
 void Bomb::update(float dt) {
+	move(dt);
+
+	blinking(dt);
+
 	if(lifeTime < 0 && isAlive()) {
 		explosion();
 		dead();
@@ -47,6 +54,42 @@ void Bomb::update(float dt) {
 /*Hitbox Bomb::getHitbox() const {
    return Hitbox(info.position, info.position + sf::Vector2f(sprite.GetSize().x, -sprite.GetSize().y));
 }*/
+
+
+void Bomb::move(float dt) {
+	if(offsetTime > 0.0f) {
+		position.y += offsetDistance / offsetTime * dt;
+
+		sprite.SetPosition(position);
+
+		if(oTTmp < 0)
+			offsetTime = 0.0f;
+
+		oTTmp -= dt;
+	}
+}
+
+void Bomb::move(float _time, float _distance) {
+	oTTmp = offsetTime = _time;
+	offsetDistance = 10 + position.y;
+
+	position.y = -10;
+
+	lifeTime = _time + 0.5f;
+}
+
+void Bomb::blinking(float dt) {
+	if(blinkingTime < 0) {
+		blinkingTime = lifeTime / 5;
+
+		filename = (filename == "game.bomb_black") ? "game.bomb_red" : "game.bomb_black";
+
+		sprite = SpriteManager::instance()->getSprite(filename);
+		sprite.SetPosition(position);
+	}
+
+	blinkingTime -= dt;
+}
 
 void Bomb::explosion() {
 	// Play sound

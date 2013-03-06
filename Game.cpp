@@ -35,6 +35,8 @@ Game::Game() : input(Window::instance()->getRW()->GetInput()) {
 	movePtr[1] = &Entity::goRight;
 	movePtr[2] = &Entity::goTop;
 	movePtr[3] = &Entity::goDown;
+
+	throwHp = false;
 }
 
 Game::~Game() {
@@ -60,6 +62,9 @@ void Game::init(GameType _type) {
 		players.push_back( new Player(sf::Vector2f(0, 0), &world->entitiesToCreate));
 		players.push_back( new Player(sf::Vector2f(1, 1), &world->entitiesToCreate));
 	}
+
+	if(type == GameType::oneVsBot || type == GameType::twoVsBot)
+		throwHp = true;
 
 	/** Music **/
 	music[0] = SoundManager::instance().getMusic("game.ff");
@@ -94,7 +99,7 @@ void Game::game() {
 		++level;
 
 		sf::Clock clock;
-		sf::Clock playTime;
+		sf::Clock bonusTime;
 
 		sf::Event event;
 
@@ -104,9 +109,9 @@ void Game::game() {
 		sf::Shape border = this->border();
 
 		if(type == GameType::oneVsBot)
-			world->loadWorld(this, 1);
+			world->loadWorld(this, 1, level);
 		else
-			world->loadWorld(this, 2);
+			world->loadWorld(this, 2, level);
 
 		while(play) {
 			changeMusic();
@@ -148,6 +153,27 @@ void Game::game() {
 				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
 					Window::instance()->showHitbox = !Window::instance()->showHitbox;
 
+				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::O)
+					world->manhole->open();
+
+				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::C)
+					world->manhole->close();
+
+				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::B) {
+					players.at(1)->putBomb();
+
+					static_cast<Bomb*> (world->entitiesToCreate.back())->move(2.0f, 0);
+
+				}
+
+				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::R) {
+					raid();
+
+
+				}
+
+
+
 				playerKeyboardControl(event);
 				//playerJoyControl(event);
 
@@ -158,6 +184,15 @@ void Game::game() {
 
 			float dt = clock.GetElapsedTime();
 			clock.Reset();
+
+			if(bonusTime.GetElapsedTime() > 5.0f) {
+				throwCollectible(
+						toPos( sf::Randomizer::Random(0, world->emptyField.size()-1)), true
+						);
+				bonusTime.Reset();
+
+				LOG("restart");
+			}
 
 			world->draw(dt);
 			ui.show(dt);
@@ -186,37 +221,44 @@ void Game::game() {
 	}
 }
 
-//TODO: WTF?
-void Game::throwCollectible(sf::Vector2f position) {
-	if(sf::Randomizer::Random(0, 1) == 1) {
-		int i = sf::Randomizer::Random(0, 3);
+sf::Vector2f Game::toPos(int id) {
+		return sf::Vector2f(50 * (world->emptyField.at(id) % world->mapDimensions.x), 50 * (world->emptyField.at(id) / world->mapDimensions.x) + 150);
+	}
 
-		if(i == 0)
-			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, BombBonus::Amount::minusone));
+void Game::throwCollectible(sf::Vector2f position, bool ignore) {
+	int i = sf::Randomizer::Random(0, 10);
 
-		if(i == 1)
-			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, BombBonus::Amount::one));
+	if(i == 0 || ignore) {
+		int k = sf::Randomizer::Random(0, 1);
 
-		if(i == 2)
-			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 6, position.y - 5),  &world->entitiesToCreate, BombBonus::Amount::many));
+		if(k == 0) {
+			sf::Vector2f offset;
+			BombBonus::Amount amount;
 
-		if(i == 3)
-			world->entitiesToCreate.push( new BombBonus(sf::Vector2f(position.x + 4, position.y - 5),  &world->entitiesToCreate, BombBonus::Amount::max));
+			switch(sf::Randomizer::Random(0, 3)) {
+			    case 0: offset = sf::Vector2f(12, -5);  amount = BombBonus::Amount::minusone;  break;
+			    case 1: offset = sf::Vector2f(12, -5);  amount = BombBonus::Amount::one;       break;
+			    case 2: offset = sf::Vector2f( 6, -5);  amount = BombBonus::Amount::many;      break;
+			    case 3: offset = sf::Vector2f( 4, -5);  amount = BombBonus::Amount::max;       break;
+			    default: break;
+			}
 
-	} else {
-		int i = sf::Randomizer::Random(0, 3);
+			world->entitiesToCreate.push( new BombBonus(position + offset, &world->entitiesToCreate, amount));
 
-		if(i == 0)
-			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, HealthBonus::Amount::minusone));
+		} else if(k == 1 && throwHp) {
+			sf::Vector2f offset;
+			HealthBonus::Amount amount;
 
-		if(i == 1)
-			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 12, position.y - 5), &world->entitiesToCreate, HealthBonus::Amount::one));
+			switch(sf::Randomizer::Random(0, 3)) {
+			    case 0: offset = sf::Vector2f(12, -5);  amount = HealthBonus::Amount::minusone;  break;
+			    case 1: offset = sf::Vector2f(12, -5);  amount = HealthBonus::Amount::one;       break;
+			    case 2: offset = sf::Vector2f( 6, -5);  amount = HealthBonus::Amount::many;      break;
+			    case 3: offset = sf::Vector2f( 4, -5);  amount = HealthBonus::Amount::max;       break;
+			    default: break;
+			}
 
-		if(i == 2)
-			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 7, position.y - 5),  &world->entitiesToCreate, HealthBonus::Amount::many));
-
-		if(i == 3)
-			world->entitiesToCreate.push( new HealthBonus(sf::Vector2f(position.x + 4, position.y - 5), &world->entitiesToCreate, HealthBonus::Amount::max));
+			world->entitiesToCreate.push( new HealthBonus(position + offset, &world->entitiesToCreate, amount));
+		}
 	}
 }
 
@@ -393,6 +435,22 @@ void Game::playerControlRealtime() {
 
 }
 
+void Game::raid() {
+	int amount = sf::Randomizer::Random(2, 5);
+	int id, x, y;
+
+	while(amount--) {
+		id = sf::Randomizer::Random(0, world->emptyField.size() - 1);
+		y = world->floorData.dimensions.y * (world->emptyField.at(id) / world->mapDimensions.x) + 150 - 20;
+		x = world->floorData.dimensions.x * (world->emptyField.at(id) % world->mapDimensions.x) + 12;
+
+		Bomb *bomb = new Bomb(sf::Vector2f(x, y), players.at(1), &world->entitiesToCreate);
+		bomb->move(sf::Randomizer::Random(1.5f, 2.0f), 0);
+
+		world->entitiesToCreate.push(bomb);
+	}
+}
+
 /***********************************************************************************
  Game :: methods :: collision
  *********************/
@@ -533,6 +591,11 @@ void Game::checkCollisionOfOnePair(
 
         	world->entitiesToCreate.push(new Smoke(entityFirst->getPosition() + sf::Vector2f(-7, 0), &world->entitiesToCreate));
         	throwCollectible(entitySecond->getPosition());
+
+        	int x = entitySecond->getPosition().x / 50;
+        	int y = (entitySecond->getPosition().y - 150) / 50;
+
+        	world->emptyField.push_back(y * world->mapDimensions.x + x);
 
         	player->addScores( entitySecond->getScoresWhenKilled() );
         	entitySecond->remove();

@@ -11,6 +11,7 @@
 
 #include "Entity.h"
 #include "Entity/Player.h"
+#include "Entity/Manhole.h"
 
 class Player;
 class Game;
@@ -32,6 +33,9 @@ public:
 	sf::Vector2i mapDimensions;
 
 	SpriteData floorData;
+	Manhole *manhole;
+
+	std::vector<int> emptyField;
 
 private:
     MapGen map;
@@ -49,7 +53,7 @@ public:
     World();
 
     void loadWorld(std::string title);
-    void loadWorld(Game *gamePtr, unsigned int id);
+    void loadWorld(Game *gamePtr, unsigned int id, int level);
 
     void removeAndAddEntities();
 

@@ -22,6 +22,8 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_background_block.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_bomb.png", true);
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_bomb_black.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_bomb_red.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_explosion.png", true);
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_smoke.png", true);
 
@@ -60,6 +62,7 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_wall.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_ledder.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_door_close.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_door_open.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/gui_health_bar.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/ui_white_avatar.png");
@@ -132,6 +135,7 @@ int main() {
 	SpriteManager::instance()->insertSprite("game.stone", "game_background_block", 50, 70,  0, 0);
 
 	SpriteManager::instance()->insertSprite("game.door_close", "game_door_close", 45, 47,  0, 0);
+	SpriteManager::instance()->insertSprite("game.door_open", "game_door_open", 45, 47,  0, 0);
 
 	SpriteManager::instance()->insertSprite("game.wall",   "game_wall",    1, 108, 0, 0);
 	SpriteManager::instance()->insertSprite("game.ledder", "game_ledder", 18,  99, 0, 0);
@@ -150,6 +154,8 @@ int main() {
 	SpriteManager::instance()->insertSprite("ui.black_avatar", "ui_black_avatar", 63, 63, 0, 0);
 
 	SpriteManager::instance()->insertSprite("game.bomb", "game_bomb", 23, 25, 0, 0);
+	SpriteManager::instance()->insertSprite("game.bomb_red", "game_bomb_red", 22, 28, 0, 0);
+	SpriteManager::instance()->insertSprite("game.bomb_black", "game_bomb_black", 22, 28, 0, 0);
 
 	SpriteManager::instance()->insertSprite("game.explosion", "game_explosion", 50, 50, 0, 0, true, 60);
 	SpriteManager::instance()->insertSprite("game.smoke", "game_smoke", 50, 50, 0, 0, true, 60);
@@ -232,3 +238,4 @@ int main() {
 		Window::instance()->getRW()->Display();
 	}
 }
+

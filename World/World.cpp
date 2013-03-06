@@ -111,7 +111,7 @@ void World::drawWall() {
 	 Window::instance()->getRW()->Draw(sprite);
 }
 
-void World::loadWorld(Game *gamePtr, unsigned int id) {
+void World::loadWorld(Game *gamePtr, unsigned int id, int level) {
 	static int playerId = 0;
 
 	for(auto it = entities.begin(); it != entities.end(); ) {
@@ -122,13 +122,14 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 		it = entities.erase(it);
 	}
 
-	if(id == 1) map.generate(1);
-	else map.generate(2);
+	if(id == 1) map.generate(1, level);
+	else map.generate(2, level);
 
 	floorStartPos.x = 0;
 	floorStartPos.y = 150;
 
 	MapGen::ElementType *board = map.getMap();
+	emptyField = map.getEmptyField();
 
 	for(int y = 0; y < mapDimensions.y; ++y) {
 		for(int x = 0; x < mapDimensions.x; ++x) {
@@ -151,7 +152,16 @@ void World::loadWorld(Game *gamePtr, unsigned int id) {
 				 break;
 
 			   case MapGen::ElementType::door:
-				   entities.push_back( new Manhole(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate));
+				   manhole = new Manhole(sf::Vector2f(x*50 + 1, y*50 + 150 - 1), &entitiesToCreate);
+				   entities.push_back(manhole);
+				 break;
+
+			   case MapGen::ElementType::bat:
+				   entities.push_back( new Bat(sf::Vector2f(x*50+2, y*50-2 + 150), &entitiesToCreate));
+				 break;
+
+			   case MapGen::ElementType::death:
+				   entities.push_back( new Death(sf::Vector2f(x*50+2, y*50-2 + 150), &entitiesToCreate));
 				 break;
 
 			    default:

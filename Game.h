@@ -31,6 +31,8 @@ public:
 private:
 	int level;
 
+	bool throwHp;
+
 	/**
 	 * Wskaznik na funkcje ruchu jednostek
 	 * 0 - goLeft
@@ -60,6 +62,8 @@ private:
 	/// Eventy dzialajace w czasie trzymania klawisza
 	void playerControlRealtime();
 
+	void raid();
+
 	void inline playerControl(sf::Key::Code keyCode, Player* player, Entity::EntityState state);
 	void inline playerControl(int i, int j, Player* player, Entity::EntityState state);
 
@@ -70,13 +74,15 @@ private:
 
 	void checkEntityEntityCollisions(float dt);
 
-	void throwCollectible(sf::Vector2f position);
+	void throwCollectible(sf::Vector2f position, bool ignore = false);
 
 	void inline addUI(UI &ui);
 
 	sf::Shape inline border();
 
 	void inline changeMusic();
+
+	sf::Vector2f toPos(int id);
 
 	/**
 	 * Wywouje sub-onko (menu)

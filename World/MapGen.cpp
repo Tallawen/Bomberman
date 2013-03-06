@@ -30,7 +30,7 @@ void MapGen::setSize(int _width, int _height) {
 	height = _height;
 }
 
-bool MapGen::generate(int amount) {
+bool MapGen::generate(int amount, int lvl) {
 	if(width == 0 || height == 0) {
 		LOG("Zly rozmiar mapy");
 	  return false;
@@ -113,8 +113,7 @@ bool MapGen::generate(int amount) {
 		q.pop();
 
 	availableStone = 0; /// ile kamieni jest osiagalnych - do liczenia prawdopodobienstwa wypadniecia klucza
-	std::vector<int> tempEnemy;
-	tempEnemy.clear();
+	emptyField.clear();
 
 	for(y = 0; y < height + 2; ++y)
 	  	for(x = 0; x < width + 2; ++x)
@@ -133,7 +132,7 @@ bool MapGen::generate(int amount) {
     	int b = q.front(); q.pop();
 
 	    if(available_move >= radius && tab[a][b] == ElementType::empty)
-	    	tempEnemy.push_back(a * width + b); //dodaje pola na ktorych potem moga byc wylosowani przeciwnicy
+	    	emptyField.push_back((a-1) * width + (b-1)); //dodaje pola na ktorych potem moga byc wylosowani przeciwnicy
 
 	    if(tab[a][b] == ElementType::stone) ++availableStone;
 
@@ -184,12 +183,91 @@ bool MapGen::generate(int amount) {
 		}
 	}
 
-	int k = sf::Randomizer::Random(0, tempEnemy.size() - 1);
+	bool random[(int)emptyField.size()]; // I don't know
 
-	LOG(k);
-	LOG(tempEnemy[k]);
+	for(x = 0 ; x < emptyField.size() ; ++x)
+		random[x] = false;
 
-	map[tempEnemy[k]] = ElementType::door;
+	int enemyAmount = sf::Randomizer::Random(10, lvl * emptyField.size() / 25); //tu trzeba ewentualnie zmienic, jak bedzie losowalo za malo - duzo przecinikow
+	int bat_or_not = 1; //polowa to bat polowa nie
+
+	if(lvl <= 5) {
+		for(x = 0 ; x < enemyAmount ; ++x) {
+			int k = sf::Randomizer::Random(0, emptyField.size()-1);
+			if(random[k] == true) {
+				--x;
+				continue;
+
+			} else {
+				map[emptyField[k]] = ElementType::bat;
+				random[k] = true;
+			}
+		}
+
+	} else if(lvl <= 10) {
+		for(x = 0 ; x < enemyAmount ; ++x) {
+			int k = sf::Randomizer::Random(0, emptyField.size()-1);
+			if(random[k] == true) {
+				--x;
+				continue;
+
+			} else {
+				if(bat_or_not)
+					map[emptyField[k]] = ElementType::bat;
+
+				else
+					map[emptyField[k]] = ElementType::zombi;
+
+				random[k] = true;
+				bat_or_not = 1 - bat_or_not;
+			}
+		}
+
+	} else if (lvl <= 15) {
+		for(x = 0 ; x < enemyAmount ; ++x) {
+			int k = sf::Randomizer::Random(0, emptyField.size()-1);
+
+			if(random[k] == true) {
+				--x;
+				continue;
+
+			} else {
+				if(bat_or_not)
+					map[emptyField[k]] = ElementType::bat;
+
+				else
+					map[emptyField[k]] = ElementType::zombi;
+
+				if(x % 3 == 0)
+					map[emptyField[k]] = ElementType::death;
+
+				random[k] = true;
+				bat_or_not = 1 - bat_or_not;
+			}
+		}
+
+	} else {
+        for(x = 0 ; x < enemyAmount ; ++x) {
+        	int k = sf::Randomizer::Random(0, emptyField.size()-1);
+        	if(random[k] == true) {
+        		--x;
+        		continue;
+
+        	} else {
+        		if(bat_or_not)
+        			map[emptyField[k]] = ElementType::death;
+
+        		else
+                    map[emptyField[k]] = ElementType::zombi;
+
+        		if(x % 3 == 0)
+                    map[emptyField[k]] = ElementType::bat;
+
+        		random[k] = true;
+                bat_or_not = 1 - bat_or_not;
+            }
+        }
+    }
 
   return true;
 }

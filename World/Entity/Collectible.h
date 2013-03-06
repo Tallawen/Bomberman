@@ -16,6 +16,8 @@ private:
 
 	EntityType type;
 
+	sf::Clock timer;
+
 public:
 	Collectible(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate);
 	~Collectible() { }

@@ -11,6 +11,9 @@ public:
 		box,
 		exit,
 		door,
+		bat,
+		death,
+		zombi,
 		characters
 	};
 
@@ -25,6 +28,9 @@ private:
 	int boxAmount;
 
 	int availableStone;
+
+	std::vector<int> emptyField;
+
 public:
 	MapGen();
 	MapGen(int _width, int _height);
@@ -33,10 +39,11 @@ public:
 
 	void setSize(int _width, int _height);
 
-	bool generate(int amount);
+	bool generate(int amount, int lvl);
 	void reset();
 
 	ElementType* getMap();
+	std::vector<int> getEmptyField() { return emptyField; }
 
 private:
 

@@ -12,6 +12,14 @@ private:
 
 	float lifeTime;
 
+	float oTTmp;
+	float offsetTime;
+	float offsetDistance;
+
+	float blinkingTime;
+
+	std::string filename;
+
 public:
 	Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_entitiesToCreate);
 	~Bomb();
@@ -23,8 +31,15 @@ public:
 
 	Player* getPlayerPtr() { return playerPtr; }
 
+	void move(float _time, float _distance);
+
 private:
+	void move(float dt);
+	void blinking(float dt);
+
 	void explosion();
+
+
 
 };
 
