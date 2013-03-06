@@ -26,8 +26,8 @@ Game::Game() : input(Window::instance()->getRW()->GetInput()) {
 	world = nullptr;
 	players.clear();
 
-	play = true;
-	end = false;
+	playingLevel = true;
+	gameEnded = false;
 
 	level = 0;
 
@@ -37,6 +37,18 @@ Game::Game() : input(Window::instance()->getRW()->GetInput()) {
 	movePtr[3] = &Entity::goDown;
 
 	throwHp = false;
+
+	// TODO: put it in a better place, preferably somewhere else entirely
+	endWindow_KeyPress = // lambda
+		[](sf::Event &event, sf::Key::Code &result, bool &done)->void {
+			if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::R) { // Restart
+				result = sf::Key::R;
+				done = true;
+			} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Q) { // Quit
+				result = sf::Key::Q;
+				done = true;
+			}
+		};
 }
 
 Game::~Game() {
@@ -91,10 +103,10 @@ void Game::init(GameType _type) {
 }
 
 void Game::game() {
-	end = false;
+	gameEnded = false;
 
-	while(!end) {
-		play = true;
+	while(!gameEnded) {
+		playingLevel = true;
 
 		++level;
 
@@ -113,23 +125,29 @@ void Game::game() {
 		else
 			world->loadWorld(this, 2, level);
 
-		while(play) {
+		while(playingLevel) {
 			changeMusic();
 
 			while(Window::instance()->getRW()->GetEvent(event)) {
 				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
-					music[musicId]->Pause();
+					float old_volume = music[musicId]->GetVolume();
+					music[musicId]->SetVolume(old_volume*0.1);
+//					music[musicId]->Pause();
 
 					bool done = false;
 
 					while(!done) {
-						sf::Key::Code code = pauseMenu();
+						sf::Key::Code code = windowPauseMenu();
 
-						if(code == sf::Key::Q)
-							done = end = !(play = false);
+						if(code == sf::Key::Q) {
+							playingLevel = false;
+							done = gameEnded = true;
+						}
 
-						else if(code == sf::Key::R)
-							done = !(play = false);
+						else if(code == sf::Key::R){
+							playingLevel = false;
+							done = gameEnded = true;
+						}
 
 						else if(code == sf::Key::H) {
 							Window::instance()->getRW()->Clear();
@@ -140,13 +158,14 @@ void Game::game() {
 							Window::instance()->getRW()->Display();
 							Window::instance()->getRW()->Display(); // 2nd is required, due to witchcraft
 
-							helpWindow();
+							windowHelp();
 
 						} else if(code == sf::Key::Escape)
 							done = true;
 					}
 
-					music[musicId]->Play();
+//					music[musicId]->Play();
+					music[musicId]->SetVolume(old_volume);
 					clock.Reset();
 				}
 
@@ -207,15 +226,23 @@ void Game::game() {
 			world->removeAndAddEntities();
 
 			if(type == GameType::oneVsBot && !players.at(0)->isAlive()) {
-				end = !(play = false);
+				// TODO: GAME OVER screen here
+				playingLevel = false;
+				gameEnded = windowGameOver_1vBot();
 
 			} else if(type == GameType::twoVsBot || type == GameType::oneVsOne) {
-				if(!players.at(0)->isAlive() || !players.at(1)->isAlive()) {
-					end = !(play = false);
 
-					if(type == GameType::oneVsOne)
-						end = winWindow(!players.at(0)->isAlive() ? 1 : 0);
+				if(!players.at(0)->isAlive() || !players.at(1)->isAlive()) {
+					// TODO: GAME OVER screen here
+					playingLevel = false;
+					if(type == GameType::oneVsOne) {
+						gameEnded = windowGameOver_1v1(!players.at(0)->isAlive() ? 1 : 0);
+					}
+					else {
+						gameEnded = windowGameOver_2vBot(!players.at(0)->isAlive() ? 1 : 0);
+					}
 				}
+
 			}
 		}
 	}
@@ -270,6 +297,7 @@ void inline Game::addUI(UI &ui) {
 	ui.add(new Scores(   players.at(0), sf::Vector2f(Constants::UI::Scores::X,    Constants::UI::Scores::Y + 10)));
 
 	/** Gracz 2 **/
+	//TODO: Set up constants for second UI
 	if(type == GameType::oneVsOne || type == GameType::twoVsBot) {
 		ui.add(new Avatar(                  sf::Vector2f(Window::instance()->getWidth() - 280 - Constants::UI::Avatar::X, Constants::UI::Avatar::Y), true));
 		ui.add(new HealthBar(players.at(1), sf::Vector2f(Window::instance()->getWidth() - 210 - Constants::UI::Avatar::X, Constants::UI::HealthBar::Y)));
@@ -420,10 +448,16 @@ void Game::playerJoyControl(sf::Event &event) {
 
 void Game::playerControlRealtime() {
 	if(players.size() > 0) {
-		playerControl(0, 180, players.at(0), Entity::EntityState::goDown);
-		playerControl(0, 0,   players.at(0), Entity::EntityState::goTop);
-		playerControl(0, 90,  players.at(0), Entity::EntityState::goRight);
-		playerControl(0, 270, players.at(0), Entity::EntityState::goLeft);
+		//NOTE: PS3 - Controller
+//		playerControl(0, 180, players.at(0), Entity::EntityState::goDown);
+//		playerControl(0, 0,   players.at(0), Entity::EntityState::goTop);
+//		playerControl(0, 90,  players.at(0), Entity::EntityState::goRight);
+//		playerControl(0, 270, players.at(0), Entity::EntityState::goLeft);
+		//NOTE: Keyboard
+		playerControl(sf::Key::Down,  players.at(0), Entity::EntityState::goDown);
+		playerControl(sf::Key::Up,    players.at(0), Entity::EntityState::goTop);
+		playerControl(sf::Key::Right, players.at(0), Entity::EntityState::goRight);
+		playerControl(sf::Key::Left,  players.at(0), Entity::EntityState::goLeft);
 
 	}
 	if(players.size() > 1) {
@@ -635,7 +669,7 @@ void Game::checkEntityEntityCollisions(float dt) { // sprawdzenie ka¿dej pary (k
 /***********************************************************************************
  Game :: methods :: sub-window
  *********************/
-sf::Key::Code Game::pauseMenu() {
+sf::Key::Code Game::windowPauseMenu() {
 	SubWindow sW;
 
 	sW.init(300, 300, (Window::instance()->getWidth() - 300) / 2, (Window::instance()->getHeight() - 300) / 2);
@@ -676,7 +710,7 @@ sf::Key::Code Game::pauseMenu() {
   return result;
 }
 
-void Game::helpWindow() {
+void Game::windowHelp() {
 	SubWindow sW;
 
 	sW.init(490, 390, (Window::instance()->getWidth() - 490) / 2, (Window::instance()->getHeight() - 390) / 2);
@@ -708,32 +742,59 @@ void Game::helpWindow() {
 	});
 }
 
-bool Game::winWindow(int playerId) {
+bool Game::windowGameOver_1v1(int winner) {
 	SubWindow sW;
+	int width = 400;
+	int height = 400;
+	sW.init(width, height,
+		(Window::instance()->getWidth() - width) / 2,
+		(Window::instance()->getHeight() - height) / 2
+	);
 
-	sW.init(600, 100, (Window::instance()->getWidth() - 600) / 2, (Window::instance()->getHeight() - 200));
+	sW.add(SpriteManager::instance()->getSprite("endscreen.1v1"),
+			sf::Vector2i(0, height));
 
-	 std::string filename = playerId == 0 ? "text.white_player_win" : "text.black_player_win";
-	sW.add(SpriteManager::instance()->getSprite(filename), sf::Vector2i((600-193)/2, 30));
+	// Who is the winner - show avatar
+	std::string winnerAvatar = winner == 0 ? "ui.white_avatar" : "ui.black_avatar";
+	sW.add(SpriteManager::instance()->getSprite(winnerAvatar), sf::Vector2i(255, 316));
 
-	sW.add(SpriteManager::instance()->getSprite("button.q"),   sf::Vector2i(100, 90));
-	sW.add(SpriteManager::instance()->getSprite("button.r"),   sf::Vector2i(200, 90));
-
-	sW.add(SpriteManager::instance()->getSprite("text.exit_to_main_menu"), sf::Vector2i(120, 245));
-	sW.add(SpriteManager::instance()->getSprite("text.resume"),            sf::Vector2i(120,  64));
+	// Scores
 
 	sW.setTransitionEffect(0.5f);
+	sf::Key::Code result = sW.show(endWindow_KeyPress); // Catch key presses
+	return (result == sf::Key::Q); // Exits to main menu
+}
 
-	sf::Key::Code result = sW.show([](sf::Event &event, sf::Key::Code &result, bool &done)->void {
-		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num1) {
-			result = sf::Key::Num1;
-			done = true;
+bool Game::windowGameOver_1vBot() {
+	SubWindow sW;
+	int width = 400;
+	int height = 400;
+	sW.init(width, height,
+		(Window::instance()->getWidth() - width) / 2,
+		(Window::instance()->getHeight() - height) / 2
+	);
 
-		} else if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Num2) {
-			result = sf::Key::Num2;
-			done = true;
-		}
-	});
+	// TODO: Add window graphic
+	// sW.add(SpriteManager::instance()->getSprite("endscreen.1v1"), sf::Vector2i(0, height));
 
-  return result == sf::Key::Num1 ? true : false;
+	sW.setTransitionEffect(0.5f);
+	sf::Key::Code result = sW.show(endWindow_KeyPress);
+	return (result == sf::Key::Q); // Exits to main menu
+}
+
+bool Game::windowGameOver_2vBot(int survivor) {
+	SubWindow sW;
+	int width = 400;
+	int height = 400;
+	sW.init(width, height,
+		(Window::instance()->getWidth() - width) / 2,
+		(Window::instance()->getHeight() - height) / 2
+	);
+
+	// TODO: Add window graphic
+	// sW.add(SpriteManager::instance()->getSprite("endscreen.1v1"), sf::Vector2i(0, height));
+
+	sW.setTransitionEffect(0.5f);
+	sf::Key::Code result = sW.show(endWindow_KeyPress);
+	return (result == sf::Key::Q); // Exits to main menu
 }

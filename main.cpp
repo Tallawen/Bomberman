@@ -54,7 +54,6 @@ int main() {
 
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_zombie_down.png",  true);
 
-
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_black.png", true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_zombie.png", true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death.png", true);
@@ -88,7 +87,6 @@ int main() {
 
 	SpriteManager::instance()->insertTexture("Data/gfx/text/text_win_white.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/text/text_win_black.png");
-
 
 	/* Load Sprite */
 	SpriteManager::instance()->insertSprite("main_menu.background", "main_menu_background", 456, 456, 0,  0);
@@ -209,6 +207,10 @@ int main() {
 	SoundManager::registerMusic("Data/audio/game_1.ogg", "game.ff");
 	SoundManager::registerMusic("Data/audio/game_2.ogg", "game.ffs");
 	SoundManager::registerMusic("Data/audio/game_3.ogg", "game.ffd");
+
+	/// MOCKUPS HERE FOR 1v1 ENDING SCREEN
+	SpriteManager::instance()->insertTexture("Data/gfx/1v1_win.png");
+	SpriteManager::instance()->insertSprite("endscreen.1v1", "1v1_win", 400, 400, 0, 0);
 
 	Menu menu;
 

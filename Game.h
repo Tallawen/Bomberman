@@ -25,8 +25,8 @@ public:
 
 	std::vector<Player*> players;
 
-	bool play;
-	bool end;
+	bool playingLevel;
+	bool gameEnded;
 
 private:
 	int level;
@@ -88,21 +88,27 @@ private:
 	 * Wywouje sub-onko (menu)
 	 * @return kod wcisnietego klawisza
 	 */
-	sf::Key::Code pauseMenu();
+	sf::Key::Code windowPauseMenu();
 
 	/**
 	 * Wywoluje sub-okno z informacjami o sterowaniu
 	 */
-	void helpWindow();
+	void windowHelp();
 
 	/**
 	 * Wywo³uje sub-okno z informacja kto wygral
-	 * @param playerId id gracza ktory wygral
+	 * @param winner id gracza ktory wygral
 	 *
 	 * @retval false jesli gracz chce zrestartowac gre
 	 * @retval true jesli gracz chce wyjsc do glownego menu
 	 **/
-	bool winWindow(int playerId);
+	bool windowGameOver_1v1(int winner);
+	bool windowGameOver_1vBot();
+	bool windowGameOver_2vBot(int survivor);
+
+	std::function<void (sf::Event &, enum sf::Key::Code &, bool &)> endWindow_KeyPress;
+
+//	void endWindow_KeyPress(sf::Event &event, sf::Key::Code &result, bool &done);
 };
 
 #endif /*__GAME_H__*/
