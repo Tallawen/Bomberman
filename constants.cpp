@@ -40,6 +40,7 @@ namespace Constants {
     namespace Explosion {
 
         ConstInt LENGTH("explosion.length", 2);
+        ConstInt MAX_LENGTH("explosion.max_length", 8);
         ConstNum DELAY("explosion.delay", 0.1f);
 
     }

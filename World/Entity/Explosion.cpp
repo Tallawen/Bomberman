@@ -92,6 +92,8 @@ void Explosion::setDelay(float delay) {
 }
 
 void Explosion::create(int _id) {
+	if(explosionLength - 1 <= 0) return;
+
 	Explosion *newExplosion = nullptr;
 
 	newExplosion = new Explosion(nextPosition[_id], playerPtr, entitiesToCreate, Directions(_id), delay + Constants::Explosion::DELAY, explosionLength - 1);

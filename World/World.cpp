@@ -5,6 +5,7 @@
 #include "Entity/Stone.h"
 #include "Entity/Box.h"
 #include "Entity/Bat.h"
+#include "Entity/Glimmer.h"
 #include "Entity/Death.h"
 #include "Entity/Manhole.h"
 
@@ -122,8 +123,8 @@ void World::loadWorld(Game *gamePtr, unsigned int id, int level) {
 		it = entities.erase(it);
 	}
 
-	if(id == 1) map.generate(1, level);
-	else map.generate(2, level);
+	if(id == 1) map.generate(1, 1 /*level*/);
+	else map.generate(2, 1 /*level*/);
 
 	floorStartPos.x = 0;
 	floorStartPos.y = 150;
@@ -162,6 +163,10 @@ void World::loadWorld(Game *gamePtr, unsigned int id, int level) {
 
 			   case MapGen::ElementType::death:
 				   entities.push_back( new Death(sf::Vector2f(x*50+2, y*50-2 + 150), &entitiesToCreate));
+				 break;
+
+			   case MapGen::ElementType::zombi:
+				   entities.push_back( new Glimmer(sf::Vector2f(x*50+2, y*50-2 + 150), &entitiesToCreate));
 				 break;
 
 			    default:

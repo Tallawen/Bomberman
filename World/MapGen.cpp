@@ -131,7 +131,7 @@ bool MapGen::generate(int amount, int lvl) {
     	int a = q.front(); q.pop();
     	int b = q.front(); q.pop();
 
-	    if(available_move >= radius && tab[a][b] == ElementType::empty)
+	    if(tab[a][b] == ElementType::empty)
 	    	emptyField.push_back((a-1) * width + (b-1)); //dodaje pola na ktorych potem moga byc wylosowani przeciwnicy
 
 	    if(tab[a][b] == ElementType::stone) ++availableStone;
@@ -188,7 +188,7 @@ bool MapGen::generate(int amount, int lvl) {
 	for(x = 0 ; x < emptyField.size() ; ++x)
 		random[x] = false;
 
-	int enemyAmount = sf::Randomizer::Random(10, lvl * emptyField.size() / 25); //tu trzeba ewentualnie zmienic, jak bedzie losowalo za malo - duzo przecinikow
+	int enemyAmount = sf::Randomizer::Random(10, lvl * emptyField.size() / 100); //tu trzeba ewentualnie zmienic, jak bedzie losowalo za malo - duzo przecinikow
 	int bat_or_not = 1; //polowa to bat polowa nie
 
 	if(lvl <= 5) {

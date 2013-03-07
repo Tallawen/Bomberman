@@ -51,6 +51,7 @@ namespace Constants {
     namespace Explosion {
 
         extern ConstInt LENGTH;
+        extern ConstInt MAX_LENGTH;
         extern ConstNum DELAY;
 
     }

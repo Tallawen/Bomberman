@@ -117,6 +117,8 @@ void Game::game() {
 			changeMusic();
 
 			while(Window::instance()->getRW()->GetEvent(event)) {
+				if(event.Type == sf::Event::JoyButtonPressed) std::cout << event.JoyButton.Button << std::endl;
+
 				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Escape) {
 					music[musicId]->Pause();
 
@@ -153,29 +155,7 @@ void Game::game() {
 				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Z)
 					Window::instance()->showHitbox = !Window::instance()->showHitbox;
 
-				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::O)
-					world->manhole->open();
-
-				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::C)
-					world->manhole->close();
-
-				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::B) {
-					players.at(1)->putBomb();
-
-					static_cast<Bomb*> (world->entitiesToCreate.back())->move(2.0f, 0);
-
-				}
-
-				if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::R) {
-					raid();
-
-
-				}
-
-
-
-				playerKeyboardControl(event);
-				//playerJoyControl(event);
+				playerControl(event, clock);
 
 				Window::instance()->process(event);
 			}
@@ -185,13 +165,9 @@ void Game::game() {
 			float dt = clock.GetElapsedTime();
 			clock.Reset();
 
-			if(bonusTime.GetElapsedTime() > 5.0f) {
-				throwCollectible(
-						toPos( sf::Randomizer::Random(0, world->emptyField.size()-1)), true
-						);
+			if(bonusTime.GetElapsedTime() > 3.0f) {
+				throwCollectible(idToPosition( sf::Randomizer::Random(0, world->emptyField.size()-1)), true);
 				bonusTime.Reset();
-
-				LOG("restart");
 			}
 
 			world->draw(dt);
@@ -221,7 +197,7 @@ void Game::game() {
 	}
 }
 
-sf::Vector2f Game::toPos(int id) {
+sf::Vector2f Game::idToPosition(int id) {
 		return sf::Vector2f(50 * (world->emptyField.at(id) % world->mapDimensions.x), 50 * (world->emptyField.at(id) / world->mapDimensions.x) + 150);
 	}
 
@@ -249,7 +225,7 @@ void Game::throwCollectible(sf::Vector2f position, bool ignore) {
 			sf::Vector2f offset;
 			HealthBonus::Amount amount;
 
-			switch(sf::Randomizer::Random(0, 3)) {
+			switch(sf::Randomizer::Random(0, 1)) {
 			    case 0: offset = sf::Vector2f(12, -5);  amount = HealthBonus::Amount::minusone;  break;
 			    case 1: offset = sf::Vector2f(12, -5);  amount = HealthBonus::Amount::one;       break;
 			    case 2: offset = sf::Vector2f( 6, -5);  amount = HealthBonus::Amount::many;      break;
@@ -301,160 +277,196 @@ void inline Game::changeMusic() {
 	}
 }
 
-void inline Game::playerControl(sf::Key::Code keyCode, Player* player, Entity::EntityState state) {
-	if(!player->lockMovement) {
-		void (Player::*ptrFun)() = nullptr;
-		void (Player::*ptrNegFun)() = nullptr;
-
-		switch(state) {
-		    case Entity::EntityState::goRight:
-		    	ptrFun = &Player::goRight;
-		    	ptrNegFun = &Player::stopRight;
-		      break;
-
-		    case Entity::EntityState::goLeft:
-		    	ptrFun = &Player::goLeft;
-		    	ptrNegFun = &Player::stopLeft;
-		      break;
-
-		    case Entity::EntityState::goTop:
-		    	ptrFun = &Player::goTop;
-		    	ptrNegFun = &Player::stopTop;
-		      break;
-
-		    case Entity::EntityState::goDown:
-		    	ptrFun = &Player::goDown;
-		    	ptrNegFun = &Player::stopDown;
-		      break;
-
-		    default:
-		      break;
-		}
-
-		if(input.IsKeyDown(keyCode)) {
-			if(!player->lockKey) {
-				(player->*ptrFun)();
-				player->lockKey = true;
-			}
-		} else if(player->getState() == state && player->lockKey) {
-			(player->*ptrNegFun)();
-			player->lockKey = false;
-		}
-	}
-}
-
-void inline Game::playerControl(int i, int j, Player* player, Entity::EntityState state) {
-	if(!player->lockMovement) {
-		void (Player::*ptrFun)() = nullptr;
-		void (Player::*ptrNegFun)() = nullptr;
-
-		switch(state) {
-		    case Entity::EntityState::goRight:
-		    	ptrFun = &Player::goRight;
-		    	ptrNegFun = &Player::stopRight;
-		      break;
-
-		    case Entity::EntityState::goLeft:
-		    	ptrFun = &Player::goLeft;
-		    	ptrNegFun = &Player::stopLeft;
-		      break;
-
-		    case Entity::EntityState::goTop:
-		    	ptrFun = &Player::goTop;
-		    	ptrNegFun = &Player::stopTop;
-		      break;
-
-		    case Entity::EntityState::goDown:
-		    	ptrFun = &Player::goDown;
-		    	ptrNegFun = &Player::stopDown;
-		      break;
-
-		    default:
-		      break;
-		}
-
-		if(input.GetJoystickAxis(i , sf::Joy::AxisPOV) == j) {
-			if(!player->lockKey) {
-				(player->*ptrFun)();
-				player->lockKey = true;
-			}
-		} else if(player->getState() == state && player->lockKey) {
-			(player->*ptrNegFun)();
-			player->lockKey = false;
-		}
-	}
-}
-
-void Game::playerKeyboardControl(sf::Event &event) {
-	if(players.size() > 0 && !players.at(0)->lockMovement) {
-
-		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::Space)
-			players.at(0)->goingToCenter();
-
-	}
-
-	if(players.size() > 1 && !players.at(1)->lockMovement) {
-
-		if(event.Type == sf::Event::KeyPressed && event.Key.Code == sf::Key::LShift)
-			players.at(1)->goingToCenter();
-
-	}
-}
-
-void Game::playerJoyControl(sf::Event &event) {
-	if(players.size() > 0 && !players.at(0)->lockMovement) {
-
-		if(event.Type == sf::Event::JoyButtonPressed && event.JoyButton.JoystickId == 0 && event.JoyButton.Button == 0)
-			players.at(0)->goingToCenter();
-
-	}
-
-	if(players.size() > 1 && !players.at(1)->lockMovement) {
-
-		if(event.Type == sf::Event::JoyButtonPressed && event.JoyButton.JoystickId == 1 && event.JoyButton.Button == 0)
-			players.at(1)->goingToCenter();
-
-	}
-}
-
-
-void Game::playerControlRealtime() {
-	if(players.size() > 0) {
-		playerControl(0, 180, players.at(0), Entity::EntityState::goDown);
-		playerControl(0, 0,   players.at(0), Entity::EntityState::goTop);
-		playerControl(0, 90,  players.at(0), Entity::EntityState::goRight);
-		playerControl(0, 270, players.at(0), Entity::EntityState::goLeft);
-
-	}
-	if(players.size() > 1) {
-		playerControl(sf::Key::S, players.at(1), Entity::EntityState::goDown);
-		playerControl(sf::Key::W, players.at(1), Entity::EntityState::goTop);
-		playerControl(sf::Key::D, players.at(1), Entity::EntityState::goRight);
-		playerControl(sf::Key::A, players.at(1), Entity::EntityState::goLeft);
-	}
-
-}
-
-void Game::raid() {
+void Game::raid(int playerId) {
 	int amount = sf::Randomizer::Random(2, 5);
-	int id, x, y;
+	int id;
 
 	while(amount--) {
 		id = sf::Randomizer::Random(0, world->emptyField.size() - 1);
-		y = world->floorData.dimensions.y * (world->emptyField.at(id) / world->mapDimensions.x) + 150 - 20;
-		x = world->floorData.dimensions.x * (world->emptyField.at(id) % world->mapDimensions.x) + 12;
 
-		Bomb *bomb = new Bomb(sf::Vector2f(x, y), players.at(1), &world->entitiesToCreate);
-		bomb->move(sf::Randomizer::Random(1.5f, 2.0f), 0);
+		players.at(1)->setBombAmount( players.at(1)->getBombAmount() + 1 );
+
+		Bomb *bomb = new Bomb(idToPosition(id) + sf::Vector2f(12, -20), players.at(playerId), &world->entitiesToCreate);
+		bomb->move(1.0f, 0);
 
 		world->entitiesToCreate.push(bomb);
+	}
+
+	SoundManager::playSound("bomb.bombard", 100.0f);
+}
+
+
+void Game::dativeOn(sf::Event &event, int playerId) {
+	int id = 0;
+	bool done = false;
+
+	std::sort(world->emptyField.begin(), world->emptyField.end());
+
+	sf::Sprite dative = SpriteManager::instance()->getSprite("game.dative");
+	SpriteData sd = SpriteManager::instance()->getSpriteData("game.dative");
+
+	sf::Image newBackgroundImg = Window::instance()->getRW()->Capture();
+    newBackgroundImg.SetSmooth(false);
+
+	sf::Sprite background(newBackgroundImg);
+
+	dative.SetPosition(idToPosition(id));
+
+	while(!done) {
+		while(Window::instance()->getRW()->GetEvent(event)) {
+
+			if( ((keyPressed(event, sf::Key::Right) || buttonPressed(event, PS3Joystic::first,  PS3Move::right)) && playerId == 0) ||
+			    ((keyPressed(event, sf::Key::D)     || buttonPressed(event, PS3Joystic::second, PS3Move::right)) && playerId == 1)) {
+
+				if(id + 1 < world->emptyField.size())
+					dative.SetPosition(idToPosition(++id));
+			}
+
+			if( ((keyPressed(event, sf::Key::Left) || buttonPressed(event, PS3Joystic::first,  PS3Move::left)) && playerId == 0) ||
+			    ((keyPressed(event, sf::Key::A)    || buttonPressed(event, PS3Joystic::second, PS3Move::left)) && playerId == 1)) {
+
+				if(id - 1 >= 0)
+					dative.SetPosition(idToPosition(--id));
+			}
+
+			if( ((keyPressed(event, sf::Key::Space)  || buttonPressed(event, PS3Joystic::first,  PS3Button::cross)) && playerId == 0) ||
+			    ((keyPressed(event, sf::Key::LShift) || buttonPressed(event, PS3Joystic::second, PS3Button::cross)) && playerId == 1)) {
+
+				Bomb *bomb = new Bomb(idToPosition(id) + sf::Vector2f(12, -20), players.at(playerId), &world->entitiesToCreate);
+				bomb->move(1.0f, 0);
+
+				world->entitiesToCreate.push(bomb);
+
+				done = true;
+
+				SoundManager::playSound("bomb.bombard", 100.0f);
+			}
+
+			if( ((keyPressed(event, sf::Key::RAlt) || buttonPressed(event, PS3Joystic::first,  PS3Button::R1)) && playerId == 0) ||
+			    ((keyPressed(event, sf::Key::LAlt) || buttonPressed(event, PS3Joystic::second, PS3Button::R1)) && playerId == 1)) {
+
+				done = true;
+			}
+
+			Window::instance()->process(event);
+		}
+
+		Window::instance()->getRW()->Clear();
+
+		Window::instance()->getRW()->Draw(background);
+		Window::instance()->getRW()->Draw(dative);
+
+		Window::instance()->getRW()->Display();
+	}
+}
+
+/***********************************************************************************
+ Game :: methods :: control
+ *********************/
+bool inline Game::keyPressed(sf::Event &event, sf::Key::Code keyCode) {
+  return event.Type == sf::Event::KeyPressed && event.Key.Code == keyCode;
+}
+
+bool inline Game::buttonPressed(sf::Event &event, PS3Joystic joystic, PS3Button button) {
+  return event.Type == sf::Event::JoyButtonPressed && event.JoyButton.JoystickId == int(joystic) && event.JoyButton.Button == int(button);
+}
+
+bool inline Game::buttonPressed(sf::Event &event, PS3Joystic joystic, PS3Move move) {
+  return event.Type == sf::Event::JoyMoved && event.JoyMove.JoystickId == int(joystic) && event.JoyMove.Axis == sf::Joy::AxisPOV && event.JoyMove.Position == int(move);
+}
+
+void Game::playerControlRealtime() {
+	if(players.size() > 0) {
+		playerControl(sf::Key::Down,  PS3Joystic::first, PS3Move::down,  players.at(0), Entity::EntityState::goDown);
+		playerControl(sf::Key::Up,    PS3Joystic::first, PS3Move::top,   players.at(0), Entity::EntityState::goTop);
+		playerControl(sf::Key::Right, PS3Joystic::first, PS3Move::right, players.at(0), Entity::EntityState::goRight);
+		playerControl(sf::Key::Left,  PS3Joystic::first, PS3Move::left,  players.at(0), Entity::EntityState::goLeft);;
+	}
+
+	if(players.size() > 1) {
+		playerControl(sf::Key::S, PS3Joystic::second, PS3Move::down,  players.at(1), Entity::EntityState::goDown);
+		playerControl(sf::Key::W, PS3Joystic::second, PS3Move::top,   players.at(1), Entity::EntityState::goTop);
+		playerControl(sf::Key::D, PS3Joystic::second, PS3Move::right, players.at(1), Entity::EntityState::goRight);
+		playerControl(sf::Key::A, PS3Joystic::second, PS3Move::left,  players.at(1), Entity::EntityState::goLeft);;
+	}
+
+}
+
+void Game::playerControl(sf::Event &event, sf::Clock &clock) {
+	if(players.size() > 0 && !players.at(0)->lockMovement) {
+
+		if(keyPressed(event, sf::Key::Space) || buttonPressed(event, PS3Joystic::first, PS3Button::cross))
+			players.at(0)->goingToCenter();
+
+		if(keyPressed(event, sf::Key::RControl) || buttonPressed(event, PS3Joystic::first, PS3Button::L1))
+			raid(0);
+
+		if(keyPressed(event, sf::Key::RAlt) || buttonPressed(event, PS3Joystic::first, PS3Button::R1)) {
+			dativeOn(event, 0);
+			clock.Reset();
+		}
+	}
+
+	if(players.size() > 1 && !players.at(1)->lockMovement) {
+
+		if(keyPressed(event, sf::Key::LShift) || buttonPressed(event, PS3Joystic::second, PS3Button::cross))
+			players.at(1)->goingToCenter();
+
+		if(keyPressed(event, sf::Key::LControl) || buttonPressed(event, PS3Joystic::second, PS3Button::L1))
+			raid(1);
+
+		if(keyPressed(event, sf::Key::LAlt) || buttonPressed(event, PS3Joystic::second, PS3Button::R1)) {
+			dativeOn(event, 1);
+			clock.Reset();
+		}
+	}
+}
+
+void inline Game::playerControl(sf::Key::Code keyCode, PS3Joystic ps3JoysticId, PS3Move ps3Move, Player* player, Entity::EntityState state) {
+	if(!player->lockMovement) {
+		void (Player::*ptrFun)() = nullptr;
+		void (Player::*ptrNegFun)() = nullptr;
+
+		switch(state) {
+		    case Entity::EntityState::goRight:
+		    	ptrFun = &Player::goRight;
+		    	ptrNegFun = &Player::stopRight;
+		      break;
+
+		    case Entity::EntityState::goLeft:
+		    	ptrFun = &Player::goLeft;
+		    	ptrNegFun = &Player::stopLeft;
+		      break;
+
+		    case Entity::EntityState::goTop:
+		    	ptrFun = &Player::goTop;
+		    	ptrNegFun = &Player::stopTop;
+		      break;
+
+		    case Entity::EntityState::goDown:
+		    	ptrFun = &Player::goDown;
+		    	ptrNegFun = &Player::stopDown;
+		      break;
+
+		    default:
+		      break;
+		}
+
+		if(input.IsKeyDown(keyCode) || input.GetJoystickAxis(int(ps3JoysticId), sf::Joy::AxisPOV) == float(ps3Move)) {
+			if(!player->lockKey) {
+				(player->*ptrFun)();
+				player->lockKey = true;
+			}
+		} else if(player->getState() == state && player->lockKey) {
+			(player->*ptrNegFun)();
+			player->lockKey = false;
+		}
 	}
 }
 
 /***********************************************************************************
  Game :: methods :: collision
  *********************/
-
 void Game::checkCollisionOfOnePair(
                Entity *entityFirst, Entity::EntityType firstType,
                Entity *entitySecond, Entity::EntityType secondType, float dt) {
@@ -485,30 +497,31 @@ void Game::checkCollisionOfOnePair(
 
         SWAP_IF(Entity::EntityType::stone, Entity::EntityType::explosion);
         SWAP_IF(Entity::EntityType::box, Entity::EntityType::explosion);
+        SWAP_IF(Entity::EntityType::bomb, Entity::EntityType::explosion);
 
         if(firstType == Entity::EntityType::enemy && (secondType == Entity::EntityType::stone || secondType == Entity::EntityType::box)) {
         	if(entityFirst->getState() == Entity::EntityState::goDown) {
-        		float newY = entitySecond->getY() - 50.0f - 0.5f;
+//        		float newY = entitySecond->getY() - 50.0f - 0.5f;
 
-        		entityFirst->setPosition(entityFirst->getX(), newY);
+  //      		entityFirst->setPosition(entityFirst->getX(), newY);
         		entityFirst->stopDown();
 
         	} else if(entityFirst->getState() == Entity::EntityState::goTop) {
-        		float newY = entitySecond->getY() + entityFirst->getSpriteDate().dimensions.y + 0.5f;
+  //      		float newY = entitySecond->getY() + entityFirst->getSpriteDate().dimensions.y + 0.5f;
 
-        		entityFirst->setPosition(entityFirst->getX(), newY);
+//        		entityFirst->setPosition(entityFirst->getX(), newY);
         		entityFirst->stopTop();
 
         	} else if(entityFirst->getState() == Entity::EntityState::goLeft) {
-        		float newX = entitySecond->getX() + 50 + 0.5f;
+      //  		float newX = entitySecond->getX() + 50 + 0.5f;
 
-        		entityFirst->setPosition(newX, entityFirst->getY());
+    //    		entityFirst->setPosition(newX, entityFirst->getY());
         		entityFirst->stopLeft();
 
         	} else if(entityFirst->getState() == Entity::EntityState::goRight) {
-        		float newX = entitySecond->getX() - entityFirst->getSpriteDate().dimensions.x - 0.5f;
+//        		float newX = entitySecond->getX() - entityFirst->getSpriteDate().dimensions.x - 0.5f;
 
-        		entityFirst->setPosition(newX, entityFirst->getY());
+  //      		entityFirst->setPosition(newX, entityFirst->getY());
         		entityFirst->stopRight();
         	}
 
@@ -541,6 +554,8 @@ void Game::checkCollisionOfOnePair(
         	Player *player = static_cast<Player*> (entityFirst);
         	Collectible *collectible = static_cast<Collectible*> (entitySecond);
 
+        	SoundManager::playSound("bonus.put_up", 30.0f);
+
         	collectible->collect(player);
         	collectible->remove();
         }
@@ -564,10 +579,8 @@ void Game::checkCollisionOfOnePair(
         if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::enemy) {
         	Player *player = static_cast<Player*> (entityFirst);
 
-        	if(!player->isImmortal()) {
+        	if(!player->isImmortal())
         		player->looseLife();
-        		entitySecond->remove();
-        	}
         }
 
         if(firstType == Entity::EntityType::player && secondType == Entity::EntityType::explosion) {
@@ -602,6 +615,11 @@ void Game::checkCollisionOfOnePair(
         	entityFirst->remove();
         }
 
+        if(firstType == Entity::EntityType::explosion && secondType == Entity::EntityType::bomb) {
+        //	static_cast<Bomb*> (entitySecond)->setLifetime(0.0f);
+        	//entityFirst->remove();
+        }
+
         #undef SWAP_IF
 }
 
@@ -630,7 +648,6 @@ void Game::checkEntityEntityCollisions(float dt) { // sprawdzenie ka¿dej pary (k
     	}
     }
 }
-
 
 /***********************************************************************************
  Game :: methods :: sub-window

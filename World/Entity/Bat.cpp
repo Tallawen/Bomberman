@@ -51,8 +51,8 @@ void Bat::draw(float dt) {
 }
 
 void Bat::update(float dt) {
-	if(getNextPosition(dt).x < 0 || getNextPosition(dt).x > Window::instance()->getWidth() - sd.dimensions.x ||
-	   getNextPosition(dt).y < 150 || getNextPosition(dt).y > Window::instance()->getHeight()) {
+	if(getNextPosition(dt).x < 2 || getNextPosition(dt).x > Window::instance()->getWidth() - sd.dimensions.x - 2 ||
+	   getNextPosition(dt).y < 152 || getNextPosition(dt).y > Window::instance()->getHeight() - 2) {
 
 		stopMovement();
 		changeMovement();

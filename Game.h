@@ -19,6 +19,29 @@ public:
 		none
 	};
 
+	enum class PS3Button {
+		triangle = 0,
+		cross = 2,
+		quad = 3,
+		circle = 1,
+		R1 = 7,
+		L1 = 6,
+		start = 9,
+		select = 8
+	};
+
+	enum class PS3Move {
+		top = 0,
+		right = 90,
+		down = 180,
+		left = 270
+	};
+
+	enum class PS3Joystic {
+		first = 0,
+		second = 1
+	};
+
 public:
 	World *world;
 	const sf::Input& input;
@@ -56,16 +79,15 @@ public:
 
 private:
 	/// Eventy wymagajace tylko reakcji na klikniecie
-	void playerJoyControl(sf::Event &event);
-	void playerKeyboardControl(sf::Event &event);
+	void playerControl(sf::Event &event, sf::Clock &clock);
 
 	/// Eventy dzialajace w czasie trzymania klawisza
 	void playerControlRealtime();
 
-	void raid();
+	void inline playerControl(sf::Key::Code keyCode, PS3Joystic ps3JoysticId, PS3Move ps3Move, Player* player, Entity::EntityState state);
 
-	void inline playerControl(sf::Key::Code keyCode, Player* player, Entity::EntityState state);
-	void inline playerControl(int i, int j, Player* player, Entity::EntityState state);
+	void raid(int playerId);
+	void dativeOn(sf::Event &event, int playerId);
 
 	void checkCollisionOfOnePair(
 		     Entity *entityFirst, Entity::EntityType firstType,
@@ -82,7 +104,12 @@ private:
 
 	void inline changeMusic();
 
-	sf::Vector2f toPos(int id);
+	sf::Vector2f idToPosition(int id);
+
+	bool inline keyPressed(sf::Event &event, sf::Key::Code keyCode);
+	bool inline buttonPressed(sf::Event &event, PS3Joystic joystic, PS3Button button);
+	bool inline buttonPressed(sf::Event &event, PS3Joystic joystic, PS3Move move);
+
 
 	/**
 	 * Wywouje sub-onko (menu)

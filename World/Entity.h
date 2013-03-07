@@ -13,7 +13,6 @@ class World;
 
 class Entity {
 public:
-
 	enum class EntityType {
 		none,
 		stone,

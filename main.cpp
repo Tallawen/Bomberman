@@ -52,17 +52,18 @@ int main() {
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death_top.png",   true);
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death_down.png",  true);
 
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_glimmer_left.png",  true);
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_glimmer_right.png", true);
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_glimmer_top.png",   true);
+	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_glimmer_down.png",  true);
+
 	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_zombie_down.png",  true);
-
-
-	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_player_black.png", true);
-	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_zombie.png", true);
-	SpriteManager::instance()->insertTexture("Data/gfx/characters/character_death.png", true);
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_wall.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_ledder.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_door_close.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/game_door_open.png");
+	SpriteManager::instance()->insertTexture("Data/gfx/elements/dative.png");
 
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/gui_health_bar.png");
 	SpriteManager::instance()->insertTexture("Data/gfx/elements/ui_white_avatar.png");
@@ -131,6 +132,8 @@ int main() {
 	SpriteManager::instance()->insertSprite("game.floor_shadow", "game_background",   50,   50, 100, 0);
 	SpriteManager::instance()->insertSprite("game.floor_spots",  "game_background_spots", 3840, 2160,   0, 0);
 
+	SpriteManager::instance()->insertSprite("game.dative",   "dative", 50, 50, 0, 0);
+
 	SpriteManager::instance()->insertSprite("game.box",   "game_background_block", 50, 70, 50, 0);
 	SpriteManager::instance()->insertSprite("game.stone", "game_background_block", 50, 70,  0, 0);
 
@@ -190,6 +193,11 @@ int main() {
 	SpriteManager::instance()->insertSprite("enemy.death_left",  "character_death_left",  48, 46, 0, 0, true, 4);
 	SpriteManager::instance()->insertSprite("enemy.death_right", "character_death_right", 48, 46, 0, 0, true, 4);
 
+	SpriteManager::instance()->insertSprite("enemy.glimmer_left",  "character_glimmer_left",  33, 32, 0, 0, true, 3);
+	SpriteManager::instance()->insertSprite("enemy.glimmer_right", "character_glimmer_right", 33, 32, 0, 0, true, 3);
+	SpriteManager::instance()->insertSprite("enemy.glimmer_top",   "character_glimmer_top",   33, 32, 0, 0, true, 3);
+	SpriteManager::instance()->insertSprite("enemy.glimmer_down",  "character_glimmer_down",  33, 32, 0, 0, true, 3);
+
 	SpriteManager::instance()->insertSprite("enemy.zombie_top",   "character_death_top",   48, 46, 0, 0, true, 4);
 	SpriteManager::instance()->insertSprite("enemy.zombie_down",  "character_zombie_down", 40, 54, 0, 0, true, 3);
 	SpriteManager::instance()->insertSprite("enemy.zombie_left",  "character_death_left",  48, 46, 0, 0, true, 4);
@@ -202,6 +210,10 @@ int main() {
 
 	/* Load sounds */
 	SoundManager::registerSound("Data/audio/Bomb_Explode.ogg", "bomb.explode");
+	SoundManager::registerSound("Data/audio/bonus.ogg", "bonus.put_up");
+	SoundManager::registerSound("Data/audio/bombard.ogg", "bomb.bombard");
+	SoundManager::registerSound("Data/audio/player_hit.ogg", "player.hit");
+	SoundManager::registerSound("Data/audio/bomb_put.ogg", "bomb.put");
 
 	/* Load music */
 	SoundManager::registerMusic("Data/audio/menu_aurora.ogg", "menu.aurora");

@@ -11,6 +11,7 @@ private:
 	Player *playerPtr;
 
 	float lifeTime;
+	int explosionLength;
 
 	float oTTmp;
 	float offsetTime;
@@ -33,14 +34,13 @@ public:
 
 	void move(float _time, float _distance);
 
+	void setLifetime(float lf);
+
 private:
 	void move(float dt);
 	void blinking(float dt);
 
 	void explosion();
-
-
-
 };
 
 #endif /*__BRACKET_H__*/

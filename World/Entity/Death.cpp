@@ -1,6 +1,6 @@
 #include "Death.h"
 
-Death::Death(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 50, 50, _entitiesToCreate) {
+Death::Death(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 90, 90, _entitiesToCreate) {
 	layer = EntityLayer::layer_background4;
 
 	sd = SpriteManager::instance()->getSpriteData("enemy.death_down");
@@ -18,8 +18,8 @@ Death::Death(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : E
 			SpriteManager::instance()->getSpriteData("enemy.death_top"));
 
 	down = new Animation(
-			SpriteManager::instance()->getSprite("enemy.zombie_down"),
-			SpriteManager::instance()->getSpriteData("enemy.zombie_down"));
+			SpriteManager::instance()->getSprite("enemy.death_down"),
+			SpriteManager::instance()->getSpriteData("enemy.death_down"));
 
 	changeMovement();
 }

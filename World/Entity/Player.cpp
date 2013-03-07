@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include "Bomb.h"
+#include "../../Renderer/SoundManager.h"
 
 Player::Player(sf::Vector2f _position, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 100.0f, 100.0f, _entitiesToCreate) {
 	layer = EntityLayer::layer_background4;
@@ -158,6 +159,8 @@ void Player::draw(float dt) {
 }
 
 void Player::looseLife() {
+	SoundManager::playSound("player.hit", 30.0f);
+
 	--healthAmount;
 	immortal = true;
 	immortalTime = Constants::Player::IMMORTAL_TIME;
@@ -170,6 +173,7 @@ void Player::looseLife() {
 void Player::putBomb() {
 	if(bombAmount - 1 < 0) return;
 
+	SoundManager::playSound("bomb.put", 80.0f);
 	entitiesToCreate->push( new Bomb(position, this, entitiesToCreate));
 }
 
@@ -266,6 +270,8 @@ void Player::going(float dt) {
 }
 
 void Player::goingToCenter() {
+	if(bombAmount <= 0) return;
+
 	int x = position.x / 50;
 	float toX = x * 50 + 12 - position.x;
 
@@ -305,3 +311,13 @@ void Player::setHealthAmount(int targetValue) {
 		healthAmount = targetValue;
 }
 
+void Player::setExplosionLength(int targetValue) {
+	if(targetValue < 0)
+		explosionLength = 1;
+
+	else if(targetValue > Constants::Explosion::MAX_LENGTH) {
+		explosionLength = Constants::Explosion::MAX_LENGTH;
+
+	} else
+		explosionLength = targetValue;
+}

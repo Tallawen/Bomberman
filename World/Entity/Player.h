@@ -9,6 +9,12 @@
 
 class Player : public Entity {
 public:
+	enum class Bonus {
+		raid,
+
+	};
+
+public:
 	bool lockKey; /** Informuje nas ¿e klawisz ruchu jest wcisniety **/
 	bool lockMovement; /** Iformuje nas czy klawisze akcji sa zablokowane **/
 
@@ -78,6 +84,9 @@ public:
    	void going(float dt);
    	void goingToCenter();
 
+   	int getExplosionLength() const { return explosionLength; }
+   	void setExplosionLength(int targetValue);
+
    	Hitbox getHitbox() const {
    		return Hitbox(
    				sf::Vector2f(position.x, position.y) + hitboxOffset,
@@ -89,7 +98,6 @@ public:
 				sf::Vector2f(getNextXPosition(dt), getNextYPosition(dt)) + hitboxOffset,
 				sf::Vector2f(getNextXPosition(dt) + sd.dimensions.x, getNextYPosition(dt) - sd.dimensions.y / 2) + hitboxOffset);
 	}
-
 
    	Hitbox getNextHorizontalHitbox(float dt) const {
    		return Hitbox(

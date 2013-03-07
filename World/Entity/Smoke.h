@@ -17,4 +17,5 @@ public:
 	void draw(float dt);
 	void update(float dt);
 };
+
 #endif /*__SMOKE_H__*/

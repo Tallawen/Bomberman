@@ -26,6 +26,31 @@ public:
 	void stopDown()  { setYVelocity(0); state = EntityState::stand; down->stop();  }
 
 	void stopMovement() { setVelocity(0, 0); state = EntityState::stand; left->stop(); right->stop(); top->stop(); down->stop(); }
+
+
+   	Hitbox getHitbox() const {
+   		return Hitbox(
+   				sf::Vector2f(position.x, position.y) + sf::Vector2f(10, -10),
+   				sf::Vector2f(position.x + sd.dimensions.x, position.y - sd.dimensions.y / 2) + sf::Vector2f(-10, 0));
+   	}
+
+	Hitbox getNextHitbox(float dt) const {
+		return Hitbox(
+				sf::Vector2f(getNextXPosition(dt), getNextYPosition(dt)) + sf::Vector2f(10, -10),
+				sf::Vector2f(getNextXPosition(dt) + sd.dimensions.x, getNextYPosition(dt) - sd.dimensions.y / 2) + sf::Vector2f(-10, 0));
+	}
+
+   	Hitbox getNextHorizontalHitbox(float dt) const {
+   		return Hitbox(
+   				sf::Vector2f(getNextXPosition(dt), position.y) + sf::Vector2f(10, -10),
+   				sf::Vector2f(getNextXPosition(dt) + sd.dimensions.x, position.y - sd.dimensions.y / 2) + sf::Vector2f(-10, 0));
+	}
+
+	Hitbox getNextVerticalHitbox(float dt) const {
+		return Hitbox(
+				sf::Vector2f(position.x, getNextYPosition(dt)) + sf::Vector2f(10, -10),
+				sf::Vector2f(position.x, getNextYPosition(dt) - sd.dimensions.y / 2) + sf::Vector2f(-10, 0));
+	}
 };
 
 #endif /*__BRACKET_H__*/

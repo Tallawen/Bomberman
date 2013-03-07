@@ -7,7 +7,7 @@
 #include "Explosion.h"
 
 Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_entitiesToCreate) : Entity(_position.x, _position.y, 0, 0, _entitiesToCreate) {
-	layer = EntityLayer::layer_background5;
+	layer = EntityLayer::layer_background3;
 
 	playerPtr = _playerPtr;
 
@@ -15,6 +15,9 @@ Bomb::Bomb(sf::Vector2f _position, Player* _playerPtr, std::queue<Entity*> *_ent
 
 	playerPtr->setBombAmount( playerPtr->getBombAmount() - 1 );
 
+	LOG(1);
+	explosionLength = playerPtr->getExplosionLength();
+	LOG(2);
 	lifeTime = Constants::Bomb::LIFE_TIME;
 	blinkingTime = lifeTime / 5;
 
@@ -35,6 +38,12 @@ Bomb::~Bomb() {
 void Bomb::draw(float dt) {
 	Window::instance()->getRW()->Draw(sprite);
 	Window::instance()->drawHitbox(getHitbox(), sf::Color::Yellow);
+}
+
+void Bomb::setLifetime(float lf) {
+	if(lf < 0.0f) return;
+
+	lifeTime = lf;
 }
 
 void Bomb::update(float dt) {
@@ -66,7 +75,8 @@ void Bomb::move(float dt) {
 			offsetTime = 0.0f;
 
 		oTTmp -= dt;
-	}
+	} else
+		layer = EntityLayer::layer_background3;
 }
 
 void Bomb::move(float _time, float _distance) {
@@ -76,6 +86,8 @@ void Bomb::move(float _time, float _distance) {
 	position.y = -10;
 
 	lifeTime = _time + 0.5f;
+
+	layer = EntityLayer::layer_background5;
 }
 
 void Bomb::blinking(float dt) {
@@ -96,7 +108,7 @@ void Bomb::explosion() {
 	SoundManager::playSound("bomb.explode", 30.0f);
 
 	/// Eksplozja w miejscu bomby
-	Explosion *newExplosion      = new Explosion(position + sf::Vector2f( -5,  10), playerPtr, entitiesToCreate, Explosion::Directions::none,  1 * Constants::Explosion::DELAY, 3);
+	Explosion *newExplosion      = new Explosion(position + sf::Vector2f( -5,  10), playerPtr, entitiesToCreate, Explosion::Directions::none,  1 * Constants::Explosion::DELAY, 2);
 	Explosion *newExplosionLeft  = new Explosion(position + sf::Vector2f(-55,  10), playerPtr, entitiesToCreate, Explosion::Directions::left,  2 * Constants::Explosion::DELAY, 2);
 	Explosion *newExplosionRight = new Explosion(position + sf::Vector2f( 45,  10), playerPtr, entitiesToCreate, Explosion::Directions::right, 2 * Constants::Explosion::DELAY, 2);
 	Explosion *newExplosionTop   = new Explosion(position + sf::Vector2f( -5, -40), playerPtr, entitiesToCreate, Explosion::Directions::top,   2 * Constants::Explosion::DELAY, 2);
